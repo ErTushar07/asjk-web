@@ -1099,7 +1099,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   registrationNumber: 'JK/2018/0190361',
   darpanUniqueId: 'JK/2018/0190361',
   leiNumber: '9845008779YC3EE0IE41',
-  taxExemptionNumber80G: 'AACTA8920E/80G/2021-22',
+  taxExemptionNumber80G: 'DEL-AE28396-27022018/9728',
   fcraRegistrationNumber: 'FCRA-083420194',
   registeredAddress: 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025',
   operatingAddress: 'Luragam Tral Pulwama Jammu and Kashmir 192123',

@@ -143,7 +143,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">Income Tax 80G</span>
-            <span className="font-bold text-content-primary">AACTA8920E/80G</span>
+            <span className="font-bold text-content-primary text-[10px] break-all">DEL-AE28396-27022018/9728</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">FCRA Compliance</span>

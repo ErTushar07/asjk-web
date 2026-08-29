@@ -169,6 +169,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         registrationNumber: !parsed.registrationNumber || parsed.registrationNumber.includes('889042') ? 'JK/2018/0190361' : parsed.registrationNumber,
         darpanUniqueId: parsed.darpanUniqueId || 'JK/2018/0190361',
         leiNumber: parsed.leiNumber || '9845008779YC3EE0IE41',
+        taxExemptionNumber80G: !parsed.taxExemptionNumber80G || parsed.taxExemptionNumber80G.includes('AACTA8920E') ? 'DEL-AE28396-27022018/9728' : parsed.taxExemptionNumber80G,
         registeredAddress: !parsed.registeredAddress || parsed.registeredAddress.includes('Srinagar') || parsed.registeredAddress.includes('Foundation Complex') 
           ? 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025' 
           : parsed.registeredAddress,

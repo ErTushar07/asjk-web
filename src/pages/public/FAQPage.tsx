@@ -7,7 +7,7 @@ export const FAQPage: React.FC = () => {
   const faqs = [
     {
       q: 'Is Al Shujaiat Foundation a registered charitable organization?',
-      a: 'Yes. Al Shujaiat Foundation is a legally registered non-profit charitable trust in Jammu & Kashmir and enrolled on NITI Aayog NGO-DARPAN under Unique ID / Registration Number JK/2018/0190361. Donations are recognized under Section 80G and Section 12A of the Indian Income Tax Act.',
+      a: 'Yes. Al Shujaiat Foundation is a legally registered non-profit charitable trust in Jammu & Kashmir and enrolled on NITI Aayog NGO-DARPAN under Unique ID / Registration Number JK/2018/0190361. Donations are recognized for tax exemption under Section 80G (Reg: DEL-AE28396-27022018/9728) and Section 12A (Reg: DEL-AR26932-27022018/8830) of the Indian Income Tax Act.',
     },
     {
       q: 'How are project funding numbers calculated on this platform?',

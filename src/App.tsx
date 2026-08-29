@@ -145,8 +145,8 @@ export const App: React.FC = () => {
 
       {!isAdminRoute && <Footer onNavigate={navigate} />}
 
-      {/* Global Interactive Simulation & Testing Bar */}
-      <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />
+      {/* Global Interactive Simulation & Testing Bar (Hidden in Admin to prevent menu obstruction) */}
+      {!isAdminRoute && <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />}
 
       {/* Global Modal Instance */}
       <DonationModal

@@ -10,7 +10,8 @@ import {
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
-  CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2
+  CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
+  Mail, Phone, Send, Check, X
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -24,8 +25,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     projects, campaigns, donations, payments, recurringDonations, 
     receipts, refunds, stories, news, volunteers, partnerships, 
     supportTickets, auditLogs, settings, createProject, updateProject, 
-    deleteProject, processRefund, updateRecurringStatus, simulateRetryRecurringPayment,
-    updateSettings, updateSupportTicketStatus 
+    deleteProject, createCampaign, updateCampaign, deleteCampaign,
+    processRefund, updateRecurringStatus, simulateRetryRecurringPayment,
+    updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus 
   } = useDatabase();
   const { formatUSD } = useCurrency();
   const { supportedLanguages } = useLanguage();
@@ -45,6 +47,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const [newProjGoal, setNewProjGoal] = useState(50000);
   const [newProjCity, setNewProjCity] = useState('Baramulla');
   const [newProjDesc, setNewProjDesc] = useState('');
+
+  // New Campaign Form State
+  const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
+  const [newCampName, setNewCampName] = useState('');
+  const [newCampGoal, setNewCampGoal] = useState(25000);
+  const [newCampEndDate, setNewCampEndDate] = useState('2026-12-31');
+  const [newCampDesc, setNewCampDesc] = useState('');
+  const [newCampUrgent, setNewCampUrgent] = useState(false);
+
+  // Support Ticket Response Modal
+  const [responseModalTicket, setResponseModalTicket] = useState<any | null>(null);
+  const [ticketReplyText, setTicketReplyText] = useState('');
 
   // Calculate Financial Aggregates (Source of Truth)
   const successfulDonations = donations.filter((d) => d.status === 'successful');
@@ -124,10 +138,65 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     setNewProjDesc('');
   };
 
+  const handleCreateCampaignSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCampName.trim()) return;
+
+    createCampaign({
+      name: newCampName,
+      slug: newCampName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      shortDescription: newCampDesc || 'Urgent humanitarian response appeal.',
+      fullDescription: newCampDesc || 'Urgent humanitarian response appeal.',
+      heroImage: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80',
+      fundingGoalUSD: newCampGoal,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: newCampEndDate,
+      status: 'active',
+      isUrgent: newCampUrgent,
+      targetLocation: 'Srinagar & Valley Sectors',
+      category: 'Emergency Relief',
+      associatedProjectIds: [projects[0]?.id || 'proj_clean_water'],
+      keyHighlights: ['Emergency distribution', 'Verified field delivery'],
+    });
+
+    setShowNewCampaignModal(false);
+    setNewCampName('');
+    setNewCampDesc('');
+  };
+
+  const handleReplyTicketSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!responseModalTicket || !ticketReplyText.trim()) return;
+    updateSupportTicketStatus(responseModalTicket.id, 'resolved', ticketReplyText);
+    setResponseModalTicket(null);
+    setTicketReplyText('');
+  };
+
+  // Group unique donors for Donors Directory
+  const uniqueDonorsMap = new Map<string, { email: string; name: string; totalUSD: number; count: number; country: string; lastDate: string }>();
+  donations.forEach((d) => {
+    if (d.status === 'successful') {
+      const em = d.donorEmail.toLowerCase();
+      const curr = uniqueDonorsMap.get(em) || {
+        email: d.donorEmail,
+        name: d.donorName,
+        totalUSD: 0,
+        count: 0,
+        country: d.donorCountry || 'Unknown',
+        lastDate: d.createdAt,
+      };
+      curr.totalUSD += d.amountUSD;
+      curr.count += 1;
+      if (new Date(d.createdAt) > new Date(curr.lastDate)) curr.lastDate = d.createdAt;
+      uniqueDonorsMap.set(em, curr);
+    }
+  });
+  const uniqueDonorsList = Array.from(uniqueDonorsMap.values());
+
   return (
     <div className="min-h-screen bg-surface-soft flex flex-col lg:flex-row">
       {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-64 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6">
+      <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6">
         <div className="flex items-center gap-3 px-2">
           <div className="w-10 h-10 rounded-xl bg-white p-1 flex-shrink-0">
             <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
@@ -155,15 +224,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setSearchTerm('');
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${
                   isActive
                     ? 'bg-brand-purple text-white font-bold shadow-brand-sm'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon className="w-4 h-4 flex-shrink-0 text-brand-blue" />
-                <span>{item.label}</span>
+                <span className="truncate leading-tight">{item.label}</span>
               </button>
             );
           })}
@@ -185,7 +257,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm">
           <div>
             <h1 className="text-2xl font-extrabold text-content-primary tracking-tight capitalize">
-              {activeTab.replace('-', ' ')}
+              {adminMenu.find((m) => m.id === activeTab)?.label || activeTab.replace('-', ' ')}
             </h1>
             <p className="text-xs text-content-secondary mt-0.5">
               Live executive management platform for Al Shujaiat Foundation Jammu & Kashmir (ASFJK).
@@ -316,7 +388,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </thead>
                 <tbody className="divide-y divide-content-border">
                   {donations
-                    .filter((d) => d.donationNumber.toLowerCase().includes(searchTerm.toLowerCase()) || d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || d.targetName.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .filter((d) => 
+                      d.donationNumber.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                      d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                      d.targetName.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
                     .map((d) => (
                       <tr key={d.id} className="hover:bg-surface-soft transition-colors">
                         <td className="py-3 px-4 font-mono font-bold text-brand-purple">{d.donationNumber}</td>
@@ -362,7 +438,192 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
-        {/* 3. RECURRING SUBSCRIPTIONS TAB */}
+        {/* 3. DONORS DIRECTORY TAB */}
+        {activeTab === 'donors' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search donors by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+              <button
+                onClick={() => ReportService.exportToCSV(uniqueDonorsList, 'ASFJK_Donors_Directory')}
+                className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" /> Export Donors CSV
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Donor Name</th>
+                    <th className="py-3 px-4">Email</th>
+                    <th className="py-3 px-4">Country</th>
+                    <th className="py-3 px-4">Donation Count</th>
+                    <th className="py-3 px-4">Lifetime Contributed</th>
+                    <th className="py-3 px-4">Last Activity</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {uniqueDonorsList
+                    .filter((u) => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((dn, i) => (
+                      <tr key={i} className="hover:bg-surface-soft transition-colors">
+                        <td className="py-3 px-4 font-bold text-content-primary">{dn.name}</td>
+                        <td className="py-3 px-4 font-mono text-content-secondary">{dn.email}</td>
+                        <td className="py-3 px-4">{dn.country}</td>
+                        <td className="py-3 px-4 font-semibold">{dn.count} gifts</td>
+                        <td className="py-3 px-4 font-bold text-brand-pink">${dn.totalUSD.toLocaleString()} USD</td>
+                        <td className="py-3 px-4 text-content-muted">{new Date(dn.lastDate).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 4. PROJECTS MANAGEMENT TAB */}
+        {activeTab === 'projects' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-extrabold text-content-primary">
+                Active Projects & Welfare Programs ({projects.length})
+              </h3>
+              <button
+                onClick={() => setShowNewProjectModal(true)}
+                className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" /> Add Project
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((p) => {
+                const pct = Math.min(100, Math.round((p.amountRaisedUSD / p.fundingGoalUSD) * 100));
+                return (
+                  <div key={p.id} className="p-5 rounded-3xl bg-surface-soft border border-content-border space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-purple/10 text-brand-purple uppercase">
+                          {p.category}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${p.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-card text-content-muted'}`}>
+                          {p.status}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-sm text-content-primary line-clamp-1">{p.name}</h4>
+                      <p className="text-xs text-content-secondary line-clamp-2">{p.shortDescription}</p>
+                      
+                      <div className="pt-2">
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span className="text-brand-purple">${p.amountRaisedUSD.toLocaleString()}</span>
+                          <span className="text-content-muted">${p.fundingGoalUSD.toLocaleString()} ({pct}%)</span>
+                        </div>
+                        <div className="w-full h-2 bg-content-border rounded-full overflow-hidden">
+                          <div className="h-full bg-brand-gradient-pink rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-content-border/60 text-xs">
+                      <button
+                        onClick={() => onNavigate(`/projects/${p.slug}`)}
+                        className="text-brand-purple hover:underline font-bold flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View Public Page
+                      </button>
+                      <button
+                        onClick={() => deleteProject(p.id)}
+                        className="text-rose-600 hover:underline flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 5. CAMPAIGNS & APPEALS TAB */}
+        {activeTab === 'campaigns' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-extrabold text-content-primary">
+                Active Appeals & Emergency Drives ({campaigns.length})
+              </h3>
+              <button
+                onClick={() => setShowNewCampaignModal(true)}
+                className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" /> Create Campaign
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campaigns.map((c) => {
+                const pct = Math.min(100, Math.round((c.amountRaisedUSD / c.fundingGoalUSD) * 100));
+                return (
+                  <div key={c.id} className="p-5 rounded-3xl bg-surface-soft border border-content-border space-y-3 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        {c.isUrgent ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 uppercase flex items-center gap-1">
+                            <Flame className="w-3 h-3" /> Urgent Appeal
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-blue/10 text-brand-blue uppercase">
+                            Seasonal Appeal
+                          </span>
+                        )}
+                        <span className="text-[10px] text-content-muted font-mono">Ends: {c.endDate}</span>
+                      </div>
+                      <h4 className="font-bold text-sm text-content-primary line-clamp-1">{c.name}</h4>
+                      <p className="text-xs text-content-secondary line-clamp-2">{c.shortDescription}</p>
+                      
+                      <div className="pt-2">
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span className="text-brand-pink">${c.amountRaisedUSD.toLocaleString()}</span>
+                          <span className="text-content-muted">${c.fundingGoalUSD.toLocaleString()} ({pct}%)</span>
+                        </div>
+                        <div className="w-full h-2 bg-content-border rounded-full overflow-hidden">
+                          <div className="h-full bg-brand-gradient-blue rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-content-border/60 text-xs">
+                      <button
+                        onClick={() => onNavigate(`/campaigns/${c.slug}`)}
+                        className="text-brand-purple hover:underline font-bold flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View Appeal
+                      </button>
+                      <button
+                        onClick={() => deleteCampaign(c.id)}
+                        className="text-rose-600 hover:underline flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 6. RECURRING SUBSCRIPTIONS TAB */}
         {activeTab === 'recurring' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
             <h3 className="text-lg font-extrabold text-content-primary">
@@ -430,7 +691,178 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
-        {/* 4. FINANCIAL REPORTS TAB */}
+        {/* 7. PAYMENT GATEWAYS TAB */}
+        {activeTab === 'payments' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Payment Gateways & Processing Settings
+            </h3>
+            <p className="text-xs text-content-secondary">
+              Configure active merchant credentials, sandbox test modes, and direct wire transfer banking settings.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              {/* Stripe */}
+              <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-6 h-6 text-brand-purple" />
+                    <div>
+                      <h4 className="font-extrabold text-sm text-content-primary">Stripe Payments</h4>
+                      <p className="text-[11px] text-content-muted">Global Visa, Mastercard, AMEX, Apple Pay</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                    {settings.paymentGateways?.stripeEnabled ? 'Active' : 'Disabled'}
+                  </span>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <label className="block text-[11px] font-bold text-content-muted">Publishable Key</label>
+                  <input
+                    type="text"
+                    value={settings.paymentGateways?.stripePublishableKey || 'pk_test_sample_asfjk'}
+                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white"
+                    readOnly
+                  />
+                </div>
+              </div>
+
+              {/* Razorpay */}
+              <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-6 h-6 text-brand-blue" />
+                    <div>
+                      <h4 className="font-extrabold text-sm text-content-primary">Razorpay (India)</h4>
+                      <p className="text-[11px] text-content-muted">UPI (Google Pay, PhonePe, Paytm), Netbanking</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                    {settings.paymentGateways?.razorpayEnabled ? 'Active' : 'Disabled'}
+                  </span>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <label className="block text-[11px] font-bold text-content-muted">Key ID</label>
+                  <input
+                    type="text"
+                    value={settings.paymentGateways?.razorpayKeyId || 'rzp_test_sample_asfjk'}
+                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white"
+                    readOnly
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 8. TAX RECEIPTS (80G) TAB */}
+        {activeTab === 'receipts' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-content-primary">
+                  Official Section 80G Tax Receipts Archive ({receipts.length})
+                </h3>
+                <p className="text-xs text-content-secondary">
+                  Computer-generated legal tax receipts issued to donors.
+                </p>
+              </div>
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search receipt # or donor..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Receipt #</th>
+                    <th className="py-3 px-4">Issued Date</th>
+                    <th className="py-3 px-4">Donor Name</th>
+                    <th className="py-3 px-4">Program</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Tax ID / PAN</th>
+                    <th className="py-3 px-4 text-right">PDF Download</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {receipts
+                    .filter((r) => r.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase()) || r.donorName.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((r) => (
+                      <tr key={r.id} className="hover:bg-surface-soft transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-brand-purple">{r.receiptNumber}</td>
+                        <td className="py-3 px-4 font-mono text-content-muted">{new Date(r.issuedAt).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 font-semibold text-content-primary">{r.donorName}</td>
+                        <td className="py-3 px-4 max-w-[180px] truncate">{r.projectName}</td>
+                        <td className="py-3 px-4 font-bold text-brand-pink">{r.currency} {r.amount.toLocaleString()}</td>
+                        <td className="py-3 px-4 font-mono">{r.donorTaxId || 'N/A'}</td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => ReceiptService.downloadReceipt(r, settings)}
+                            className="btn-outline !py-1.5 !px-3 text-xs font-bold inline-flex items-center gap-1"
+                          >
+                            <Download className="w-3.5 h-3.5" /> PDF
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 9. REFUNDS & REVERSALS TAB */}
+        {activeTab === 'refunds' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Refunds & Transaction Reversals Ledger ({refunds.length})
+            </h3>
+            <p className="text-xs text-content-secondary">
+              Audited transaction reversals approved by Foundation Executive Directors.
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Refund ID</th>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Amount Refunded</th>
+                    <th className="py-3 px-4">Reason</th>
+                    <th className="py-3 px-4">Authorized By</th>
+                    <th className="py-3 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {refunds.map((rf) => (
+                    <tr key={rf.id} className="hover:bg-surface-soft transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-rose-700">{rf.id}</td>
+                      <td className="py-3 px-4 font-mono text-content-muted">{new Date(rf.processedAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 font-bold text-rose-600">${rf.amountUSD.toLocaleString()} USD</td>
+                      <td className="py-3 px-4 max-w-[250px] truncate">{rf.reason}</td>
+                      <td className="py-3 px-4 font-semibold">{rf.processedByName}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 uppercase">
+                          {rf.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 10. FINANCIAL REPORTS TAB */}
         {activeTab === 'reports' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
             <h3 className="text-lg font-extrabold text-content-primary">
@@ -510,13 +942,221 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
-        {/* 5. AUDIT LOGS TAB */}
+        {/* 11. VOLUNTEER APPLICATIONS TAB */}
+        {activeTab === 'volunteers' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Volunteer Applications Desk ({volunteers.length})
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Applicant</th>
+                    <th className="py-3 px-4">Contact</th>
+                    <th className="py-3 px-4">Location</th>
+                    <th className="py-3 px-4">Skills</th>
+                    <th className="py-3 px-4">Availability</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {volunteers.map((v) => (
+                    <tr key={v.id} className="hover:bg-surface-soft transition-colors">
+                      <td className="py-3 px-4 font-bold text-content-primary">{v.fullName}</td>
+                      <td className="py-3 px-4 text-content-secondary font-mono">
+                        <div>{v.email}</div>
+                        <div className="text-[10px] text-content-muted">{v.phone}</div>
+                      </td>
+                      <td className="py-3 px-4">{v.city}, {v.country}</td>
+                      <td className="py-3 px-4 max-w-[200px]">
+                        <div className="flex flex-wrap gap-1">
+                          {v.skills.map((sk, idx) => (
+                            <span key={idx} className="bg-brand-purple/10 text-brand-purple text-[9px] px-1.5 py-0.5 rounded font-semibold">
+                              {sk}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 capitalize">{v.availability.replace('_', ' ')}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${v.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {v.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right space-x-1.5">
+                        {v.status !== 'approved' && (
+                          <button
+                            onClick={() => updateVolunteerStatus(v.id, 'approved')}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        <a
+                          href={`mailto:${v.email}`}
+                          className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"
+                        >
+                          <Mail className="w-3 h-3" /> Email
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 12. PARTNERSHIP REQUESTS TAB */}
+        {activeTab === 'partners' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Institutional & Corporate Partnership Proposals ({partnerships.length})
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Organization</th>
+                    <th className="py-3 px-4">Type</th>
+                    <th className="py-3 px-4">Representative</th>
+                    <th className="py-3 px-4">Email</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {partnerships.map((pr) => (
+                    <tr key={pr.id} className="hover:bg-surface-soft transition-colors">
+                      <td className="py-3 px-4 font-bold text-content-primary">{pr.organizationName}</td>
+                      <td className="py-3 px-4 uppercase font-semibold text-[10px] text-brand-purple">{pr.organizationType}</td>
+                      <td className="py-3 px-4">{pr.contactPerson}</td>
+                      <td className="py-3 px-4 font-mono text-content-secondary">{pr.email}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${pr.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-card text-content-muted'}`}>
+                          {pr.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right space-x-1.5">
+                        {pr.status !== 'approved' && (
+                          <button
+                            onClick={() => updatePartnershipStatus(pr.id, 'approved')}
+                            className="bg-brand-purple hover:bg-brand-purple-dark text-white px-2 py-1 rounded text-[10px] font-bold"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        <a
+                          href={`mailto:${pr.email}`}
+                          className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"
+                        >
+                          <Mail className="w-3 h-3" /> Contact
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 13. SUPPORT TICKETS TAB */}
+        {activeTab === 'support' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Donor & Public Support Desk ({supportTickets.length})
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Ticket #</th>
+                    <th className="py-3 px-4">Requester</th>
+                    <th className="py-3 px-4">Subject</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {supportTickets.map((tkt) => (
+                    <tr key={tkt.id} className="hover:bg-surface-soft transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-brand-purple">{tkt.ticketNumber}</td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-content-primary">{tkt.name}</div>
+                        <div className="text-[10px] font-mono text-content-muted">{tkt.email}</div>
+                      </td>
+                      <td className="py-3 px-4 max-w-[200px]">
+                        <div className="font-semibold truncate">{tkt.subject}</div>
+                        <div className="text-[11px] text-content-secondary truncate">{tkt.message}</div>
+                      </td>
+                      <td className="py-3 px-4 uppercase text-[10px] text-brand-pink font-bold">{tkt.category.replace('_', ' ')}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${tkt.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {tkt.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => {
+                            setResponseModalTicket(tkt);
+                            setTicketReplyText(tkt.response || '');
+                          }}
+                          className="btn-primary !py-1 !px-3 text-xs font-bold inline-flex items-center gap-1"
+                        >
+                          Respond
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 14. LANGUAGES & TRANSLATIONS TAB */}
+        {activeTab === 'languages' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Supported International Languages & Dialects
+            </h3>
+            <p className="text-xs text-content-secondary">
+              All 8 registered languages with active RTL & LTR font rendering engines.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {supportedLanguages.map((l) => (
+                <div key={l.code} className="p-4 rounded-2xl bg-surface-soft border border-content-border space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">{l.name}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-purple/10 text-brand-purple uppercase">
+                      {l.code}
+                    </span>
+                  </div>
+                  <div className="text-xs text-content-muted flex justify-between items-center">
+                    <span>Native: <span className="text-content-primary font-medium">{l.nativeName}</span></span>
+                    <span className="uppercase text-[10px] font-bold text-brand-pink">{l.dir}</span>
+                  </div>
+                  <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 pt-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> 100% Dictionary Coverage
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 15. AUDIT LOGS TAB */}
         {activeTab === 'audit-logs' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-extrabold text-content-primary">
-                  System Audit Trail & Immutability Log
+                  System Audit Trail & Immutability Log ({auditLogs.length})
                 </h3>
                 <p className="text-xs text-content-muted">
                   Tamper-resistant historical logs of all financial mutations, logins, and project updates.
@@ -552,7 +1192,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
-        {/* 6. SETTINGS TAB */}
+        {/* 16. SETTINGS TAB */}
         {activeTab === 'settings' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
             <h3 className="text-lg font-extrabold text-brand-purple">
@@ -601,6 +1241,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Primary Foundation Email</label>
+                <input
+                  type="email"
+                  value={settings.email}
+                  onChange={(e) => updateSettings({ email: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Official Website URL</label>
+                <input
+                  type="text"
+                  value={settings.websiteUrl}
+                  onChange={(e) => updateSettings({ websiteUrl: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-content-secondary mb-1">Registered Office Address</label>
               <input
@@ -614,10 +1275,62 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
         )}
       </main>
 
+      {/* Response to Support Ticket Modal */}
+      {responseModalTicket && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-extrabold text-content-primary">
+                Respond to Ticket {responseModalTicket.ticketNumber}
+              </h3>
+              <button
+                onClick={() => setResponseModalTicket(null)}
+                className="p-1 rounded-full text-content-muted hover:text-content-primary"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-3 bg-surface-soft rounded-2xl text-xs space-y-1">
+              <p><span className="font-bold text-content-primary">Requester:</span> {responseModalTicket.name} ({responseModalTicket.email})</p>
+              <p><span className="font-bold text-content-primary">Subject:</span> {responseModalTicket.subject}</p>
+              <p className="text-content-secondary pt-1">{responseModalTicket.message}</p>
+            </div>
+            <form onSubmit={handleReplyTicketSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Official Response *</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Type your resolution or response to the donor..."
+                  value={ticketReplyText}
+                  onChange={(e) => setTicketReplyText(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setResponseModalTicket(null)}
+                  className="btn-outline !py-2 !px-4 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1"
+                >
+                  <Send className="w-3.5 h-3.5" /> Send Response & Resolve
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Refund Modal */}
       {refundModalDonation && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-content-border shadow-2xl space-y-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn">
             <h3 className="text-lg font-extrabold text-content-primary">
               Issue Refund for {refundModalDonation.donationNumber}
             </h3>
@@ -672,7 +1385,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
       {/* New Project Modal */}
       {showNewProjectModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-content-border shadow-2xl space-y-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn">
             <h3 className="text-lg font-extrabold text-content-primary">
               Create New Humanitarian Project
             </h3>
@@ -753,6 +1466,95 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   className="btn-primary !py-2 !px-4 text-xs font-bold"
                 >
                   Publish Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* New Campaign Modal */}
+      {showNewCampaignModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn">
+            <h3 className="text-lg font-extrabold text-content-primary">
+              Create New Appeal or Campaign
+            </h3>
+
+            <form onSubmit={handleCreateCampaignSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Campaign Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Winter Warmth 2026 Drive"
+                  value={newCampName}
+                  onChange={(e) => setNewCampName(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Funding Goal (USD) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="500"
+                    value={newCampGoal}
+                    onChange={(e) => setNewCampGoal(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">End Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={newCampEndDate}
+                    onChange={(e) => setNewCampEndDate(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="urgentCampCheck"
+                  checked={newCampUrgent}
+                  onChange={(e) => setNewCampUrgent(e.target.checked)}
+                  className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500"
+                />
+                <label htmlFor="urgentCampCheck" className="text-xs font-bold text-rose-700 flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5" /> Mark as Emergency Rapid Response Appeal
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Campaign Description</label>
+                <textarea
+                  rows={3}
+                  value={newCampDesc}
+                  onChange={(e) => setNewCampDesc(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewCampaignModal(false)}
+                  className="btn-outline !py-2 !px-4 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary !py-2 !px-4 text-xs font-bold"
+                >
+                  Launch Appeal
                 </button>
               </div>
             </form>

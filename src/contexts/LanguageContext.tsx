@@ -5,11 +5,18 @@ interface LanguageContextType {
   currentLanguage: LanguageInfo;
   setLanguage: (code: string) => void;
   t: (key: string, fallback?: string) => string;
+  tNum: (num: number | string) => string;
   isRTL: boolean;
   supportedLanguages: LanguageInfo[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+const NUMERAL_MAPS: Record<string, string[]> = {
+  hi: ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'],
+  ur: ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
+  ar: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+};
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [langCode, setLangCode] = useState<string>(() => {
@@ -37,12 +44,26 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (langDict && langDict[key]) {
       return langDict[key];
     }
+    // Also check if key is passed as English text and matches an entry
+    if (langDict && fallback && langDict[fallback]) {
+      return langDict[fallback];
+    }
     // Fallback to English
     const enDict = TRANSLATIONS['en'];
     if (enDict && enDict[key]) {
       return enDict[key];
     }
-    return fallback || key;
+    return fallback !== undefined ? fallback : key;
+  };
+
+  const tNum = (num: number | string): string => {
+    if (num === null || num === undefined) return '';
+    let str = typeof num === 'number' ? num.toLocaleString('en-US') : String(num);
+    const map = NUMERAL_MAPS[currentLanguage.code];
+    if (map) {
+      str = str.replace(/[0-9]/g, (d) => map[parseInt(d, 10)]);
+    }
+    return str;
   };
 
   return (
@@ -51,6 +72,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         currentLanguage,
         setLanguage,
         t,
+        tNum,
         isRTL,
         supportedLanguages: SUPPORTED_LANGUAGES,
       }}

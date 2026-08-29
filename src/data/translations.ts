@@ -20,6 +20,22 @@ export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
 
 export const TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
+    // Brand & Region
+    'brand.name': 'Al Shujaiat Foundation',
+    'brand.region': 'Jammu & Kashmir · India',
+    'brand.full': 'Al Shujaiat Foundation Jammu & Kashmir',
+    'brand.tagline': 'Humanitarian Welfare, Clean Water & Sustainable Community Empowerment',
+
+    // Headlines Ticker
+    'ticker.headlines': 'HEADLINES',
+    'ticker.winter_appeal': 'WINTER RELIEF APPEAL',
+    'ticker.winter_text': 'Al Shujaiat Foundation Jammu & Kashmir delivering emergency survival packages in mountain sectors.',
+    'ticker.reg_info': 'Reg: JK-TR-2018/889042 · 80G / 501(c)(3)',
+    'ticker.volunteer': 'VOLUNTEER DESK',
+    'ticker.volunteer_text': 'Applications now open: Join our field logistics & medical support task force with CV upload.',
+    'ticker.water': 'CLEAN WATER INITIATIVE',
+    'ticker.water_text': '12 New Solar Wells fully operational across high-altitude border districts of J&K.',
+
     // Nav
     'nav.home': 'Home',
     'nav.about': 'About Us',
@@ -124,6 +140,22 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   hi: {
+    // Brand & Region
+    'brand.name': 'अल शुजायत फाउंडेशन',
+    'brand.region': 'जम्मू और कश्मीर · भारत',
+    'brand.full': 'अल शुजायत फाउंडेशन जम्मू और कश्मीर',
+    'brand.tagline': 'मानवीय कल्याण, स्वच्छ जल और सशक्त समुदाय',
+
+    // Headlines Ticker
+    'ticker.headlines': 'ताज़ा सुर्खियां',
+    'ticker.winter_appeal': 'शीतकालीन राहत अपील',
+    'ticker.winter_text': 'अल शुजायत फाउंडेशन जम्मू और कश्मीर पर्वतीय क्षेत्रों में आपातकालीन राहत किट वितरित कर रहा है।',
+    'ticker.reg_info': 'पंजीकरण: JK-TR-2018/889042 · 80G कर छूट',
+    'ticker.volunteer': 'स्वयंसेवक केंद्र',
+    'ticker.volunteer_text': 'आवेदन खुले हैं: बायोडाटा अपलोड कर हमारे राहत व चिकित्सा दल से जुड़ें।',
+    'ticker.water': 'स्वच्छ जल पहल',
+    'ticker.water_text': 'जम्मू-कश्मीर के दूरदराज सीमांत जिलों में 12 नए सौर जल कुएं चालू किए गए।',
+
     // Nav
     'nav.home': 'मुख्य पृष्ठ',
     'nav.about': 'हमारे बारे में',
@@ -228,6 +260,22 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   ur: {
+    // Brand & Region
+    'brand.name': 'الشجاعت فاؤنڈیشن',
+    'brand.region': 'جموں و کشمیر · بھارت',
+    'brand.full': 'الشجاعت فاؤنڈیشن جموں و کشمیر',
+    'brand.tagline': 'انسانی فلاح، صاف پانی اور خود انحصار معاشرے کی تعمیر',
+
+    // Headlines Ticker
+    'ticker.headlines': 'اہم سرخیاں',
+    'ticker.winter_appeal': 'موسمِ سرما امدادی مہم',
+    'ticker.winter_text': 'الشجاعت فاؤنڈیشن جموں و کشمیر پہاڑی علاقوں میں ہنگامی امدادی پیکجز فراہم کر رہی ہے۔',
+    'ticker.reg_info': 'رجسٹریشن: JK-TR-2018/889042 · 80G ٹیکس چھوٹ',
+    'ticker.volunteer': 'رضاکار شعبہ',
+    'ticker.volunteer_text': 'درخواستیں کھلی ہیں: سی وی اپ لوڈ کر کے ہمارے فیلڈ لاجسٹکس اور طبی عملے میں شامل ہوں۔',
+    'ticker.water': 'صاف پانی منصوبہ',
+    'ticker.water_text': 'جموں و کشمیر کے سرحدی اضلاع میں 12 نئے شمسی واٹر کنویں مکمل فعال ہو گئے۔',
+
     // Nav
     'nav.home': 'صفحۂ اول',
     'nav.about': 'ہمارے متعلق',
@@ -332,6 +380,22 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   ar: {
+    // Brand & Region
+    'brand.name': 'مؤسسة الشجاعت',
+    'brand.region': 'جامو وكشمير · الهند',
+    'brand.full': 'مؤسسة الشجاعت جامو وكشمير',
+    'brand.tagline': 'العمل الإنساني والمياه النقية والتنمية المستدامة',
+
+    // Headlines Ticker
+    'ticker.headlines': 'عاجل والأخبار',
+    'ticker.winter_appeal': 'نداء إغاثة الشتاء',
+    'ticker.winter_text': 'مؤسسة الشجاعت جامو وكشمير تقدم حزم الإغاثة الشتوية العاجلة في المناطق الجبلية.',
+    'ticker.reg_info': 'رقم التسجيل: JK-TR-2018/889042 · معفى ضريبياً',
+    'ticker.volunteer': 'مكتب التطوع',
+    'ticker.volunteer_text': 'باب التطوع مفتوح: انضم إلى فريق العمل الميداني والدعم الطبي مع رفع السيرة الذاتية.',
+    'ticker.water': 'مبادرة المياه النقية',
+    'ticker.water_text': '12 بئراً شمسياً جديداً تعمل بكامل طاقتها في المناطق الحدودية النائية.',
+
     // Nav
     'nav.home': 'الرئيسية',
     'nav.about': 'من نحن',
@@ -436,6 +500,22 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   fr: {
+    // Brand & Region
+    'brand.name': 'Fondation Al Shujaiat',
+    'brand.region': 'Jammu-et-Cachemire · Inde',
+    'brand.full': 'Fondation Al Shujaiat Jammu-et-Cachemire',
+    'brand.tagline': 'Action humanitaire, eau potable et développement durable',
+
+    // Headlines Ticker
+    'ticker.headlines': 'EN VEDETTE',
+    'ticker.winter_appeal': 'APPEL D\'URGENCE HIVER',
+    'ticker.winter_text': 'La Fondation Al Shujaiat distribue des colis de survie d\'urgence dans les secteurs montagneux.',
+    'ticker.reg_info': 'Reg: JK-TR-2018/889042 · Exemption 80G',
+    'ticker.volunteer': 'BÉNÉVOLAT',
+    'ticker.volunteer_text': 'Candidatures ouvertes: Rejoignez notre équipe logistique et médicale avec dépôt de CV.',
+    'ticker.water': 'EAU POTABLE',
+    'ticker.water_text': '12 nouveaux puits solaires opérationnels dans les districts frontaliers.',
+
     'nav.home': 'Accueil',
     'nav.about': 'À propos',
     'nav.our_work': 'Nos Actions',
@@ -448,16 +528,16 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.volunteer': 'Devenir bénévole',
     'nav.partners': 'Partenaires',
     'nav.donate': 'Faire un don',
-    'nav.contact': 'Contact',
+    'nav.contact': 'Contact & Support',
     'nav.faq': 'FAQ',
     'nav.login': 'Connexion',
     'nav.register': 'Inscription',
     'nav.donor_portal': 'Espace Donateur',
     'nav.admin_portal': 'Tableau de bord Admin',
     'nav.logout': 'Déconnexion',
-    'hero.badge': 'Al Shujaiat Foundation · Jammu & Kashmir',
+    'hero.badge': 'Fondation Al Shujaiat · Jammu & Kashmir',
     'hero.title': 'Autonomiser les communautés, transformer des vies au Jammu-et-Cachemire',
-    'hero.subtitle': 'Al Shujaiat Foundation Jammu & Kashmir fournit de l’eau potable, une éducation de qualité, des secours d’urgence et des soins avec 100% de transparence financière.',
+    'hero.subtitle': 'La Fondation Al Shujaiat fournit de l’eau potable, une éducation de qualité, des secours d’urgence et des soins avec 100% de transparence financière.',
     'hero.donate_cta': 'Donner en toute sécurité',
     'hero.explore_cta': 'Explorer les projets',
     'hero.trusted_by': 'Plus de 12 000 donateurs à travers le monde',
@@ -478,10 +558,26 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'donate.submit': 'Finaliser le don',
     'donate.download_receipt': 'Télécharger le reçu fiscal PDF',
     'transparency.title': 'Transparence financière',
-    'footer.rights': 'Tous droits réservés. Al Shujaiat Foundation Jammu & Kashmir.'
+    'footer.rights': 'Tous droits réservés. Fondation Al Shujaiat Jammu-et-Cachemire.'
   },
 
   es: {
+    // Brand & Region
+    'brand.name': 'Fundación Al Shujaiat',
+    'brand.region': 'Jammu y Cachemira · India',
+    'brand.full': 'Fundación Al Shujaiat Jammu y Cachemira',
+    'brand.tagline': 'Bienestar humanitario, agua potable y empoderamiento comunitario',
+
+    // Headlines Ticker
+    'ticker.headlines': 'TITULARES',
+    'ticker.winter_appeal': 'LLAMAMIENTO DE INVIERNO',
+    'ticker.winter_text': 'La Fundación Al Shujaiat entrega paquetes de supervivencia de emergencia en sectores montañosos.',
+    'ticker.reg_info': 'Reg: JK-TR-2018/889042 · Exención 80G',
+    'ticker.volunteer': 'VOLUNTARIADO',
+    'ticker.volunteer_text': 'Postulaciones abiertas: Únete a nuestro equipo logístico y médico subiendo tu CV.',
+    'ticker.water': 'AGUA LIMPIA',
+    'ticker.water_text': '12 nuevos pozos solares operativos en distritos fronterizos.',
+
     'nav.home': 'Inicio',
     'nav.about': 'Sobre nosotros',
     'nav.our_work': 'Nuestro trabajo',
@@ -501,9 +597,9 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.donor_portal': 'Portal de Donantes',
     'nav.admin_portal': 'Panel de Administración',
     'nav.logout': 'Cerrar sesión',
-    'hero.badge': 'Al Shujaiat Foundation · Jammu & Kashmir',
+    'hero.badge': 'Fundación Al Shujaiat · Jammu y Cachemira',
     'hero.title': 'Empoderando comunidades y transformando vidas en Jammu y Cachemira',
-    'hero.subtitle': 'Al Shujaiat Foundation Jammu & Kashmir brinda agua potable, educación de calidad, auxilio de emergencia y atención médica con 100% de transparencia financiera.',
+    'hero.subtitle': 'La Fundación Al Shujaiat brinda agua potable, educación de calidad, auxilio de emergencia y atención médica con 100% de transparencia financiera.',
     'hero.donate_cta': 'Donar con seguridad',
     'hero.explore_cta': 'Explorar proyectos',
     'hero.trusted_by': 'Más de 12.000 donantes en todo el mundo',
@@ -524,10 +620,26 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'donate.submit': 'Completar donación',
     'donate.download_receipt': 'Descargar recibo fiscal en PDF',
     'transparency.title': 'Transparencia financiera',
-    'footer.rights': 'Todos los derechos reservados. Al Shujaiat Foundation Jammu & Kashmir.'
+    'footer.rights': 'Todos los derechos reservados. Fundación Al Shujaiat Jammu y Cachemira.'
   },
 
   de: {
+    // Brand & Region
+    'brand.name': 'Al Shujaiat Stiftung',
+    'brand.region': 'Jammu & Kaschmir · Indien',
+    'brand.full': 'Al Shujaiat Stiftung Jammu & Kaschmir',
+    'brand.tagline': 'Humanitäre Hilfe, sauberes Wasser und nachhaltige Entwicklung',
+
+    // Headlines Ticker
+    'ticker.headlines': 'SCHLAGZEILEN',
+    'ticker.winter_appeal': 'WINTERHILFE AUFRUF',
+    'ticker.winter_text': 'Die Al Shujaiat Stiftung liefert Notfallpakete in Bergregionen.',
+    'ticker.reg_info': 'Reg: JK-TR-2018/889042 · 80G Steuerbefreit',
+    'ticker.volunteer': 'FREIWILLIGENDIENST',
+    'ticker.volunteer_text': 'Bewerbungen offen: Unterstützen Sie unser Logistik- und Ärzteteam mit Lebenslauf.',
+    'ticker.water': 'SAUBERES WASSER',
+    'ticker.water_text': '12 neue Solarbrunnen in abgelegenen Grenzbezirken in Betrieb.',
+
     'nav.home': 'Startseite',
     'nav.about': 'Über uns',
     'nav.our_work': 'Unsere Arbeit',
@@ -547,9 +659,9 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.donor_portal': 'Spenderportal',
     'nav.admin_portal': 'Admin-Dashboard',
     'nav.logout': 'Abmelden',
-    'hero.badge': 'Al Shujaiat Foundation · Jammu & Kashmir',
+    'hero.badge': 'Al Shujaiat Stiftung · Jammu & Kaschmir',
     'hero.title': 'Gemeinschaften stärken, Leben verändern in Jammu & Kaschmir',
-    'hero.subtitle': 'Die Al Shujaiat Foundation Jammu & Kashmir liefert sauberes Wasser, Bildung, Nothilfe und Waisenfürsorge mit 100% finanzieller Transparenz.',
+    'hero.subtitle': 'Die Al Shujaiat Stiftung Jammu & Kaschmir liefert sauberes Wasser, Bildung, Nothilfe und Waisenfürsorge mit 100% finanzieller Transparenz.',
     'hero.donate_cta': 'Sicher spenden',
     'hero.explore_cta': 'Projekte entdecken',
     'hero.trusted_by': 'Vertraut von über 12.000 Spendern weltweit',
@@ -570,10 +682,26 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'donate.submit': 'Spende abschließen',
     'donate.download_receipt': 'Offizielle PDF-Spendenquittung',
     'transparency.title': 'Finanzielle Transparenz',
-    'footer.rights': 'Alle Rechte vorbehalten. Al Shujaiat Foundation Jammu & Kashmir.'
+    'footer.rights': 'Alle Rechte vorbehalten. Al Shujaiat Stiftung Jammu & Kaschmir.'
   },
 
   tr: {
+    // Brand & Region
+    'brand.name': 'Al Shujaiat Vakfı',
+    'brand.region': 'Cammu ve Keşmir · Hindistan',
+    'brand.full': 'Al Shujaiat Vakfı Cammu ve Keşmir',
+    'brand.tagline': 'İnsani Yardım, Temiz Su ve Toplumsal Güçlendirme',
+
+    // Headlines Ticker
+    'ticker.headlines': 'MANŞETLER',
+    'ticker.winter_appeal': 'KIŞ YARDIM ÇAĞRISI',
+    'ticker.winter_text': 'Al Shujaiat Vakfı dağlık bölgelerde acil kış yardım paketleri ulaştırmaktadır.',
+    'ticker.reg_info': 'Kayıt: JK-TR-2018/889042 · 80G Vergi Muafiyeti',
+    'ticker.volunteer': 'GÖNÜLLÜLÜK',
+    'ticker.volunteer_text': 'Başvurular açık: Özgeçmişinizi yükleyerek saha lojistiği ve sağlık ekibimize katılın.',
+    'ticker.water': 'TEMİZ SU',
+    'ticker.water_text': 'Sınır bölgelerinde 12 yeni güneş enerjili kuyu faaliyete geçti.',
+
     'nav.home': 'Ana Sayfa',
     'nav.about': 'Hakkımızda',
     'nav.our_work': 'Faaliyetlerimiz',
@@ -593,9 +721,9 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.donor_portal': 'Bağışçı Portalı',
     'nav.admin_portal': 'Yönetici Paneli',
     'nav.logout': 'Çıkış Yap',
-    'hero.badge': 'Al Shujaiat Foundation · Jammu & Kashmir',
+    'hero.badge': 'Al Shujaiat Vakfı · Cammu ve Keşmir',
     'hero.title': 'Cammu ve Keşmir’de Toplulukları Güçlendiriyor, Hayatları Değiştiriyoruz',
-    'hero.subtitle': 'Al Shujaiat Foundation Jammu & Kashmir temiz su, nitelikli eğitim, acil yardım ve geçim desteğini %100 mali şeffaflıkla sunmaktadır.',
+    'hero.subtitle': 'Al Shujaiat Vakfı temiz su, nitelikli eğitim, acil yardım ve geçim desteğini %100 mali şeffaflıkla sunmaktadır.',
     'hero.donate_cta': 'Güvenle Bağış Yapın',
     'hero.explore_cta': 'Projeleri İnceleyin',
     'hero.trusted_by': 'Dünya çapında 12.000’den fazla bağışçının güveni',
@@ -616,6 +744,6 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'donate.submit': 'Bağışı Tamamla',
     'donate.download_receipt': 'Resmi PDF Makbuzu İndir',
     'transparency.title': 'Mali Şeffaflık',
-    'footer.rights': 'Tüm hakları saklıdır. Al Shujaiat Foundation Jammu & Kashmir.'
+    'footer.rights': 'Tüm hakları saklıdır. Al Shujaiat Vakfı Cammu ve Keşmir.'
   }
 };

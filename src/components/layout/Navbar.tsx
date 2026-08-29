@@ -47,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
           <div className="flex items-center gap-1.5 px-3 py-0.5 bg-brand-purple-dark/90 z-10 flex-shrink-0 text-[10px] font-extrabold uppercase tracking-wider text-brand-pink shadow-md border-r border-white/10">
             <span className="w-2 h-2 rounded-full bg-brand-pink animate-ping inline-block" />
             <span className="w-2 h-2 rounded-full bg-brand-pink -ml-3.5 inline-block" />
-            <span>HEADLINES</span>
+            <span>{t('ticker.headlines', 'HEADLINES')}</span>
           </div>
 
           {/* Continuous Moving Stream */}
@@ -60,10 +60,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     className="flex items-center gap-2.5 cursor-pointer hover:text-brand-pink transition-colors group"
                   >
                     <span className="bg-brand-pink text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide group-hover:bg-white group-hover:text-brand-pink transition-all">
-                      WINTER RELIEF APPEAL
+                      {t('ticker.winter_appeal', 'WINTER RELIEF APPEAL')}
                     </span>
                     <span className="text-white/95 font-medium">
-                      Al Shujaiat Foundation Jammu & Kashmir delivering emergency survival packages in mountain sectors.
+                      {t('ticker.winter_text', 'Al Shujaiat Foundation Jammu & Kashmir delivering emergency survival packages in mountain sectors.')}
                     </span>
                   </div>
 
@@ -73,8 +73,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     onClick={() => onNavigate('/transparency')} 
                     className="flex items-center gap-2 cursor-pointer hover:text-brand-blue transition-colors"
                   >
-                    <span className="text-brand-blue font-mono font-bold">Reg: JK-TR-2018/889042 · 80G / 501(c)(3)</span>
-                    <span className="text-white/80 underline text-[11px] font-semibold hover:text-white">Transparency & Audits</span>
+                    <span className="text-brand-blue font-mono font-bold">{t('ticker.reg_info', 'Reg: JK-TR-2018/889042 · 80G / 501(c)(3)')}</span>
+                    <span className="text-white/80 underline text-[11px] font-semibold hover:text-white">{t('nav.transparency', 'Transparency & Audits')}</span>
                   </div>
 
                   <span className="text-white/30 font-bold">•</span>
@@ -84,10 +84,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     className="flex items-center gap-2.5 cursor-pointer hover:text-brand-pink transition-colors group"
                   >
                     <span className="bg-emerald-500 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-                      VOLUNTEER DESK
+                      {t('ticker.volunteer', 'VOLUNTEER DESK')}
                     </span>
                     <span className="text-white/95 font-medium">
-                      Applications now open: Join our field logistics & medical support task force with CV upload.
+                      {t('ticker.volunteer_text', 'Applications now open: Join our field logistics & medical support task force with CV upload.')}
                     </span>
                   </div>
 
@@ -98,10 +98,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     className="flex items-center gap-2.5 cursor-pointer hover:text-brand-blue transition-colors group"
                   >
                     <span className="bg-brand-blue text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-                      CLEAN WATER INITIATIVE
+                      {t('ticker.water', 'CLEAN WATER INITIATIVE')}
                     </span>
                     <span className="text-white/95 font-medium">
-                      12 New Solar Wells fully operational across high-altitude border districts of J&K.
+                      {t('ticker.water_text', '12 New Solar Wells fully operational across high-altitude border districts of J&K.')}
                     </span>
                   </div>
 
@@ -130,10 +130,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
             </div>
             <div className="flex flex-col justify-center flex-shrink-0">
               <span className="font-bold text-base sm:text-lg tracking-tight text-brand-purple leading-tight whitespace-nowrap block">
-                Al Shujaiat Foundation
+                {t('brand.name', 'Al Shujaiat Foundation')}
               </span>
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider text-brand-pink uppercase whitespace-nowrap">
-                Jammu & Kashmir · India
+                {t('brand.region', 'Jammu & Kashmir · India')}
               </span>
             </div>
           </div>

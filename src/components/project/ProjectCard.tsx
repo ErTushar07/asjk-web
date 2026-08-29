@@ -15,7 +15,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onSelectProject,
   onDonateToProject,
 }) => {
-  const { t } = useLanguage();
+  const { t, tNum } = useLanguage();
   const { formatUSD } = useCurrency();
 
   const percentageFunded = Math.min(100, Math.round((project.amountRaisedUSD / project.fundingGoalUSD) * 100));
@@ -36,11 +36,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Category & Status Badges */}
         <div className="absolute top-4 left-4 flex flex-wrap gap-1.5 z-10">
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-purple text-white shadow-sm">
-            {project.category}
+            {t(project.category, project.category)}
           </span>
           {project.urgent && (
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-orange text-white shadow-sm animate-pulse">
-              Urgent Appeal
+              {t('Urgent Appeal', 'Urgent Appeal')}
             </span>
           )}
         </div>
@@ -55,11 +55,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="absolute top-4 right-4">
           {isFullyFunded ? (
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white shadow-sm">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Fully Funded
+              <CheckCircle2 className="w-3.5 h-3.5" /> {t('project.status.funded', 'Fully Funded')}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-brand-blue text-white shadow-sm">
-              Active Project
+              {t('project.status.active', 'Active')}
             </span>
           )}
         </div>
@@ -83,11 +83,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="bg-surface-soft rounded-2xl p-4 space-y-3 border border-content-border/60">
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-content-muted">
-              {t('project.funded', 'Funded')}: <span className="font-bold text-brand-purple">{percentageFunded}%</span>
+              {t('project.funded', 'Funded')}: <span className="font-bold text-brand-purple">{tNum(percentageFunded)}%</span>
             </span>
             <span className="font-semibold text-content-muted flex items-center gap-1">
               <Users className="w-3.5 h-3.5 text-brand-pink" />
-              <span className="font-bold text-content-primary">{project.donorCount}</span> {t('project.donors', 'Donors')}
+              <span className="font-bold text-content-primary">{tNum(project.donorCount)}</span> {t('project.donors', 'Donors')}
             </span>
           </div>
 

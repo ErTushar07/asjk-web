@@ -25,10 +25,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </div>
               <div>
                 <span className="font-extrabold text-lg tracking-tight text-white block">
-                  AL SHUJAIAT FOUNDATION
+                  {t('brand.name', 'AL SHUJAIAT FOUNDATION')}
                 </span>
                 <span className="text-xs font-bold text-brand-pink tracking-wider uppercase block">
-                  Jammu & Kashmir · India
+                  {t('brand.region', 'Jammu & Kashmir · India')}
                 </span>
               </div>
             </div>
@@ -162,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         {/* Bottom Legal Policies Bar */}
         <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
-          <p>© {new Date().getFullYear()} Al Shujaiat Foundation Jammu & Kashmir. All Rights Reserved.</p>
+          <p>© {new Date().getFullYear()} {t('footer.rights', 'All rights reserved. Al Shujaiat Foundation Jammu & Kashmir.')}</p>
           
           <div className="flex flex-wrap items-center gap-4 text-[11px]">
             <button onClick={() => onNavigate('/privacy')} className="hover:text-white transition-colors">

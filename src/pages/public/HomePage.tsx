@@ -15,7 +15,7 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModal }) => {
-  const { t } = useLanguage();
+  const { t, tNum } = useLanguage();
   const { formatUSD } = useCurrency();
   const { projects, campaigns, stories, impactMetrics } = useDatabase();
 
@@ -148,13 +148,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
                 className="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white/10 hover:border-brand-pink/60 hover:bg-white/15 transition-all flex flex-col justify-center items-center min-w-0"
               >
                 <div className="text-lg sm:text-2xl lg:text-xl xl:text-2xl font-black text-brand-blue tracking-tight flex items-baseline justify-center flex-wrap">
-                  <span>{m.value.toLocaleString()}</span>
+                  <span>{tNum(m.value)}</span>
                   <span className="text-brand-pink font-extrabold ml-0.5 text-base sm:text-lg">
                     {m.unit && !['Units', 'Children', 'Meals', 'Patients', 'Villages'].includes(m.unit) ? m.unit : '+'}
                   </span>
                 </div>
                 <span className="text-[11px] sm:text-xs font-semibold text-white/90 block mt-1.5 leading-snug">
-                  {m.label}
+                  {t(m.label, m.label)}
                 </span>
               </div>
             ))}

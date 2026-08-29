@@ -145,18 +145,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     createCampaign({
       name: newCampName,
       slug: newCampName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      shortDescription: newCampDesc || 'Urgent humanitarian response appeal.',
-      fullDescription: newCampDesc || 'Urgent humanitarian response appeal.',
-      heroImage: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80',
-      fundingGoalUSD: newCampGoal,
+      type: newCampUrgent ? 'emergency' : 'seasonal',
+      description: newCampDesc || 'Urgent humanitarian response appeal.',
+      goalUSD: newCampGoal,
       startDate: new Date().toISOString().split('T')[0],
       endDate: newCampEndDate,
+      heroImage: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80',
+      relatedProjectIds: [projects[0]?.id || 'proj_clean_water'],
       status: 'active',
-      isUrgent: newCampUrgent,
-      targetLocation: 'Srinagar & Valley Sectors',
-      category: 'Emergency Relief',
-      associatedProjectIds: [projects[0]?.id || 'proj_clean_water'],
-      keyHighlights: ['Emergency distribution', 'Verified field delivery'],
     });
 
     setShowNewCampaignModal(false);
@@ -572,12 +568,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaigns.map((c) => {
-                const pct = Math.min(100, Math.round((c.amountRaisedUSD / c.fundingGoalUSD) * 100));
+                const pct = Math.min(100, Math.round((c.amountRaisedUSD / c.goalUSD) * 100));
                 return (
                   <div key={c.id} className="p-5 rounded-3xl bg-surface-soft border border-content-border space-y-3 flex flex-col justify-between">
                     <div className="space-y-2">
                       <div className="flex justify-between items-start">
-                        {c.isUrgent ? (
+                        {c.type === 'emergency' ? (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 uppercase flex items-center gap-1">
                             <Flame className="w-3 h-3" /> Urgent Appeal
                           </span>
@@ -589,12 +585,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                         <span className="text-[10px] text-content-muted font-mono">Ends: {c.endDate}</span>
                       </div>
                       <h4 className="font-bold text-sm text-content-primary line-clamp-1">{c.name}</h4>
-                      <p className="text-xs text-content-secondary line-clamp-2">{c.shortDescription}</p>
+                      <p className="text-xs text-content-secondary line-clamp-2">{c.description}</p>
                       
                       <div className="pt-2">
                         <div className="flex justify-between text-xs font-bold mb-1">
                           <span className="text-brand-pink">${c.amountRaisedUSD.toLocaleString()}</span>
-                          <span className="text-content-muted">${c.fundingGoalUSD.toLocaleString()} ({pct}%)</span>
+                          <span className="text-content-muted">${c.goalUSD.toLocaleString()} ({pct}%)</span>
                         </div>
                         <div className="w-full h-2 bg-content-border rounded-full overflow-hidden">
                           <div className="h-full bg-brand-gradient-blue rounded-full" style={{ width: `${pct}%` }} />
@@ -844,11 +840,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 <tbody className="divide-y divide-content-border">
                   {refunds.map((rf) => (
                     <tr key={rf.id} className="hover:bg-surface-soft transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-rose-700">{rf.id}</td>
-                      <td className="py-3 px-4 font-mono text-content-muted">{new Date(rf.processedAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 font-mono font-bold text-rose-700">{rf.refundNumber || rf.id}</td>
+                      <td className="py-3 px-4 font-mono text-content-muted">{new Date(rf.processedAt || rf.createdAt).toLocaleDateString()}</td>
                       <td className="py-3 px-4 font-bold text-rose-600">${rf.amountUSD.toLocaleString()} USD</td>
                       <td className="py-3 px-4 max-w-[250px] truncate">{rf.reason}</td>
-                      <td className="py-3 px-4 font-semibold">{rf.processedByName}</td>
+                      <td className="py-3 px-4 font-semibold">{rf.approvedBy || rf.requestedBy || 'Executive Director'}</td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 uppercase">
                           {rf.status}
@@ -1035,14 +1031,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       <td className="py-3 px-4">{pr.contactPerson}</td>
                       <td className="py-3 px-4 font-mono text-content-secondary">{pr.email}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${pr.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-surface-card text-content-muted'}`}>
-                          {pr.status}
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${pr.status === 'partnered' ? 'bg-emerald-100 text-emerald-700' : pr.status === 'in_discussion' ? 'bg-brand-blue/10 text-brand-blue' : 'bg-surface-card text-content-muted'}`}>
+                          {pr.status.replace('_', ' ')}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right space-x-1.5">
-                        {pr.status !== 'approved' && (
+                        {pr.status !== 'partnered' && (
                           <button
-                            onClick={() => updatePartnershipStatus(pr.id, 'approved')}
+                            onClick={() => updatePartnershipStatus(pr.id, 'partnered')}
                             className="bg-brand-purple hover:bg-brand-purple-dark text-white px-2 py-1 rounded text-[10px] font-bold"
                           >
                             Approve

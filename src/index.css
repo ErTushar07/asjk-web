@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  html[dir="rtl"] {
+    font-family: 'Noto Naskh Arabic', 'Noto Nastaliq Urdu', system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+
+  html[lang="ur"] {
+    font-family: 'Noto Nastaliq Urdu', 'Scheherazade New', serif;
+    line-height: 1.8;
+  }
+
+  html[lang="hi"] {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  }
+
+  body {
+    @apply bg-surface text-content-primary selection:bg-brand-pink selection:text-white min-h-screen;
+  }
+}
+
+/* Custom Gradients and Brand Effects */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #393186 0%, #01A0E2 100%);
+}
+
+.bg-brand-gradient-pink {
+  background: linear-gradient(135deg, #393186 0%, #E40981 100%);
+}
+
+.bg-brand-gradient-reverse {
+  background: linear-gradient(135deg, #01A0E2 0%, #393186 100%);
+}
+
+.text-gradient-purple-pink {
+  background: linear-gradient(135deg, #393186 0%, #E40981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-purple-blue {
+  background: linear-gradient(135deg, #393186 0%, #01A0E2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-white bg-brand-purple hover:bg-brand-purple-dark transition-all duration-200 shadow-brand-sm hover:shadow-brand-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-white bg-brand-pink hover:bg-brand-pink-dark transition-all duration-200 shadow-brand-sm hover:shadow-pink-glow active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-accent {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-white bg-brand-blue hover:bg-brand-blue-dark transition-all duration-200 shadow-brand-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center font-semibold rounded-xl px-5 py-2.5 text-brand-purple border-2 border-brand-purple/20 hover:border-brand-purple hover:bg-brand-purple/5 transition-all duration-200 active:scale-[0.98];
+}
+
+/* Glass & Card styles */
+.glass-card {
+  @apply bg-white/90 backdrop-blur-md border border-content-border/60 shadow-brand-sm;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F5FA;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4C7D4;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #393186;
+}
+
+/* RTL Helpers */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}

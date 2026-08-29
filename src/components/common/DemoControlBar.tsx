@@ -141,7 +141,7 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
           {/* Left: Role Switcher */}
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-blue">
-              <Shield className="w-4 h-4 text-brand-pink" /> ASFJK Role:
+              <Shield className="w-4 h-4 text-brand-pink" /> Active Role:
             </span>
             <select
               value={role}
@@ -216,7 +216,7 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
         {expanded && (
           <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-white/80">
             <div className="bg-white/5 p-2.5 rounded-lg">
-              <span className="font-semibold text-brand-blue block mb-1">ASFJK Financial Engine:</span>
+              <span className="font-semibold text-brand-blue block mb-1">Financial Engine:</span>
               <p>Total Donations: {donations.length} | Subscriptions: {recurringDonations.length}</p>
               <p>Total Raised Across Projects: ${donations.reduce((s, d) => d.status === 'successful' ? s + d.amountUSD : s, 0).toLocaleString()}</p>
             </div>
@@ -225,7 +225,7 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
               <p>Switch languages in navbar to test English, Hindi, Urdu (RTL), Arabic, etc. Checkout state stays intact.</p>
             </div>
             <div className="bg-white/5 p-2.5 rounded-lg">
-              <span className="font-semibold text-amber-400 block mb-1">ASFJK PDF Tax Receipts:</span>
+              <span className="font-semibold text-amber-400 block mb-1">PDF Tax Receipts:</span>
               <p>Generated dynamically with Section 80G / FCRA credentials and unique sequential IDs on every gift.</p>
             </div>
           </div>

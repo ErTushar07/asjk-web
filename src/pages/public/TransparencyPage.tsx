@@ -71,9 +71,9 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
-            <span className="text-[10px] text-content-muted font-bold uppercase block">Trust Registration</span>
-            <span className="font-bold text-brand-purple font-mono text-sm">{settings.registrationNumber}</span>
-            <span className="text-[11px] text-content-secondary block">Govt of Jammu & Kashmir</span>
+            <span className="text-[10px] text-content-muted font-bold uppercase block">NITI Aayog NGO-DARPAN ID</span>
+            <span className="font-bold text-brand-purple font-mono text-sm">{settings.darpanUniqueId || settings.registrationNumber}</span>
+            <span className="text-[11px] text-content-secondary block">Govt of India NGO-DARPAN</span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">

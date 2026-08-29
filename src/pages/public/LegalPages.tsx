@@ -42,7 +42,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
           </p>
           <h3 className="text-base font-bold text-content-primary">1. Charitable Purpose</h3>
           <p>
-            All funds collected through this platform are utilized exclusively for registered charitable, educational, healthcare, and humanitarian relief objectives in Jammu & Kashmir in compliance with Trust Deed JK-TR-2018/889042.
+            All funds collected through this platform are utilized exclusively for registered charitable, educational, healthcare, and humanitarian relief objectives in Jammu & Kashmir in compliance with NITI Aayog NGO-DARPAN Registration JK/2018/0190361.
           </p>
           <h3 className="text-base font-bold text-content-primary">2. Donor Rights & Tax Receipts</h3>
           <p>

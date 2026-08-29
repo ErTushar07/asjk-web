@@ -166,6 +166,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const parsed: SystemSettings = JSON.parse(saved);
       return {
         ...parsed,
+        registrationNumber: !parsed.registrationNumber || parsed.registrationNumber.includes('889042') ? 'JK/2018/0190361' : parsed.registrationNumber,
+        darpanUniqueId: parsed.darpanUniqueId || 'JK/2018/0190361',
         registeredAddress: !parsed.registeredAddress || parsed.registeredAddress.includes('Srinagar') || parsed.registeredAddress.includes('Foundation Complex') 
           ? 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025' 
           : parsed.registeredAddress,

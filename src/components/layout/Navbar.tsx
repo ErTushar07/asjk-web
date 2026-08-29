@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     onClick={() => onNavigate('/transparency')} 
                     className="flex items-center gap-2 cursor-pointer hover:text-brand-blue transition-colors"
                   >
-                    <span className="text-brand-blue font-mono font-bold">{t('ticker.reg_info', 'Reg: JK-TR-2018/889042 · 80G / 501(c)(3)')}</span>
+                    <span className="text-brand-blue font-mono font-bold">{t('ticker.reg_info', 'NGO DARPAN: JK/2018/0190361 · 80G / 501(c)(3)')}</span>
                     <span className="text-white/80 underline text-[11px] font-semibold hover:text-white">{t('nav.transparency', 'Transparency & Audits')}</span>
                   </div>
 

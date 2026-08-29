@@ -134,8 +134,8 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-content-secondary font-mono">
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
-            <span className="text-[10px] text-content-muted block uppercase">Registered Trust</span>
-            <span className="font-bold text-content-primary">JK-TR-2018/889042</span>
+            <span className="text-[10px] text-content-muted block uppercase">NITI Aayog NGO-DARPAN</span>
+            <span className="font-bold text-content-primary">JK/2018/0190361</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">Income Tax 80G</span>

@@ -43,10 +43,10 @@ export class ReceiptService {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text(`Trust Reg No: ${settings.registrationNumber}`, 25, 47);
+    doc.text(`NGO-DARPAN / Reg: ${settings.registrationNumber}`, 25, 47);
     doc.text(`80G Exemption No: ${settings.taxExemptionNumber80G}`, 25, 52);
     doc.text(`FCRA Registration: ${settings.fcraRegistrationNumber}`, 110, 47);
-    doc.text(`Govt of J&K Registered Charitable Trust`, 110, 52);
+    doc.text(`NITI Aayog & Govt Registered Trust`, 110, 52);
 
     // Receipt Title Badge
     doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);

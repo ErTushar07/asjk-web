@@ -369,6 +369,7 @@ export interface SystemSettings {
   foundationName: string;
   foundationLegalName: string;
   registrationNumber: string;
+  darpanUniqueId: string;
   taxExemptionNumber80G: string;
   fcraRegistrationNumber: string;
   registeredAddress: string;

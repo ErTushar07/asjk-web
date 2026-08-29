@@ -1241,11 +1241,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-secondary mb-1">Trust Registration Number</label>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">NITI Aayog NGO-DARPAN / Registration Number</label>
                 <input
                   type="text"
                   value={settings.registrationNumber}
-                  onChange={(e) => updateSettings({ registrationNumber: e.target.value })}
+                  onChange={(e) => updateSettings({ registrationNumber: e.target.value, darpanUniqueId: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
                 />
               </div>

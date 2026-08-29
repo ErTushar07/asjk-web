@@ -44,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <span>Statutory Registrations & Credentials</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-white/70 pt-1 border-t border-white/10">
-                <div>Trust Reg: <span className="text-white">JK-TR-2018/889042</span></div>
+                <div>NGO DARPAN: <span className="text-white">JK/2018/0190361</span></div>
                 <div>80G Tax: <span className="text-white">AACTA8920E/80G</span></div>
                 <div>FCRA Reg: <span className="text-white">083420194</span></div>
                 <div>Section 12A: <span className="text-white">Approved</span></div>

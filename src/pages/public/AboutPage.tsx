@@ -132,14 +132,18 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
         <h3 className="font-extrabold text-base text-brand-purple flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-brand-pink" /> Legal & Statutory Registrations
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-content-secondary font-mono">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs text-content-secondary font-mono">
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
-            <span className="text-[10px] text-content-muted block uppercase">NITI Aayog NGO-DARPAN</span>
+            <span className="text-[10px] text-content-muted block uppercase">NGO-DARPAN</span>
             <span className="font-bold text-content-primary">JK/2018/0190361</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
+            <span className="text-[10px] text-content-muted block uppercase">LEI Identifier</span>
+            <span className="font-bold text-content-primary text-[11px] break-all">9845008779YC3EE0IE41</span>
+          </div>
+          <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">Income Tax 80G</span>
-            <span className="font-bold text-content-primary">AACTA8920E/80G/2021-22</span>
+            <span className="font-bold text-content-primary">AACTA8920E/80G</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">FCRA Compliance</span>

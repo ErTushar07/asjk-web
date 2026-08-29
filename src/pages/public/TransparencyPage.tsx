@@ -69,29 +69,35 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs">
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
-            <span className="text-[10px] text-content-muted font-bold uppercase block">NITI Aayog NGO-DARPAN ID</span>
+            <span className="text-[10px] text-content-muted font-bold uppercase block">NITI Aayog NGO-DARPAN</span>
             <span className="font-bold text-brand-purple font-mono text-sm">{settings.darpanUniqueId || settings.registrationNumber}</span>
-            <span className="text-[11px] text-content-secondary block">Govt of India NGO-DARPAN</span>
+            <span className="text-[11px] text-content-secondary block">Govt of India DARPAN</span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
-            <span className="text-[10px] text-content-muted font-bold uppercase block">Section 80G Tax Exemption</span>
+            <span className="text-[10px] text-content-muted font-bold uppercase block">Legal Entity ID (LEI)</span>
+            <span className="font-bold text-brand-orange font-mono text-xs break-all">{settings.leiNumber || '9845008779YC3EE0IE41'}</span>
+            <span className="text-[11px] text-content-secondary block">Global Legal Identifier</span>
+          </div>
+
+          <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
+            <span className="text-[10px] text-content-muted font-bold uppercase block">Section 80G Tax</span>
             <span className="font-bold text-brand-pink font-mono text-sm">{settings.taxExemptionNumber80G}</span>
-            <span className="text-[11px] text-content-secondary block">50% Tax Deduction in India</span>
+            <span className="text-[11px] text-content-secondary block">50% Tax Deduction</span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
-            <span className="text-[10px] text-content-muted font-bold uppercase block">FCRA Registration</span>
+            <span className="text-[10px] text-content-muted font-bold uppercase block">FCRA Compliance</span>
             <span className="font-bold text-brand-blue font-mono text-sm">{settings.fcraRegistrationNumber}</span>
-            <span className="text-[11px] text-content-secondary block">Foreign Contribution Regulation</span>
+            <span className="text-[11px] text-content-secondary block">Foreign Contributions</span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
             <span className="text-[10px] text-content-muted font-bold uppercase block">Section 12A Status</span>
             <span className="font-bold text-emerald-600 font-mono text-sm">Approved (Perpetual)</span>
-            <span className="text-[11px] text-content-secondary block">Income Tax Exemption</span>
+            <span className="text-[11px] text-content-secondary block">Tax Exemption</span>
           </div>
         </div>
       </div>

@@ -1251,7 +1251,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-secondary mb-1">Section 80G Tax Exemption Number</label>
                 <input
@@ -1267,6 +1267,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   type="text"
                   value={settings.fcraRegistrationNumber}
                   onChange={(e) => updateSettings({ fcraRegistrationNumber: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Legal Entity Identifier (LEI)</label>
+                <input
+                  type="text"
+                  value={settings.leiNumber || ''}
+                  onChange={(e) => updateSettings({ leiNumber: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
                 />
               </div>

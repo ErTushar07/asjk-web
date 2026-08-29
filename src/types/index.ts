@@ -370,6 +370,7 @@ export interface SystemSettings {
   foundationLegalName: string;
   registrationNumber: string;
   darpanUniqueId: string;
+  leiNumber: string;
   taxExemptionNumber80G: string;
   fcraRegistrationNumber: string;
   registeredAddress: string;

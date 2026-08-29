@@ -82,10 +82,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
                 onChange={(e) => {
                   const r = e.target.value as UserRole;
                   setSelectedDemoRole(r);
-                  if (r === 'super_admin') setEmail('amin.ganai@asjk.org');
-                  else if (r === 'finance_admin') setEmail('michael.carter@asjk.org');
-                  else if (r === 'project_manager') setEmail('daniel.wilson@asjk.org');
-                  else if (r === 'content_manager') setEmail('emily.carter@asjk.org');
+                  if (r === 'super_admin') setEmail('amin.ganai@asfjk.org');
+                  else if (r === 'finance_admin') setEmail('michael.carter@asfjk.org');
+                  else if (r === 'project_manager') setEmail('daniel.wilson@asfjk.org');
+                  else if (r === 'content_manager') setEmail('emily.carter@asfjk.org');
                   else setEmail('david.thompson@example.com');
                 }}
                 className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-content-border bg-white"

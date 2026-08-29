@@ -163,8 +163,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const parsed: SystemSettings = JSON.parse(saved);
       return {
         ...parsed,
-        email: !parsed.email || parsed.email.includes('alshujaiat.org') || parsed.email.includes('asfjk.org') ? 'info@asjk.org' : parsed.email,
-        websiteUrl: !parsed.websiteUrl || parsed.websiteUrl.includes('alshujaiat.org') || parsed.websiteUrl.includes('asfjk.org') ? 'https://asjk.org' : parsed.websiteUrl,
+        email: !parsed.email || parsed.email.includes('alshujaiat.org') || parsed.email.includes('asjk.org') ? 'info@asfjk.org' : parsed.email,
+        websiteUrl: !parsed.websiteUrl || parsed.websiteUrl.includes('alshujaiat.org') || parsed.websiteUrl.includes('asjk.org') ? 'https://www.asfjk.org' : parsed.websiteUrl,
       };
     } catch {
       return INITIAL_SYSTEM_SETTINGS;

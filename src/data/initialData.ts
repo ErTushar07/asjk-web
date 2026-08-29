@@ -8,7 +8,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr_superadmin',
     name: 'Mohd Amin Ganai',
-    email: 'amin.ganai@asjk.org',
+    email: 'amin.ganai@asfjk.org',
     role: 'super_admin',
     preferredLanguage: 'en',
     preferredCurrency: 'USD',
@@ -18,7 +18,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr_finance',
     name: 'Michael Carter',
-    email: 'michael.carter@asjk.org',
+    email: 'michael.carter@asfjk.org',
     role: 'finance_admin',
     preferredLanguage: 'en',
     preferredCurrency: 'USD',
@@ -28,7 +28,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr_project',
     name: 'Daniel Wilson',
-    email: 'daniel.wilson@asjk.org',
+    email: 'daniel.wilson@asfjk.org',
     role: 'project_manager',
     preferredLanguage: 'en',
     preferredCurrency: 'USD',
@@ -37,7 +37,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr_content',
     name: 'Emily Carter',
-    email: 'emily.carter@asjk.org',
+    email: 'emily.carter@asfjk.org',
     role: 'content_manager',
     preferredLanguage: 'en',
     preferredCurrency: 'USD',
@@ -1096,10 +1096,10 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   taxExemptionNumber80G: 'AACTA8920E/80G/2021-22',
   fcraRegistrationNumber: 'FCRA-083420194',
   registeredAddress: 'Foundation Complex, Main Road, Srinagar, Jammu & Kashmir 190001, India',
-  email: 'info@asjk.org',
+  email: 'info@asfjk.org',
   phone: '+91 194 2450123',
   emergencyPhone: '+91 94190 00000',
-  websiteUrl: 'https://asjk.org',
+  websiteUrl: 'https://www.asfjk.org',
   defaultCurrency: 'USD',
   supportedCurrencies: ['USD', 'INR', 'EUR', 'GBP', 'AED', 'SAR', 'CAD', 'AUD'],
   presetAmounts: [25, 50, 100, 250, 500],

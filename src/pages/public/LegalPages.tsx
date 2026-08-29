@@ -75,7 +75,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
           </ul>
           <h3 className="text-base font-bold text-content-primary">2. Refund Processing</h3>
           <p>
-            To request a refund, email <span className="font-mono text-brand-purple">finance@asjk.org</span> with your Transaction ID and Donation Receipt Number. Upon verification by our Finance Director (Michael Carter) and Executive Director (Mohd Amin Ganai), approved refunds are credited back to the original payment method within 5–7 banking days.
+            To request a refund, email <span className="font-mono text-brand-purple">finance@asfjk.org</span> with your Transaction ID and Donation Receipt Number. Upon verification by our Finance Director (Michael Carter) and Executive Director (Mohd Amin Ganai), approved refunds are credited back to the original payment method within 5–7 banking days.
           </p>
         </>
       ),

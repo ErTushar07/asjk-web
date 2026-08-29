@@ -142,7 +142,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-brand-blue flex-shrink-0" />
-                <a href="mailto:info@asjk.org" className="hover:text-white font-mono">info@asjk.org</a>
+                <a href="mailto:info@asfjk.org" className="hover:text-white font-mono">info@asfjk.org</a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-brand-orange flex-shrink-0" />

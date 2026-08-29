@@ -1,4 +1,4 @@
-import { 
+import {
   Project, Campaign, Donation, Payment, RecurringDonation, Receipt, Refund,
   Story, NewsArticle, ImpactMetric, VolunteerApplication, PartnershipRequest,
   SupportTicket, AuditLog, SystemSettings, User
@@ -1096,13 +1096,13 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
 export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   foundationName: 'Al Shujaiat Foundation Jammu & Kashmir',
   foundationLegalName: 'Al Shujaiat Foundation Jammu & Kashmir (ASFJK)',
-  registrationNumber: 'JK-TR-2018/889042',
+  registrationNumber: 'JK/2018/0190361',
   taxExemptionNumber80G: 'AACTA8920E/80G/2021-22',
-  fcraRegistrationNumber: 'FCRA-083420194',
-  registeredAddress: 'Foundation Complex, Main Road, Srinagar, Jammu & Kashmir 190001, India',
+  registeredAddress: 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025',
+  operatingAddress: 'Luragam Tral Pulwama Jammu and Kashmir 192123',
   email: 'info@asfjk.org',
-  phone: '+91 194 2450123',
-  emergencyPhone: '+91 94190 00000',
+  phone: '+91 1933 351585',
+  emergencyPhone: '+91 94193 01319',
   websiteUrl: 'https://www.asfjk.org',
   defaultCurrency: 'USD',
   supportedCurrencies: ['USD', 'INR', 'EUR', 'GBP', 'AED', 'SAR', 'CAD', 'AUD'],

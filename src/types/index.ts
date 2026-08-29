@@ -372,6 +372,7 @@ export interface SystemSettings {
   taxExemptionNumber80G: string;
   fcraRegistrationNumber: string;
   registeredAddress: string;
+  operatingAddress: string;
   email: string;
   phone: string;
   emergencyPhone: string;

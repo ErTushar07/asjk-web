@@ -166,6 +166,12 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const parsed: SystemSettings = JSON.parse(saved);
       return {
         ...parsed,
+        registeredAddress: !parsed.registeredAddress || parsed.registeredAddress.includes('Srinagar') || parsed.registeredAddress.includes('Foundation Complex') 
+          ? 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025' 
+          : parsed.registeredAddress,
+        operatingAddress: parsed.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123',
+        phone: parsed.phone && !parsed.phone.includes('194') ? parsed.phone : '+91 1933 351585',
+        emergencyPhone: parsed.emergencyPhone && !parsed.emergencyPhone.includes('94190 00000') ? parsed.emergencyPhone : '+91 94193 01319',
         email: !parsed.email || parsed.email.includes('alshujaiat.org') || parsed.email.includes('asjk.org') ? 'info@asfjk.org' : parsed.email,
         websiteUrl: !parsed.websiteUrl || parsed.websiteUrl.includes('alshujaiat.org') || parsed.websiteUrl.includes('asjk.org') ? 'https://www.asfjk.org' : parsed.websiteUrl,
       };

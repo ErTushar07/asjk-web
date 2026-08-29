@@ -31,14 +31,15 @@ export class ReceiptService {
     doc.text('AL SHUJAIAT FOUNDATION JAMMU & KASHMIR (ASFJK)', 20, 25);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text(settings.registeredAddress, 20, 31);
-    doc.text(`Email: ${settings.email} | Phone: ${settings.phone} | Web: ${settings.websiteUrl}`, 20, 36);
+    doc.text(`Reg. Office: ${settings.registeredAddress}`, 20, 30);
+    doc.text(`Operating Office: ${settings.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123'}`, 20, 34);
+    doc.text(`Email: ${settings.email} | Helplines: ${settings.phone} / ${settings.emergencyPhone || '+91 94193 01319'} | Web: ${settings.websiteUrl}`, 20, 38);
 
     // Registration Credentials & Tax Exemption Header Block
     doc.setFillColor(243, 245, 250);
-    doc.roundedRect(20, 41, 170, 16, 2, 2, 'F');
+    doc.roundedRect(20, 42, 170, 16, 2, 2, 'F');
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);

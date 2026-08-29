@@ -17,9 +17,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3.5 cursor-pointer" onClick={() => onNavigate('/')}>
               <div className="w-12 h-12 rounded-xl overflow-hidden bg-white p-1 flex-shrink-0">
-                <img 
-                  src="/images/logo.png" 
-                  alt="Al Shujaiat Foundation Jammu & Kashmir Logo" 
+                <img
+                  src="/images/logo.png"
+                  alt="Al Shujaiat Foundation Jammu & Kashmir Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -133,12 +133,22 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Column 4: Contact & Office */}
           <div>
             <h4 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-4">
-              Headquarters & Desk
+              Offices & Helplines
             </h4>
             <ul className="space-y-3 text-xs text-white/70">
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-brand-pink flex-shrink-0 mt-0.5" />
-                <span>Foundation Complex, Main Road, Srinagar, Jammu & Kashmir 190001, India</span>
+                <div>
+                  <span className="text-white font-bold block text-[11px]">Registered Office:</span>
+                  <span>D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-white font-bold block text-[11px]">Operating / Field Office:</span>
+                  <span>Luragam Tral Pulwama Jammu and Kashmir 192123</span>
+                </div>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-brand-blue flex-shrink-0" />
@@ -146,9 +156,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-brand-orange flex-shrink-0" />
-                <span className="font-mono">+91 194 2450123 / +91 94190 00000</span>
+                <span className="font-mono text-[11px]">+91 1933 351585 / +91 94193 01319</span>
               </li>
-              <li className="pt-2">
+              <li className="pt-1">
                 <button
                   onClick={() => onNavigate('/faq')}
                   className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors"
@@ -163,7 +173,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Legal Policies Bar */}
         <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
           <p>© {new Date().getFullYear()} {t('footer.rights', 'All rights reserved. Al Shujaiat Foundation Jammu & Kashmir.')}</p>
-          
+
           <div className="flex flex-wrap items-center gap-4 text-[11px]">
             <button onClick={() => onNavigate('/privacy')} className="hover:text-white transition-colors">
               Privacy Policy

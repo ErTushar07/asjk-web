@@ -1293,14 +1293,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-content-secondary mb-1">Registered Office Address</label>
-              <input
-                type="text"
-                value={settings.registeredAddress}
-                onChange={(e) => updateSettings({ registeredAddress: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Registered Office Address</label>
+                <input
+                  type="text"
+                  value={settings.registeredAddress}
+                  onChange={(e) => updateSettings({ registeredAddress: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Operating / Field Office Address</label>
+                <input
+                  type="text"
+                  value={settings.operatingAddress || ''}
+                  onChange={(e) => updateSettings({ operatingAddress: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
             </div>
           </div>
         )}

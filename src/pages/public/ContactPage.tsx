@@ -46,13 +46,21 @@ export const ContactPage: React.FC = () => {
         {/* Left: Contact Info */}
         <div className="lg:col-span-5 bg-brand-purple text-white p-8 sm:p-10 rounded-3xl space-y-8 shadow-brand-md flex flex-col justify-between">
           <div className="space-y-6">
-            <h3 className="text-xl font-extrabold tracking-tight">Registered Headquarters</h3>
+            <h3 className="text-xl font-extrabold tracking-tight">Foundation Offices & Helplines</h3>
             <div className="space-y-4 text-xs text-white/85">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-brand-pink flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">Physical Address:</span>
+                  <span className="font-bold text-white block mb-0.5">Registered Office:</span>
                   <p>{settings.registeredAddress}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-white block mb-0.5">Operating / Field Office:</span>
+                  <p>{settings.operatingAddress}</p>
                 </div>
               </div>
 
@@ -67,8 +75,8 @@ export const ContactPage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">Helpline:</span>
-                  <p className="font-mono">{settings.phone}</p>
+                  <span className="font-bold text-white block mb-0.5">Helplines & WhatsApp:</span>
+                  <p className="font-mono">{settings.phone} / {settings.emergencyPhone}</p>
                 </div>
               </div>
             </div>

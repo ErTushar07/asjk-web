@@ -96,8 +96,8 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
 
           <div className="bg-white p-4 rounded-2xl border border-content-border space-y-1">
             <span className="text-[10px] text-content-muted font-bold uppercase block">Section 12A Status</span>
-            <span className="font-bold text-emerald-600 font-mono text-sm">Approved (Perpetual)</span>
-            <span className="text-[11px] text-content-secondary block">Tax Exemption</span>
+            <span className="font-bold text-emerald-600 font-mono text-xs break-all">{settings.taxExemptionNumber12A || 'DEL-AR26932-27022018/8830'}</span>
+            <span className="text-[11px] text-content-secondary block">Income Tax Exemption</span>
           </div>
         </div>
       </div>

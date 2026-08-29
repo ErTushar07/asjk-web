@@ -372,6 +372,7 @@ export interface SystemSettings {
   darpanUniqueId: string;
   leiNumber: string;
   taxExemptionNumber80G: string;
+  taxExemptionNumber12A: string;
   fcraRegistrationNumber: string;
   registeredAddress: string;
   operatingAddress: string;

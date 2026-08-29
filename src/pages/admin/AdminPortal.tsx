@@ -1251,13 +1251,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-secondary mb-1">Section 80G Tax Exemption Number</label>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Section 80G Tax Exemption</label>
                 <input
                   type="text"
                   value={settings.taxExemptionNumber80G}
                   onChange={(e) => updateSettings({ taxExemptionNumber80G: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-content-secondary mb-1">Section 12A Registration</label>
+                <input
+                  type="text"
+                  value={settings.taxExemptionNumber12A || ''}
+                  onChange={(e) => updateSettings({ taxExemptionNumber12A: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
                 />
               </div>

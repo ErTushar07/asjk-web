@@ -171,7 +171,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         leiNumber: parsed.leiNumber || '9845008779YC3EE0IE41',
         taxExemptionNumber80G: !parsed.taxExemptionNumber80G || parsed.taxExemptionNumber80G.includes('AACTA8920E') ? 'DEL-AE28396-27022018/9728' : parsed.taxExemptionNumber80G,
         taxExemptionNumber12A: parsed.taxExemptionNumber12A || 'DEL-AR26932-27022018/8830',
-        fcraRegistrationNumber: !parsed.fcraRegistrationNumber || parsed.fcraRegistrationNumber.includes('083420194') ? '4872022R' : parsed.fcraRegistrationNumber,
+        fcraRegistrationNumber: !parsed.fcraRegistrationNumber || parsed.fcraRegistrationNumber.includes('083420194') || parsed.fcraRegistrationNumber.includes('4872022R') ? '004872022' : parsed.fcraRegistrationNumber,
         registeredAddress: !parsed.registeredAddress || parsed.registeredAddress.includes('Srinagar') || parsed.registeredAddress.includes('Foundation Complex') 
           ? 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025' 
           : parsed.registeredAddress,

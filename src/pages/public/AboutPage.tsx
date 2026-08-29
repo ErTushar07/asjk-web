@@ -147,7 +147,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">FCRA Compliance</span>
-            <span className="font-bold text-content-primary">4872022R</span>
+            <span className="font-bold text-content-primary">004872022</span>
           </div>
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">Section 12A</span>

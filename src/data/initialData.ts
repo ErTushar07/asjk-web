@@ -1101,7 +1101,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   leiNumber: '9845008779YC3EE0IE41',
   taxExemptionNumber80G: 'DEL-AE28396-27022018/9728',
   taxExemptionNumber12A: 'DEL-AR26932-27022018/8830',
-  fcraRegistrationNumber: '4872022R',
+  fcraRegistrationNumber: '004872022',
   registeredAddress: 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025',
   operatingAddress: 'Luragam Tral Pulwama Jammu and Kashmir 192123',
   email: 'info@asfjk.org',

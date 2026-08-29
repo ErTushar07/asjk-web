@@ -311,6 +311,9 @@ export interface VolunteerApplication {
   phone: string;
   city: string;
   country: string;
+  qualification: string;
+  resumeFileName?: string;
+  resumeDataUrl?: string;
   skills: string[];
   availability: 'weekdays' | 'weekends' | 'full_time' | 'flexible';
   experienceYears: number;

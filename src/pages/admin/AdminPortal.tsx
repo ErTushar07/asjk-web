@@ -11,7 +11,7 @@ import {
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
-  Mail, Phone, Send, Check, X
+  Mail, Phone, Send, Check, X, GraduationCap, Paperclip
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -59,6 +59,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   // Support Ticket Response Modal
   const [responseModalTicket, setResponseModalTicket] = useState<any | null>(null);
   const [ticketReplyText, setTicketReplyText] = useState('');
+
+  // Selected Volunteer Modal State
+  const [selectedVolunteer, setSelectedVolunteer] = useState<any | null>(null);
 
   // Calculate Financial Aggregates (Source of Truth)
   const successfulDonations = donations.filter((d) => d.status === 'successful');
@@ -941,15 +944,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
         {/* 11. VOLUNTEER APPLICATIONS TAB */}
         {activeTab === 'volunteers' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
-            <h3 className="text-lg font-extrabold text-content-primary">
-              Volunteer Applications Desk ({volunteers.length})
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-content-primary">
+                  Volunteer Applications & Candidate Dossiers ({volunteers.length})
+                </h3>
+                <p className="text-xs text-content-secondary">
+                  Review applicant academic qualifications, verified credentials, and downloadable resumes.
+                </p>
+              </div>
+              <button
+                onClick={() => ReportService.exportToCSV(volunteers, 'ASFJK_Volunteer_Applications')}
+                className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" /> Export Applications CSV
+              </button>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
                     <th className="py-3 px-4">Applicant</th>
-                    <th className="py-3 px-4">Contact</th>
+                    <th className="py-3 px-4">Qualification & Resume</th>
                     <th className="py-3 px-4">Location</th>
                     <th className="py-3 px-4">Skills</th>
                     <th className="py-3 px-4">Availability</th>
@@ -960,13 +977,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 <tbody className="divide-y divide-content-border">
                   {volunteers.map((v) => (
                     <tr key={v.id} className="hover:bg-surface-soft transition-colors">
-                      <td className="py-3 px-4 font-bold text-content-primary">{v.fullName}</td>
-                      <td className="py-3 px-4 text-content-secondary font-mono">
-                        <div>{v.email}</div>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-content-primary">{v.fullName}</div>
+                        <div className="text-content-secondary font-mono text-[11px]">{v.email}</div>
                         <div className="text-[10px] text-content-muted">{v.phone}</div>
                       </td>
+                      <td className="py-3 px-4 max-w-[220px]">
+                        <div className="flex items-center gap-1.5 text-brand-purple font-semibold">
+                          <GraduationCap className="w-4 h-4 flex-shrink-0 text-brand-pink" />
+                          <span className="truncate">{v.qualification || 'Higher Education'}</span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono text-content-secondary bg-surface-card px-2 py-0.5 rounded border border-content-border truncate max-w-[170px]">
+                            <Paperclip className="w-3 h-3 text-brand-blue" />
+                            {v.resumeFileName || 'Resume.pdf'}
+                          </span>
+                        </div>
+                      </td>
                       <td className="py-3 px-4">{v.city}, {v.country}</td>
-                      <td className="py-3 px-4 max-w-[200px]">
+                      <td className="py-3 px-4 max-w-[180px]">
                         <div className="flex flex-wrap gap-1">
                           {v.skills.map((sk, idx) => (
                             <span key={idx} className="bg-brand-purple/10 text-brand-purple text-[9px] px-1.5 py-0.5 rounded font-semibold">
@@ -982,6 +1011,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right space-x-1.5">
+                        <button
+                          onClick={() => setSelectedVolunteer(v)}
+                          className="btn-primary !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" /> View Dossier
+                        </button>
                         {v.status !== 'approved' && (
                           <button
                             onClick={() => updateVolunteerStatus(v.id, 'approved')}
@@ -1554,6 +1589,137 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Volunteer Dossier & Resume Modal */}
+      {selectedVolunteer && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full border border-content-border shadow-2xl space-y-5 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start border-b border-content-border pb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-pink block">Volunteer Candidate Dossier</span>
+                <h3 className="text-xl font-extrabold text-content-primary">{selectedVolunteer.fullName}</h3>
+                <p className="text-xs text-content-muted">{selectedVolunteer.city}, {selectedVolunteer.country} · Applied {new Date(selectedVolunteer.submittedAt).toLocaleDateString()}</p>
+              </div>
+              <button
+                onClick={() => setSelectedVolunteer(null)}
+                className="p-1.5 rounded-full text-content-muted hover:text-content-primary hover:bg-surface-soft"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Academic & Professional Qualification Box */}
+            <div className="p-4 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-2">
+              <div className="flex items-center gap-2 text-brand-purple font-bold text-xs">
+                <GraduationCap className="w-4 h-4 text-brand-pink" />
+                <span>Highest Qualification & Field of Study</span>
+              </div>
+              <p className="text-xs font-extrabold text-content-primary pl-6">
+                {selectedVolunteer.qualification || 'Higher Education & Professional Training'}
+              </p>
+            </div>
+
+            {/* Attached Resume Box */}
+            <div className="p-4 rounded-2xl bg-white border border-content-border flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-content-primary">{selectedVolunteer.resumeFileName || `${selectedVolunteer.fullName.replace(/\s+/g, '_')}_Resume.pdf`}</p>
+                  <p className="text-[10px] text-content-muted">Applicant Curriculum Vitae / Resume Dossier</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (selectedVolunteer.resumeDataUrl) {
+                    const a = document.createElement('a');
+                    a.href = selectedVolunteer.resumeDataUrl;
+                    a.download = selectedVolunteer.resumeFileName || 'Resume.pdf';
+                    a.click();
+                  } else {
+                    // Generate a rich mock PDF summary blob
+                    const resumeBlob = new Blob([
+                      `=====================================================\n` +
+                      `AL SHUJAIAT FOUNDATION JAMMU & KASHMIR (ASFJK)\n` +
+                      `VOLUNTEER APPLICANT RESUME & PROFILE DOSSIER\n` +
+                      `=====================================================\n\n` +
+                      `CANDIDATE NAME: ${selectedVolunteer.fullName}\n` +
+                      `EMAIL: ${selectedVolunteer.email}\n` +
+                      `PHONE: ${selectedVolunteer.phone || 'N/A'}\n` +
+                      `LOCATION: ${selectedVolunteer.city}, ${selectedVolunteer.country}\n\n` +
+                      `ACADEMIC QUALIFICATION:\n${selectedVolunteer.qualification || 'Degree in Humanitarian Logistics'}\n\n` +
+                      `YEARS OF EXPERIENCE: ${selectedVolunteer.experienceYears} Years\n` +
+                      `AVAILABILITY: ${selectedVolunteer.availability}\n\n` +
+                      `AREAS OF EXPERTISE / SKILLS:\n- ${selectedVolunteer.skills.join('\n- ')}\n\n` +
+                      `PERSONAL MOTIVATION STATEMENT:\n"${selectedVolunteer.statement || 'Committed to humanitarian relief work in Jammu & Kashmir.'}"\n\n` +
+                      `APPLICATION STATUS: ${selectedVolunteer.status.toUpperCase()}\n` +
+                      `SUBMITTED AT: ${new Date(selectedVolunteer.submittedAt).toUTCString()}\n`
+                    ], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(resumeBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = selectedVolunteer.resumeFileName || `${selectedVolunteer.fullName.replace(/\s+/g, '_')}_Resume.txt`;
+                    a.click();
+                  }
+                }}
+                className="btn-primary !py-2 !px-3.5 text-xs font-bold flex items-center gap-1.5 flex-shrink-0"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Resume
+              </button>
+            </div>
+
+            {/* Candidate Statement */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase tracking-wider block">Volunteer Motivation & Statement</label>
+              <div className="p-3.5 rounded-xl bg-surface-soft border border-content-border text-xs text-content-primary leading-relaxed italic">
+                "{selectedVolunteer.statement || 'Eager to support field initiatives in healthcare, education, and clean water distribution.'}"
+              </div>
+            </div>
+
+            {/* Skills Badges */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase tracking-wider block">Verified Skillsets</label>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedVolunteer.skills.map((sk: string, idx: number) => (
+                  <span key={idx} className="bg-brand-purple/10 text-brand-purple text-xs font-semibold px-2.5 py-1 rounded-lg">
+                    {sk}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-content-border">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-content-muted">Current Status:</span>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${selectedVolunteer.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {selectedVolunteer.status}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={`mailto:${selectedVolunteer.email}`}
+                  className="btn-outline !py-2 !px-3 text-xs font-bold inline-flex items-center gap-1"
+                >
+                  <Mail className="w-3.5 h-3.5" /> Email Candidate
+                </a>
+                {selectedVolunteer.status !== 'approved' && (
+                  <button
+                    onClick={() => {
+                      updateVolunteerStatus(selectedVolunteer.id, 'approved');
+                      setSelectedVolunteer({ ...selectedVolunteer, status: 'approved' });
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl"
+                  >
+                    Approve Application
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

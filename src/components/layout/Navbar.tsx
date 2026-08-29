@@ -40,26 +40,75 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-content-border shadow-brand-sm">
-      {/* Top Notification Announcement Bar */}
-      <div className="bg-brand-purple text-white text-xs py-1.5 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
-            <span className="bg-brand-pink text-white font-bold px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-              Winter Relief Appeal
-            </span>
-            <span className="text-white/90 hidden sm:inline">
-              Al Shujaiat Foundation Jammu & Kashmir delivering emergency survival packages in mountain sectors.
-            </span>
+      {/* Continuous Right-to-Left Headline Ticker Announcement Bar */}
+      <div className="bg-brand-purple text-white text-xs py-1.5 overflow-hidden border-b border-brand-purple-dark/50 relative select-none">
+        <div className="flex items-center">
+          {/* Static Live Indicator Tag */}
+          <div className="flex items-center gap-1.5 px-3 py-0.5 bg-brand-purple-dark/90 z-10 flex-shrink-0 text-[10px] font-extrabold uppercase tracking-wider text-brand-pink shadow-md border-r border-white/10">
+            <span className="w-2 h-2 rounded-full bg-brand-pink animate-ping inline-block" />
+            <span className="w-2 h-2 rounded-full bg-brand-pink -ml-3.5 inline-block" />
+            <span>HEADLINES</span>
           </div>
 
-          <div className="flex items-center gap-4 flex-shrink-0 text-white/90">
-            <span className="hidden md:inline font-mono">Reg: JK-TR-2018/889042 · 80G / 501(c)(3)</span>
-            <button
-              onClick={() => onNavigate('/transparency')}
-              className="text-brand-blue hover:text-white underline text-xs font-semibold"
-            >
-              Transparency & Audits
-            </button>
+          {/* Continuous Moving Stream */}
+          <div className="flex overflow-hidden flex-1 relative">
+            <div className="animate-ticker flex items-center">
+              {[1, 2].map((loop) => (
+                <div key={loop} className="flex items-center gap-10 pr-10 flex-shrink-0">
+                  <div 
+                    onClick={() => onNavigate('/campaigns/winter-warmth-2026')} 
+                    className="flex items-center gap-2.5 cursor-pointer hover:text-brand-pink transition-colors group"
+                  >
+                    <span className="bg-brand-pink text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide group-hover:bg-white group-hover:text-brand-pink transition-all">
+                      WINTER RELIEF APPEAL
+                    </span>
+                    <span className="text-white/95 font-medium">
+                      Al Shujaiat Foundation Jammu & Kashmir delivering emergency survival packages in mountain sectors.
+                    </span>
+                  </div>
+
+                  <span className="text-white/30 font-bold">•</span>
+
+                  <div 
+                    onClick={() => onNavigate('/transparency')} 
+                    className="flex items-center gap-2 cursor-pointer hover:text-brand-blue transition-colors"
+                  >
+                    <span className="text-brand-blue font-mono font-bold">Reg: JK-TR-2018/889042 · 80G / 501(c)(3)</span>
+                    <span className="text-white/80 underline text-[11px] font-semibold hover:text-white">Transparency & Audits</span>
+                  </div>
+
+                  <span className="text-white/30 font-bold">•</span>
+
+                  <div 
+                    onClick={() => onNavigate('/volunteer')} 
+                    className="flex items-center gap-2.5 cursor-pointer hover:text-brand-pink transition-colors group"
+                  >
+                    <span className="bg-emerald-500 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
+                      VOLUNTEER DESK
+                    </span>
+                    <span className="text-white/95 font-medium">
+                      Applications now open: Join our field logistics & medical support task force with CV upload.
+                    </span>
+                  </div>
+
+                  <span className="text-white/30 font-bold">•</span>
+
+                  <div 
+                    onClick={() => onNavigate('/projects')} 
+                    className="flex items-center gap-2.5 cursor-pointer hover:text-brand-blue transition-colors group"
+                  >
+                    <span className="bg-brand-blue text-white font-black px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
+                      CLEAN WATER INITIATIVE
+                    </span>
+                    <span className="text-white/95 font-medium">
+                      12 New Solar Wells fully operational across high-altitude border districts of J&K.
+                    </span>
+                  </div>
+
+                  <span className="text-white/30 font-bold">•</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

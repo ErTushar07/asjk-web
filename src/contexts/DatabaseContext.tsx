@@ -770,11 +770,6 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     recordAudit('sys_public', tkt.name, 'public', 'SUPPORT_TICKET_CREATED', 'setting', newTkt.id, `Support ticket created: ${tkt.subject}`);
   };
 
-  const updateVolunteerStatus = (id: string, status: any) => {
-    setVolunteers((prev) => prev.map((v) => (v.id === id ? { ...v, status } : v)));
-    recordAudit('usr_admin', 'Administrator', 'super_admin', 'VOLUNTEER_STATUS_UPDATED', 'user', id, `Updated volunteer status to ${status}`);
-  };
-
   const updatePartnershipStatus = (id: string, status: any) => {
     setPartnerships((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'PARTNERSHIP_STATUS_UPDATED', 'setting', id, `Updated partnership status to ${status}`);

@@ -125,112 +125,130 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
     showToast('All 3 concurrent transactions processed cleanly without race conditions! +$600 added to Education.');
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       {/* Toast popup */}
       {notification && (
-        <div className="fixed top-20 right-6 z-50 bg-brand-purple text-white px-5 py-3 rounded-2xl shadow-brand-lg border border-brand-pink/40 flex items-center gap-3 animate-bounce">
+        <div className="fixed top-20 right-4 left-4 sm:left-auto z-50 bg-brand-purple text-white px-5 py-3 rounded-2xl shadow-brand-lg border border-brand-pink/40 flex items-center gap-3 animate-bounce">
           <CheckCircle2 className="w-5 h-5 text-brand-blue flex-shrink-0" />
-          <span className="text-sm font-medium">{notification}</span>
+          <span className="text-xs sm:text-sm font-medium">{notification}</span>
         </div>
       )}
 
-      {/* Floating Bar */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-5xl bg-brand-purple-dark/95 backdrop-blur-lg text-white border border-brand-blue/30 rounded-2xl shadow-brand-lg p-3 transition-all duration-300">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          {/* Left: Role Switcher */}
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-blue">
-              <Shield className="w-4 h-4 text-brand-pink" /> Active Role:
-            </span>
-            <select
-              value={role}
-              onChange={(e) => switchRole(e.target.value as UserRole)}
-              className="bg-white/10 text-white text-xs font-medium rounded-lg px-2.5 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-pink"
-            >
-              <option value="super_admin" className="text-content-primary">Executive Director (Mohd Amin Ganai)</option>
-              <option value="finance_admin" className="text-content-primary">Finance Director (Michael Carter)</option>
-              <option value="project_manager" className="text-content-primary">Project Manager (Daniel Wilson)</option>
-              <option value="content_manager" className="text-content-primary">Communications Director (Emily Carter)</option>
-              <option value="auditor" className="text-content-primary">Auditor (Independent Compliance)</option>
-              <option value="donor" className="text-content-primary">Donor (David Thompson)</option>
-            </select>
-          </div>
+      {/* Collapsed Floating Trigger (Clean, unobtrusive pill in bottom-right) */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-4 right-4 z-40 bg-brand-purple/90 hover:bg-brand-purple text-white text-[11px] font-bold px-3 py-2 rounded-full shadow-brand-lg border border-white/20 backdrop-blur-md flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 group"
+          title="Open Developer & Simulator Controls"
+        >
+          <Zap className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
+          <span className="hidden xs:inline">Simulator</span>
+        </button>
+      )}
 
-          {/* Center: Quick Simulation Actions */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+      {/* Expanded Control Modal / Drawer */}
+      {isOpen && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl bg-brand-purple-dark/98 backdrop-blur-xl text-white border border-brand-blue/30 rounded-2xl shadow-2xl p-3.5 transition-all duration-300 max-h-[85vh] overflow-y-auto">
+          <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 mb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 text-xs font-black uppercase tracking-wider text-brand-pink">
+                <Shield className="w-4 h-4" /> Live Demo Tools & Simulator
+              </span>
+            </div>
+            
             <button
-              onClick={handleSimulateDonation}
-              className="bg-brand-pink hover:bg-brand-pink-dark text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
-              title="Simulate $150 one-time donation"
+              onClick={() => setIsOpen(false)}
+              className="text-white/60 hover:text-white bg-white/10 hover:bg-white/20 px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
             >
-              <DollarSign className="w-3.5 h-3.5" /> +$150 Gift
-            </button>
-            <button
-              onClick={handleSimulateConcurrency}
-              className="bg-brand-blue hover:bg-brand-blue-dark text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
-              title="Simulate 3 concurrent donations"
-            >
-              <Zap className="w-3.5 h-3.5 text-yellow-300" /> 3x Concurrency
-            </button>
-            <button
-              onClick={handleSimulateRecurringFailure}
-              className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
-              title="Simulate payment failure on active subscription"
-            >
-              <AlertTriangle className="w-3.5 h-3.5" /> Fail Sub
-            </button>
-            <button
-              onClick={handleSimulateRecurringRetry}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
-              title="Simulate retry on past due subscription"
-            >
-              <RefreshCw className="w-3.5 h-3.5" /> Retry Sub
-            </button>
-            <button
-              onClick={handleSimulateRefund}
-              className="bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
-              title="Issue test refund"
-            >
-              Refund
-            </button>
-            <button
-              onClick={resetToDemoData}
-              className="bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-2 py-1.5 rounded-lg transition-all"
-              title="Reset data back to initial seed"
-            >
-              Reset Data
+              <span>Minimize ✕</span>
             </button>
           </div>
 
-          {/* Right: Expand Toggle */}
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="text-white/70 hover:text-white p-1 rounded transition-colors"
-          >
-            {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-        </div>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            {/* Role Switcher */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-brand-blue uppercase">Role:</span>
+              <select
+                value={role}
+                onChange={(e) => switchRole(e.target.value as UserRole)}
+                className="bg-white/10 text-white text-xs font-medium rounded-lg px-2.5 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-pink"
+              >
+                <option value="super_admin" className="text-content-primary">Executive Director (Mohd Amin Ganai)</option>
+                <option value="finance_admin" className="text-content-primary">Finance Director (Michael Carter)</option>
+                <option value="project_manager" className="text-content-primary">Project Manager (Daniel Wilson)</option>
+                <option value="content_manager" className="text-content-primary">Communications Director (Emily Carter)</option>
+                <option value="auditor" className="text-content-primary">Auditor (Independent Compliance)</option>
+                <option value="donor" className="text-content-primary">Donor (David Thompson)</option>
+              </select>
+            </div>
 
-        {/* Expanded Info Drawer */}
-        {expanded && (
-          <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-white/80">
-            <div className="bg-white/5 p-2.5 rounded-lg">
-              <span className="font-semibold text-brand-blue block mb-1">Financial Engine:</span>
+            {/* Quick Simulation Actions */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                onClick={handleSimulateDonation}
+                className="bg-brand-pink hover:bg-brand-pink-dark text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                title="Simulate $150 one-time donation"
+              >
+                <DollarSign className="w-3.5 h-3.5" /> +$150 Gift
+              </button>
+              <button
+                onClick={handleSimulateConcurrency}
+                className="bg-brand-blue hover:bg-brand-blue-dark text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                title="Simulate 3 concurrent donations"
+              >
+                <Zap className="w-3.5 h-3.5 text-yellow-300" /> 3x Concurrency
+              </button>
+              <button
+                onClick={handleSimulateRecurringFailure}
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                title="Simulate payment failure on active subscription"
+              >
+                <AlertTriangle className="w-3.5 h-3.5" /> Fail Sub
+              </button>
+              <button
+                onClick={handleSimulateRecurringRetry}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                title="Simulate retry on past due subscription"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Retry Sub
+              </button>
+              <button
+                onClick={handleSimulateRefund}
+                className="bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                title="Issue test refund"
+              >
+                Refund
+              </button>
+              <button
+                onClick={resetToDemoData}
+                className="bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-2 py-1.5 rounded-lg transition-all"
+                title="Reset data back to initial seed"
+              >
+                Reset Data
+              </button>
+            </div>
+          </div>
+
+          {/* Info Details */}
+          <div className="mt-3 pt-2.5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-white/80">
+            <div className="bg-white/5 p-2 rounded-lg">
+              <span className="font-semibold text-brand-blue block mb-0.5">Financial Engine:</span>
               <p>Total Donations: {donations.length} | Subscriptions: {recurringDonations.length}</p>
-              <p>Total Raised Across Projects: ${donations.reduce((s, d) => d.status === 'successful' ? s + d.amountUSD : s, 0).toLocaleString()}</p>
             </div>
-            <div className="bg-white/5 p-2.5 rounded-lg">
-              <span className="font-semibold text-brand-pink block mb-1">Multilingual & RTL:</span>
-              <p>Switch languages in navbar to test English, Hindi, Urdu (RTL), Arabic, etc. Checkout state stays intact.</p>
+            <div className="bg-white/5 p-2 rounded-lg">
+              <span className="font-semibold text-brand-pink block mb-0.5">Multilingual:</span>
+              <p>English, Hindi, Urdu (RTL), Arabic supported.</p>
             </div>
-            <div className="bg-white/5 p-2.5 rounded-lg">
-              <span className="font-semibold text-amber-400 block mb-1">PDF Tax Receipts:</span>
-              <p>Generated dynamically with Section 80G / FCRA credentials and unique sequential IDs on every gift.</p>
+            <div className="bg-white/5 p-2 rounded-lg">
+              <span className="font-semibold text-amber-400 block mb-0.5">PDF Receipts:</span>
+              <p>Dynamic 80G & FCRA tax deduction receipts.</p>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 };

@@ -417,37 +417,35 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
         )}
       </div>
 
-      {/* Control Actions Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+      {/* Control Actions Bar (Responsive Grid for Mobile & Desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
         <button
           type="button"
           onClick={() => setShowBackSide(!showBackSide)}
-          className="btn-outline !py-2.5 !px-4 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"
+          className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 w-full"
         >
           <RotateCw className="w-4 h-4 text-amber-600" />
-          <span>Flip Card ({showBackSide ? 'Front Side' : 'Back Side'})</span>
+          <span>Flip ({showBackSide ? 'Front' : 'Back'})</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="btn-outline !py-2.5 !px-4 text-xs font-bold flex items-center gap-1.5"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Print Badge</span>
-          </button>
+        <button
+          type="button"
+          onClick={handlePrint}
+          className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 w-full"
+        >
+          <Printer className="w-4 h-4" />
+          <span>Print Badge</span>
+        </button>
 
-          <button
-            type="button"
-            onClick={handleDownloadPDF}
-            style={{ backgroundColor: themeBg }}
-            className="btn-primary !py-2.5 !px-5 text-xs font-bold flex items-center gap-1.5 shadow-pink-glow border-none text-white"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download Membership Card (PDF)</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleDownloadPDF}
+          style={{ backgroundColor: themeBg }}
+          className="btn-primary !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-pink-glow border-none text-white w-full sm:col-span-1"
+        >
+          <Download className="w-4 h-4" />
+          <span>Download PDF</span>
+        </button>
       </div>
     </div>
   );

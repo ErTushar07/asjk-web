@@ -6,7 +6,7 @@ import { MembershipCardPreview } from '../../components/membership/MembershipCar
 import { 
   Crown, CheckCircle2, ShieldCheck, Download, Award, 
   Sparkles, Heart, CreditCard, ArrowRight, Check, Search, 
-  Globe, Clock, Users, Building, Shield
+  Globe, Clock, Users, Building, Shield, IdCard, UploadCloud
 } from 'lucide-react';
 
 interface TierOption {

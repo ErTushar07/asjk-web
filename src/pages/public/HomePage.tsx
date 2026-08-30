@@ -86,10 +86,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
             {/* Right Visual Card */}
             <div className="lg:col-span-5">
               <div className="relative mx-auto max-w-md bg-white rounded-3xl p-6 shadow-brand-lg border border-content-border/80">
-                <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
+                <div className="relative h-64 rounded-2xl overflow-hidden mb-6 bg-slate-100">
                   <img
                     src="https://images.unsplash.com/photo-1541888946425-d0fbb186c5f3?auto=format&fit=crop&w=800&q=80"
                     alt="Clean Water in Kashmir"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=800&q=80';
+                    }}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-3 left-3 bg-brand-pink text-white text-xs font-bold px-3 py-1 rounded-full shadow-pink-glow">

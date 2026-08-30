@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-content-border shadow-brand-sm w-full max-w-full overflow-hidden">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-content-border shadow-brand-sm w-full max-w-full">
       {/* Continuous Right-to-Left Headline Ticker Announcement Bar */}
       <div className="w-full max-w-full bg-brand-purple text-white text-xs py-1.5 overflow-hidden border-b border-brand-purple-dark/50 relative select-none">
         <div className="flex items-center w-full max-w-full overflow-hidden">
@@ -157,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               </button>
 
               {langDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 sm:w-52 bg-white border border-content-border rounded-xl shadow-brand-lg py-2 z-50 max-h-80 overflow-y-auto">
+                <div className="absolute right-0 mt-2 w-52 sm:w-56 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] max-h-[420px] overflow-y-auto">
                   <div className="px-3 py-1.5 text-[10px] sm:text-[11px] font-bold text-content-muted uppercase tracking-wider border-b border-content-border">
                     Select Language
                   </div>
@@ -202,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               </button>
 
               {currDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 sm:w-44 bg-white border border-content-border rounded-xl shadow-brand-lg py-2 z-50">
+                <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100]">
                   <div className="px-3 py-1.5 text-[10px] sm:text-[11px] font-bold text-content-muted uppercase tracking-wider border-b border-content-border">
                     Select Currency
                   </div>
@@ -250,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 sm:w-56 bg-white border border-content-border rounded-xl shadow-brand-lg py-2 z-50 animate-fadeIn">
+                <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
                   {isAuthenticated && user && (
                     <div className="px-4 py-2 border-b border-content-border">
                       <p className="text-xs font-bold text-content-primary">{user.name}</p>
@@ -339,7 +339,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
       </div>
 
       {/* Desktop & Mobile Visible Navigation Links Bar */}
-      <div className="border-t border-content-border/60 bg-surface-soft/70 backdrop-blur-sm w-full max-w-full overflow-hidden">
+      <div className="border-t border-content-border/60 bg-surface-soft/70 backdrop-blur-sm w-full max-w-full">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-1.5 scrollbar-none">
             {navLinks.map((item) => (

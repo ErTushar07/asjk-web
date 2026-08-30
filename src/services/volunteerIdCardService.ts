@@ -4,268 +4,250 @@ import { ASFJK_LOGO_BASE64 } from './logoAsset';
 
 export class VolunteerIdCardService {
   /**
-   * Generates a high-resolution, print-ready official Volunteer Identity Card PDF (CR80 Standard / Badge format)
+   * Generates a high-resolution, print-ready official Volunteer Identity Card PDF (CR80 Standard Vertical Portrait: 54mm x 86mm)
    */
   public static generateIdCardPDF(volunteer: VolunteerApplication, settings: SystemSettings): jsPDF {
-    // 2-page CR80 landscape card (86mm x 54mm standard)
     const doc = new jsPDF({
-      orientation: 'landscape',
+      orientation: 'portrait',
       unit: 'mm',
-      format: [86, 54],
+      format: [54, 86], // Standard Vertical Portrait CR80 (54mm x 86mm)
     });
 
-    const navyDark = [15, 23, 42]; // #0F172A (Deep Midnight Navy)
-    const navyHeader = [30, 27, 75]; // #1E1B4B (Midnight Purple)
-    const goldAccent = [217, 119, 6]; // #D97706 (Metallic Gold)
-    const goldLight = [251, 191, 36]; // #FBBF24 (Bright Gold)
-    const pinkAccent = [228, 9, 129]; // #E40981 (Pink)
+    const forestGreen = [10, 77, 60]; // #0A4D3C
+    const goldAccent = [217, 119, 6]; // #D97706
+    const goldLight = [251, 191, 36]; // #FBBF24
 
     // ==========================================
-    // PAGE 1: FRONT OF THE ID CARD
+    // PAGE 1: FRONT OF THE ID CARD (PORTRAIT)
     // ==========================================
-    // Deep Midnight Card Canvas
-    doc.setFillColor(navyDark[0], navyDark[1], navyDark[2]);
-    doc.roundedRect(0, 0, 86, 54, 2, 2, 'F');
+    // Clean White Card Canvas
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(0, 0, 54, 86, 3, 3, 'F');
 
-    // Outer Golden Border Frame
+    // Outer Border
+    doc.setDrawColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
+
+    // Top-Left Green Diagonal Accent Corner
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.triangle(0, 0, 30, 0, 0, 24, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.4);
-    doc.roundedRect(1, 1, 84, 52, 1.5, 1.5, 'D');
+    doc.line(0, 24, 30, 0);
 
-    // Rainbow Hologram Top Stripe
-    doc.setFillColor(251, 191, 36);
-    doc.rect(1.5, 1.5, 83, 0.8, 'F');
+    // Top Lanyard Slot
+    doc.setFillColor(230, 235, 240);
+    doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
 
-    // Header Background Bar
-    doc.setFillColor(navyHeader[0], navyHeader[1], navyHeader[2]);
-    doc.rect(1.5, 2.3, 83, 11.5, 'F');
-    doc.setDrawColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setLineWidth(0.2);
-    doc.line(1.5, 13.8, 84.5, 13.8);
+    // Left Vertical Text
+    doc.setFontSize(3.2);
+    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SERVICE | COMPASSION | EMPOWERMENT', 1.8, 48, { angle: 90 });
 
-    // Golden Circular Emblem Ring & Official Logo
-    doc.setFillColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.circle(8.5, 8, 4.8, 'F');
-    doc.setFillColor(255, 255, 255);
-    doc.circle(8.5, 8, 4.3, 'F');
-
+    // Logo & Header
     try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 4.5, 4, 8, 8);
+      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 22.5, 6, 9, 9);
     } catch {
       // Fallback
     }
 
-    // Header Typography
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.5);
-    doc.text('ASFJK OFFICIAL VOLUNTEER CREDENTIAL', 15, 5);
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(6.5);
-    doc.setFont('helvetica', 'bold');
-    doc.text('AL SHUJAIAT FOUNDATION', 15, 8);
-
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setFontSize(4.2);
-    doc.setFont('helvetica', 'normal');
-    doc.text('JAMMU & KASHMIR · HUMANITARIAN SERVICES', 15, 11);
-
-    // Top Right Badge
-    doc.setFillColor(pinkAccent[0], pinkAccent[1], pinkAccent[2]);
-    doc.roundedRect(64, 4.5, 18, 5, 1, 1, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4.5);
-    doc.text('VOLUNTEER', 73, 8, { align: 'center' });
-
-    // Left Side: Biometric Chip Graphic
-    doc.setFillColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.roundedRect(4, 16, 8, 6, 0.6, 0.6, 'F');
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.15);
-    doc.line(4, 19, 12, 19);
-    doc.line(8, 16, 8, 22);
-
-    // Photo Box / Avatar Frame
-    doc.setFillColor(navyHeader[0], navyHeader[1], navyHeader[2]);
-    doc.setDrawColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(4, 23, 20, 23, 1, 1, 'FD');
-
-    // Avatar Icon Graphic
-    doc.setFillColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.circle(14, 31, 3.5, 'F');
-    doc.roundedRect(8, 36, 12, 8, 1.5, 1.5, 'F');
-
-    doc.setFontSize(4);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('ACTIVE VOLUNTEER', 14, 45, { align: 'center' });
-
-    // Blood Group Indicator
-    doc.setFillColor(159, 18, 57);
-    doc.roundedRect(4, 47, 20, 4, 0.8, 0.8, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(4);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`BLOOD: ${volunteer.bloodGroup || 'O+'}`, 14, 49.8, { align: 'center' });
-
-    // Right Side: Volunteer Personal Information
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
-    const displayName = volunteer.fullName.length > 20 ? volunteer.fullName.substring(0, 20) + '...' : volunteer.fullName;
-    doc.text(displayName.toUpperCase(), 28, 19);
-
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setFontSize(5);
-    doc.setFont('helvetica', 'bold');
-    doc.text(volunteer.roleDesignation || 'HUMANITARIAN FIELD SPECIALIST', 28, 22.5);
-
-    // Credential Rows Box
-    doc.setFillColor(25, 30, 50);
-    doc.roundedRect(27, 24.5, 55.5, 20.5, 1, 1, 'F');
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.1);
-
-    doc.setFontSize(4.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('VOLUNTEER ID:', 29, 28);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('courier', 'bold');
-    doc.setFontSize(5);
-    doc.text(volunteer.membershipNumber || `ASF-VOL-2026-${volunteer.id.slice(-4)}`, 46, 28);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setFontSize(4.5);
-    doc.text('QUALIFICATION:', 29, 32);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'normal');
-    const qualText = (volunteer.qualification || "Bachelor's Degree").length > 24 
-      ? (volunteer.qualification || "Bachelor's Degree").substring(0, 24) + '...' 
-      : (volunteer.qualification || "Bachelor's Degree");
-    doc.text(qualText, 46, 32);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('LOCATION:', 29, 36);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${volunteer.city}, ${volunteer.country}`, 46, 36);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('VALID THRU:', 29, 40);
-    doc.setTextColor(52, 211, 153);
-    doc.setFont('helvetica', 'bold');
-    doc.text(volunteer.validThru || '2027-08-31', 46, 40);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('SPECIALIZATION:', 29, 43.5);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'normal');
-    const skillPreview = volunteer.skills?.slice(0, 2).join(', ') || 'Relief & Logistics';
-    doc.text(skillPreview.length > 24 ? skillPreview.substring(0, 24) + '...' : skillPreview, 46, 43.5);
-
-    // Bottom Decorative Bar
-    doc.setFillColor(navyHeader[0], navyHeader[1], navyHeader[2]);
-    doc.rect(1.5, 46.5, 83, 6, 'F');
-    doc.setDrawColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.setLineWidth(0.15);
-    doc.line(1.5, 46.5, 84.5, 46.5);
+    doc.text('ASFJK', 27, 18, { align: 'center' });
 
     doc.setFontSize(3.8);
+    doc.text('AL SHUJAIAT FOUNDATION', 27, 20.5, { align: 'center' });
+    doc.setFontSize(3.2);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(200, 200, 200);
-    doc.text('NGO-DARPAN: JK/2018/0190361 · 80G · 12A · LEI · FCRA VERIFIED', 4, 49.5);
-    doc.text('Al Shujaiat Foundation Jammu & Kashmir', 4, 51.8);
+    doc.setTextColor(100, 116, 139);
+    doc.text('JAMMU & KASHMIR', 27, 22.5, { align: 'center' });
 
-    // Authorized Stamp
-    doc.setFillColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.roundedRect(63, 47, 20, 5, 0.8, 0.8, 'F');
-    doc.setFontSize(3.5);
+    // Card Title with Gold Lines
+    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255, 255, 255);
-    doc.text('MOHD AMIN GANAI', 73, 49.2, { align: 'center' });
-    doc.setFontSize(2.8);
-    doc.text('DIRECTOR GENERAL', 73, 51.2, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.text('VOLUNTEER', 27, 27.5, { align: 'center' });
 
-    // ==========================================
-    // PAGE 2: BACK OF THE ID CARD (LEGAL & EMERGENCY)
-    // ==========================================
-    doc.addPage([86, 54], 'landscape');
-
-    doc.setFillColor(navyDark[0], navyDark[1], navyDark[2]);
-    doc.roundedRect(0, 0, 86, 54, 2, 2, 'F');
-
-    doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(1, 1, 84, 52, 1.5, 1.5, 'D');
-
-    // Magnetic Stripe Simulation
-    doc.setFillColor(10, 15, 25);
-    doc.rect(1.5, 2.5, 83, 7, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.2);
-    doc.line(1.5, 9.5, 84.5, 9.5);
+    doc.line(12, 29.5, 18, 29.5);
+    doc.line(36, 29.5, 42, 29.5);
+    doc.setFontSize(4);
+    doc.setTextColor(goldAccent[0], goldAccent[1], goldAccent[2]);
+    doc.text('IDENTITY CARD', 27, 30.5, { align: 'center' });
 
-    // Header
+    // Circular Photo Frame
+    doc.setFillColor(goldLight[0], goldLight[1], goldLight[2]);
+    doc.circle(27, 43, 10.5, 'F');
+    doc.setFillColor(245, 247, 250);
+    doc.circle(27, 43, 10, 'F');
+
+    // Avatar Placeholder Graphic
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.circle(27, 40.5, 3.5, 'F');
+    doc.roundedRect(21, 44.5, 12, 8, 1.5, 1.5, 'F');
+
+    // Bottom Green Wave Base Container
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.roundedRect(0, 56, 54, 30, 4, 4, 'F');
+
+    // Golden divider line across wave top
+    doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
+    doc.setLineWidth(0.3);
+    doc.line(0, 56, 54, 56);
+
+    // Candidate Info on Green Bottom
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    const displayName = volunteer.fullName.length > 22 ? volunteer.fullName.substring(0, 22) + '...' : volunteer.fullName;
+    doc.text(displayName.toUpperCase(), 27, 61, { align: 'center' });
+
+    doc.setTextColor(167, 243, 208);
+    doc.setFontSize(4.2);
+    doc.setFont('helvetica', 'normal');
+    doc.text(volunteer.roleDesignation || 'Community Outreach Volunteer', 27, 64.5, { align: 'center' });
+
     doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
+    doc.setFont('courier', 'bold');
+    doc.setFontSize(5);
+    doc.text(`VOL ID : ${volunteer.membershipNumber || 'ASFJK25V078'}`, 27, 68.5, { align: 'center' });
+
+    // Split Bar: Left QR Box, Right Slogan
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 72, 16, 14, 'F');
+
+    // QR Representation
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.rect(3, 74, 10, 10, 'F');
+    doc.setFillColor(255, 255, 255);
+    doc.rect(5, 76, 6, 6, 'F');
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.rect(7, 78, 2, 2, 'F');
+
+    // Right Slogan (Warm Gold)
+    doc.setFillColor(goldAccent[0], goldAccent[1], goldAccent[2]);
+    doc.rect(16, 72, 38, 14, 'F');
+    doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.5);
-    doc.text('STATUTORY DISCLOSURES & EMERGENCY DESK', 43, 13, { align: 'center' });
+    doc.text('TOGETHER', 35, 78, { align: 'center' });
+    doc.setFontSize(3.5);
+    doc.text('WE MAKE A DIFFERENCE', 35, 81.5, { align: 'center' });
 
-    // Accreditation Matrix Box
-    doc.setFillColor(25, 30, 50);
-    doc.roundedRect(3, 15, 80, 12, 1, 1, 'F');
-    doc.setFontSize(4);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text('NGO-DARPAN: JK/2018/0190361', 5, 18.5);
-    doc.text('80G Tax Exemption: DEL-AE28396-27022018/9728', 5, 22);
-    doc.text('12A Registration: DEL-AR26932-27022018/8830', 5, 25.5);
+    // ==========================================
+    // PAGE 2: BACK OF THE ID CARD (PORTRAIT)
+    // ==========================================
+    doc.addPage([54, 86], 'portrait');
 
-    doc.text('FCRA Number: 004872022', 45, 18.5);
-    doc.text('LEI ID: 9845008779YC3EE0IE41', 45, 22);
-    doc.text('Legal Status: Registered Trust', 45, 25.5);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(0, 0, 54, 86, 3, 3, 'F');
 
-    // Office Addresses Box
-    doc.setFillColor(25, 30, 50);
-    doc.roundedRect(3, 28.5, 80, 14, 1, 1, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(3.8);
-    doc.setFont('helvetica', 'bold');
-    doc.text('REGISTERED OFFICE:', 5, 31.5);
-    doc.setFont('helvetica', 'normal');
-    doc.text(settings.registeredAddress || 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025', 5, 34.5);
+    doc.setDrawColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('OPERATING / FIELD OFFICE:', 5, 38);
-    doc.setFont('helvetica', 'normal');
-    doc.text(settings.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123', 5, 41);
-
-    // Terms of Authorization
-    doc.setFillColor(30, 20, 40);
+    // Top-Left Green Accent Corner
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.triangle(0, 0, 24, 0, 0, 18, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.setLineWidth(0.15);
-    doc.roundedRect(3, 44, 80, 7.5, 1, 1, 'FD');
+    doc.setLineWidth(0.3);
+    doc.line(0, 18, 24, 0);
 
-    doc.setFontSize(3.4);
-    doc.setTextColor(230, 230, 230);
-    doc.setFont('helvetica', 'normal');
-    doc.text(
-      'Bearer is an accredited volunteer of Al Shujaiat Foundation J&K. Authorized for field relief, medical camps & community welfare.',
-      43,
-      47,
-      { align: 'center', maxWidth: 76 }
-    );
+    // Lanyard slot
+    doc.setFillColor(230, 235, 240);
+    doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
+
+    // Header Logo & Text
+    try {
+      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 23, 6, 8, 8);
+    } catch {
+      // Fallback
+    }
+
+    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.text(`HELPLINE: ${settings.phone} / ${settings.emergencyPhone || '+91 94193 01319'}  |  ${settings.email}`, 43, 50.2, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.text('ASFJK', 27, 16.5, { align: 'center' });
+    doc.setFontSize(3.5);
+    doc.text('AL SHUJAIAT FOUNDATION JAMMU & KASHMIR', 27, 19, { align: 'center' });
+
+    doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
+    doc.line(14, 21.5, 40, 21.5);
+    doc.setFontSize(4.5);
+    doc.text('— VOLUNTEER —', 27, 24, { align: 'center' });
+
+    // Disclaimer
+    doc.setTextColor(71, 85, 105);
+    doc.setFontSize(3.2);
+    doc.setFont('helvetica', 'normal');
+    doc.text('This card identifies the bearer as an authorized volunteer of Al Shujaiat Foundation (ASFJK).', 27, 28, { align: 'center', maxWidth: 46 });
+    doc.text('This card is valid for the period shown below.', 27, 33, { align: 'center' });
+
+    // Data Fields
+    doc.setFontSize(3.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(148, 163, 184);
+    doc.text('NAME', 5, 38);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(4.2);
+    doc.text(displayName, 5, 41);
+
+    doc.setFontSize(3.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text('ROLE', 5, 45);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(4.2);
+    doc.text(volunteer.roleDesignation || 'Community Outreach Volunteer', 5, 48);
+
+    doc.setFontSize(3.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text('VALID FROM', 5, 52);
+    doc.text('VALID TILL', 30, 52);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(4);
+    doc.text(volunteer.validFrom || '01 May 2025', 5, 55);
+    doc.text(volunteer.validThru || '30 Apr 2026', 30, 55);
+
+    doc.setFontSize(3.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`EMERGENCY CONTACT · BLOOD: ${volunteer.bloodGroup || 'O+'}`, 5, 59);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(4);
+    doc.text(volunteer.phone || settings.phone || '+91 94193 01319', 5, 62);
+
+    // Signatory & Seal
+    doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
+    doc.setLineWidth(0.2);
+    doc.line(5, 64.5, 49, 64.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(4);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Mohd Amin Ganai', 5, 68);
+    doc.setFontSize(3);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('Founder & Chairman', 5, 70.5);
+
+    // Stamp Circle
+    doc.setDrawColor(30, 58, 138);
+    doc.setLineWidth(0.2);
+    doc.circle(42, 69, 4, 'D');
+    doc.setFontSize(2);
+    doc.setTextColor(30, 58, 138);
+    doc.text('ASFJK', 42, 69.5, { align: 'center' });
+
+    // Footer Bar
+    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.rect(0, 75, 54, 11, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(3);
+    doc.text('Jammu & Kashmir, India  |  www.asfjk.org  |  info@asfjk.org', 27, 79, { align: 'center' });
+    doc.text('NGO-DARPAN: JK/2018/0190361 · 80G · 12A · LEI · /asfjkfoundation', 27, 82.5, { align: 'center' });
 
     return doc;
   }

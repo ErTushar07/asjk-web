@@ -35,6 +35,8 @@ export const MembershipPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('India');
+  const [bloodGroup, setBloodGroup] = useState('O+');
+  const [photoUrl, setPhotoUrl] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal' | 'bank_wire'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedMember, setConfirmedMember] = useState<NgoMembership | null>(null);
@@ -43,6 +45,17 @@ export const MembershipPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'join' | 'lookup'>('join');
   const [lookupQuery, setLookupQuery] = useState('');
   const [lookupResult, setLookupResult] = useState<NgoMembership | null | 'not_found'>(null);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhotoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const tiers: TierOption[] = [
     {
@@ -150,6 +163,8 @@ export const MembershipPage: React.FC = () => {
         phone,
         city,
         country,
+        photoUrl: photoUrl || undefined,
+        bloodGroup,
         tier: selectedTier,
         tierName: currentTierObj.name,
         durationYears,
@@ -509,7 +524,7 @@ export const MembershipPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
                 <input
@@ -538,6 +553,75 @@ export const MembershipPage: React.FC = () => {
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Blood Group (ID Badge)</label>
+                <select
+                  value={bloodGroup}
+                  onChange={(e) => setBloodGroup(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
+                >
+                  <option value="O+">O Positive (O+)</option>
+                  <option value="O-">O Negative (O-)</option>
+                  <option value="A+">A Positive (A+)</option>
+                  <option value="A-">A Negative (A-)</option>
+                  <option value="B+">B Positive (B+)</option>
+                  <option value="B-">B Negative (B-)</option>
+                  <option value="AB+">AB Positive (AB+)</option>
+                  <option value="AB-">AB Negative (AB-)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Member Photo Upload for ID Card */}
+            <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
+                  <IdCard className="w-4 h-4 text-brand-pink" /> Passport Size Photograph (for Official Membership Card Badge)
+                </h4>
+                <span className="text-[10px] text-content-muted">JPG, PNG up to 5MB</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-content-border">
+                <div className="relative w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-amber-500 to-amber-300 shadow-md flex-shrink-0 flex items-center justify-center">
+                  <div className="w-full h-full rounded-full overflow-hidden border border-white bg-slate-100 flex items-center justify-center">
+                    {photoUrl ? (
+                      <img src={photoUrl} alt="Photo Preview" className="w-full h-full object-cover object-top" />
+                    ) : (
+                      <span className="text-[9px] font-bold text-slate-400 text-center px-1">No Photo</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 w-full text-center sm:text-left space-y-1">
+                  <p className="text-xs font-bold text-content-primary">
+                    {photoUrl ? 'Photograph Uploaded' : 'Upload your formal portrait photo'}
+                  </p>
+                  <p className="text-[11px] text-content-secondary">
+                    This photo will be framed on your high-resolution Al Shujaiat Foundation Membership ID Card.
+                  </p>
+                  <div className="pt-1 flex items-center gap-2 justify-center sm:justify-start">
+                    <label className="btn-outline !py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5">
+                      <UploadCloud className="w-3.5 h-3.5 text-brand-purple" />
+                      <span>{photoUrl ? 'Change Photo' : 'Upload Picture'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                    {photoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setPhotoUrl('')}
+                        className="text-xs text-rose-600 hover:underline font-semibold"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -18,6 +18,7 @@ export const VolunteerPage: React.FC = () => {
   const [qualification, setQualification] = useState('');
   const [degreeLevel, setDegreeLevel] = useState("Bachelor's Degree");
   const [bloodGroup, setBloodGroup] = useState('O+');
+  const [photoUrl, setPhotoUrl] = useState<string>('');
   const [resumeFile, setResumeFile] = useState<{ name: string; size: string; dataUrl?: string } | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'weekdays' | 'weekends' | 'full_time' | 'flexible'>('weekends');
@@ -44,6 +45,17 @@ export const VolunteerPage: React.FC = () => {
       setSelectedSkills(selectedSkills.filter((s) => s !== skill));
     } else {
       setSelectedSkills([...selectedSkills, skill]);
+    }
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhotoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -84,6 +96,7 @@ export const VolunteerPage: React.FC = () => {
       phone,
       city,
       country,
+      photoUrl: photoUrl || undefined,
       qualification: fullQualification,
       roleDesignation: derivedRole,
       bloodGroup,
@@ -347,6 +360,59 @@ export const VolunteerPage: React.FC = () => {
                 <option value="AB+">AB Positive (AB+)</option>
                 <option value="AB-">AB Negative (AB-)</option>
               </select>
+            </div>
+          </div>
+
+          {/* Volunteer Photo Upload for ID Card */}
+          <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
+                <IdCard className="w-4 h-4 text-brand-pink" /> Passport Size Photograph (for Official ID Card Badge) *
+              </h4>
+              <span className="text-[10px] text-content-muted">JPG, PNG up to 5MB</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-content-border">
+              {/* Circular Preview */}
+              <div className="relative w-20 h-20 rounded-full p-0.5 bg-gradient-to-tr from-amber-500 to-amber-300 shadow-md flex-shrink-0 flex items-center justify-center">
+                <div className="w-full h-full rounded-full overflow-hidden border border-white bg-slate-100 flex items-center justify-center">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt="Photo Preview" className="w-full h-full object-cover object-top" />
+                  ) : (
+                    <span className="text-[10px] font-bold text-slate-400 text-center px-1">No Photo</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 w-full text-center sm:text-left space-y-1">
+                <p className="text-xs font-bold text-content-primary">
+                  {photoUrl ? 'Photo Uploaded Successfully' : 'Upload your formal portrait photo'}
+                </p>
+                <p className="text-[11px] text-content-secondary">
+                  This photo will be framed inside your official Volunteer Identity Card badge upon administrative vetting.
+                </p>
+                <div className="pt-1 flex items-center gap-2 justify-center sm:justify-start">
+                  <label className="btn-outline !py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5">
+                    <UploadCloud className="w-3.5 h-3.5 text-brand-purple" />
+                    <span>{photoUrl ? 'Change Photo' : 'Choose Photo File'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {photoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setPhotoUrl('')}
+                      className="text-xs text-rose-600 hover:underline font-semibold"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

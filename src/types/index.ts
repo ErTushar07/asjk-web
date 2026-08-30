@@ -353,6 +353,9 @@ export interface NgoMembership {
   phone: string;
   city: string;
   country: string;
+  photoUrl?: string;
+  bloodGroup?: string;
+  roleDesignation?: string;
   tier: MembershipTier;
   tierName: string;
   durationYears: number; // 1 to 10 years

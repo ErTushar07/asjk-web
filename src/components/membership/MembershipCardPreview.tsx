@@ -33,11 +33,15 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
   };
 
   // Tier Styling
-  let tierGradient = 'from-slate-400 to-slate-200 text-slate-950';
-  let tierBorder = 'border-slate-300';
-  let tierLabel = 'ASSOCIATE SILVER';
+  let tierGradient = 'from-emerald-500 via-teal-400 to-emerald-600 text-white';
+  let tierBorder = 'border-emerald-300';
+  let tierLabel = 'GENERAL MEMBER';
 
-  if (member.tier === 'patron_gold') {
+  if (member.tier === 'associate_silver') {
+    tierGradient = 'from-slate-400 to-slate-200 text-slate-950';
+    tierBorder = 'border-slate-300';
+    tierLabel = 'ASSOCIATE SILVER';
+  } else if (member.tier === 'patron_gold') {
     tierGradient = 'from-amber-400 via-yellow-300 to-amber-500 text-amber-950';
     tierBorder = 'border-amber-400';
     tierLabel = 'PATRON GOLD';

@@ -46,6 +46,21 @@ export const MembershipPage: React.FC = () => {
 
   const tiers: TierOption[] = [
     {
+      id: 'general_member',
+      name: 'General Member (Entry Tier)',
+      badge: 'COMMUNITY ENTRY · ₹500',
+      baseAnnualUSD: 6,
+      description: 'Accessible community membership supporting local relief distribution and youth welfare.',
+      benefits: [
+        'Official Digital & Printable NGO Membership Card',
+        'Foundation Newsletter & Relief Reports',
+        'Section 80G & 12A Tax Exemption Certificate',
+        'Invitation to community volunteer mobilization',
+      ],
+      gradient: 'from-emerald-950 via-slate-900 to-teal-950',
+      borderColor: 'border-emerald-400',
+    },
+    {
       id: 'associate_silver',
       name: 'Associate Member (Silver Tier)',
       badge: 'SILVER TIER',
@@ -111,8 +126,10 @@ export const MembershipPage: React.FC = () => {
     },
   ];
 
-  const currentTierObj = tiers.find((t) => t.id === selectedTier) || tiers[1];
-  const annualAmountLocal = convertFromUSD(currentTierObj.baseAnnualUSD);
+  const currentTierObj = tiers.find((t) => t.id === selectedTier) || tiers[0];
+  const annualAmountLocal = currentCurrency.code === 'INR' && currentTierObj.id === 'general_member'
+    ? 500
+    : convertFromUSD(currentTierObj.baseAnnualUSD);
   const totalAmountUSD = currentTierObj.baseAnnualUSD * durationYears;
   const totalAmountLocal = annualAmountLocal * durationYears;
 

@@ -343,7 +343,7 @@ export interface PartnershipRequest {
   submittedAt: string;
 }
 
-export type MembershipTier = 'associate_silver' | 'patron_gold' | 'founding_platinum' | 'benefactor_diamond';
+export type MembershipTier = 'general_member' | 'associate_silver' | 'patron_gold' | 'founding_platinum' | 'benefactor_diamond';
 
 export interface NgoMembership {
   id: string;

@@ -19,17 +19,21 @@ export class MembershipCardService {
     const goldLight = [251, 191, 36]; // #FBBF24
 
     // Tier-specific colors
-    let tierColor = [148, 163, 184]; // Silver default
-    let tierBadge = 'ASSOCIATE MEMBER';
-    if (member.tier === 'patron_gold') {
+    let tierColor = [16, 185, 129]; // Emerald Green for General Member default
+    let tierBadge = 'GENERAL MEMBER';
+
+    if (member.tier === 'associate_silver') {
+      tierColor = [148, 163, 184]; // Silver
+      tierBadge = 'ASSOCIATE SILVER';
+    } else if (member.tier === 'patron_gold') {
       tierColor = [234, 179, 8]; // Gold
-      tierBadge = 'PATRON MEMBER (GOLD)';
+      tierBadge = 'PATRON GOLD';
     } else if (member.tier === 'founding_platinum') {
       tierColor = [168, 85, 247]; // Platinum Purple
-      tierBadge = 'FOUNDING PATRON (PLATINUM)';
+      tierBadge = 'FOUNDING PLATINUM';
     } else if (member.tier === 'benefactor_diamond') {
       tierColor = [6, 182, 212]; // Diamond Cyan
-      tierBadge = 'BENEFACTOR GOVERNOR (DIAMOND)';
+      tierBadge = 'BENEFACTOR DIAMOND';
     }
 
     // ==========================================

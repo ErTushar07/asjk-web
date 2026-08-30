@@ -1106,6 +1106,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 ${
+                          m.tier === 'general_member' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' :
                           m.tier === 'patron_gold' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
                           m.tier === 'founding_platinum' ? 'bg-purple-100 text-purple-900 border border-purple-300' :
                           m.tier === 'benefactor_diamond' ? 'bg-cyan-100 text-cyan-900 border border-cyan-300' :

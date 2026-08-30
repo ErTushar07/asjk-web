@@ -18,39 +18,39 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('transparency.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Financial Transparency & Governance
+          {t('transparency.title', 'Financial Transparency & Governance')}
         </h1>
         <p className="text-content-secondary text-sm sm:text-base leading-relaxed">
-          We operate with 100% radical transparency. We publish certified annual accounts, program expenditures, and statutory filings for public inspection.
+          {t('transparency.subtitle', 'We operate with 100% radical transparency. We publish certified annual accounts, program expenditures, and statutory filings for public inspection.')}
         </p>
       </div>
 
       {/* Breakdown Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-white p-8 rounded-3xl border border-content-border space-y-3 shadow-brand-sm text-center">
-          <div className="text-4xl font-black text-brand-purple">88.5%</div>
-          <h4 className="font-extrabold text-base text-content-primary">Direct Humanitarian Aid</h4>
-          <p className="text-xs text-content-secondary leading-relaxed">
-            Allocated directly to clean water filtration, school modernizations, child sponsorship, medical camps, and winter relief kits.
+      <div className="grid grid-cols-3 gap-2 sm:gap-8">
+        <div className="bg-white p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-content-border space-y-1.5 sm:space-y-3 shadow-brand-sm text-center min-w-0">
+          <div className="text-xl sm:text-4xl font-black text-brand-purple">88.5%</div>
+          <h4 className="font-extrabold text-[10px] sm:text-base text-content-primary">{t('home.direct_aid', 'Direct Program Aid')}</h4>
+          <p className="text-[9px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">
+            {t('home.clean_water_edu', 'Clean Water, Education & Relief')}
           </p>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border border-content-border space-y-3 shadow-brand-sm text-center">
-          <div className="text-4xl font-black text-brand-pink">7.2%</div>
-          <h4 className="font-extrabold text-base text-content-primary">Field Operations & Logistics</h4>
-          <p className="text-xs text-content-secondary leading-relaxed">
-            Engineering supervision, water testing kits, 4x4 relief convoy transport across mountain snow blockades.
+        <div className="bg-white p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-content-border space-y-1.5 sm:space-y-3 shadow-brand-sm text-center min-w-0">
+          <div className="text-xl sm:text-4xl font-black text-brand-pink">7.2%</div>
+          <h4 className="font-extrabold text-[10px] sm:text-base text-content-primary">{t('home.monitoring_logistics', 'Logistics')}</h4>
+          <p className="text-[9px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">
+            {t('transparency.logistics_desc', 'Engineering supervision, water testing kits, 4x4 relief convoys in mountain sectors.')}
           </p>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border border-content-border space-y-3 shadow-brand-sm text-center">
-          <div className="text-4xl font-black text-brand-blue">4.3%</div>
-          <h4 className="font-extrabold text-base text-content-primary">Auditing & Administration</h4>
-          <p className="text-xs text-content-secondary leading-relaxed">
-            Independent statutory compliance, digital payment security gateways, tax reporting, and cloud infrastructure.
+        <div className="bg-white p-3 sm:p-8 rounded-xl sm:rounded-3xl border border-content-border space-y-1.5 sm:space-y-3 shadow-brand-sm text-center min-w-0">
+          <div className="text-xl sm:text-4xl font-black text-brand-blue">4.3%</div>
+          <h4 className="font-extrabold text-[10px] sm:text-base text-content-primary">{t('home.auditing_gov', 'Audits & Governance')}</h4>
+          <p className="text-[9px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">
+            {t('transparency.audits_desc', 'Independent CA audits, statutory compliance, payment security, and cloud tech.')}
           </p>
         </div>
       </div>
@@ -61,10 +61,10 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
           <ShieldCheck className="w-8 h-8 text-brand-purple flex-shrink-0" />
           <div>
             <h3 className="text-xl font-extrabold text-content-primary">
-              Official Statutory Registrations & Exemptions
+              {t('transparency.statutory_title', 'Official Statutory Registrations & Exemptions')}
             </h3>
             <p className="text-xs text-content-secondary">
-              Al Shujaiat Foundation Jammu & Kashmir is fully accredited under Indian non-profit laws.
+              {t('transparency.statutory_subtitle', 'Al Shujaiat Foundation Jammu & Kashmir is fully accredited under Indian non-profit laws.')}
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
       {/* Downloadable Audited Statements */}
       <div className="bg-white p-8 sm:p-10 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
         <h3 className="text-xl font-extrabold text-content-primary">
-          Annual Audited Statements & Financial Returns
+          {t('transparency.audited_reports', 'Annual Audited Statements & Financial Returns')}
         </h3>
 
         <div className="divide-y divide-content-border">
@@ -124,7 +124,7 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
                 className="btn-outline !py-1.5 !px-3 text-xs font-bold self-start sm:self-auto flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download Report</span>
+                <span>{t('transparency.download_report', 'Download Report')}</span>
               </button>
             </div>
           ))}

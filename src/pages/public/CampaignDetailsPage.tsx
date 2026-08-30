@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   Heart, Calendar, Users, DollarSign, ArrowLeft, 
   CheckCircle2, ShieldAlert, Sparkles 
@@ -19,6 +20,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
 }) => {
   const { campaigns, projects } = useDatabase();
   const { formatUSD } = useCurrency();
+  const { t } = useLanguage();
 
   const campaign = campaigns.find((c) => c.slug === slug) || campaigns[0];
   const fundingPct = Math.min(
@@ -38,11 +40,11 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
           onClick={() => onNavigate('/campaigns')}
           className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to All Appeals
+          <ArrowLeft className="w-4 h-4" /> {t('campaign.back', 'Back to All Appeals')}
         </button>
 
         <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-pink/10 text-brand-pink uppercase tracking-wider">
-          {campaign.type} Appeal
+          {t(campaign.type, campaign.type)} {t('campaign.appeal_label', 'Appeal')}
         </span>
       </div>
 
@@ -70,7 +72,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
 
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-4">
             <h3 className="text-lg font-extrabold text-content-primary">
-              Emergency Appeal Overview
+              {t('campaign.overview_title', 'Emergency Appeal Overview')}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
               {campaign.description}
@@ -81,7 +83,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
           {relatedProjectsList.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-lg font-extrabold text-content-primary">
-                Directly Benefiting Programs
+                {t('campaign.benefiting_programs', 'Directly Benefiting Programs')}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {relatedProjectsList.map((p) => (
@@ -91,7 +93,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
                     className="bg-white p-4 rounded-2xl border border-content-border hover:border-brand-purple cursor-pointer transition-colors space-y-2 shadow-brand-sm"
                   >
                     <span className="text-[10px] font-bold text-brand-pink uppercase tracking-wider">
-                      {p.category}
+                      {t(p.category, p.category)}
                     </span>
                     <h4 className="font-bold text-sm text-content-primary line-clamp-1">{p.name}</h4>
                     <p className="text-xs text-content-secondary line-clamp-2">{p.shortDescription}</p>
@@ -107,13 +109,13 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
           <div className="sticky top-28 bg-white rounded-3xl border border-content-border p-6 sm:p-8 shadow-brand-md space-y-6">
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-brand-pink uppercase tracking-widest block">
-                Appeal Progress
+                {t('campaign.progress', 'Appeal Progress')}
               </span>
               <div className="text-3xl font-black text-brand-purple">
                 {formatUSD(campaign.amountRaisedUSD)}
               </div>
               <p className="text-xs text-content-muted">
-                raised toward {formatUSD(campaign.goalUSD)} target
+                {t('campaign.raised_toward', 'raised toward')} {formatUSD(campaign.goalUSD)} {t('campaign.target', 'target')}
               </p>
             </div>
 
@@ -125,16 +127,16 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
                 />
               </div>
               <div className="flex justify-between text-xs font-bold text-content-secondary">
-                <span>{fundingPct}% Funded</span>
-                <span>{formatUSD(remainingUSD)} Needed</span>
+                <span>{fundingPct}% {t('project.funded', 'Funded')}</span>
+                <span>{formatUSD(remainingUSD)} {t('project.remaining', 'Needed')}</span>
               </div>
             </div>
 
             <div className="bg-surface-soft p-3 rounded-xl flex items-center justify-between text-xs text-content-secondary">
               <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-brand-purple" /> Backers
+                <Users className="w-4 h-4 text-brand-purple" /> {t('campaign.backers', 'Backers')}
               </span>
-              <span className="font-black text-content-primary">{campaign.donorCount} Donors</span>
+              <span className="font-black text-content-primary">{campaign.donorCount} {t('project.donors', 'Donors')}</span>
             </div>
 
             <button
@@ -142,7 +144,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
               className="btn-secondary w-full !py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow"
             >
               <Heart className="w-4 h-4 fill-white" />
-              <span>Support This Appeal</span>
+              <span>{t('campaign.support_cta', 'Support This Appeal')}</span>
             </button>
           </div>
         </div>

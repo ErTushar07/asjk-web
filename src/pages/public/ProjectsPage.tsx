@@ -43,13 +43,13 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDo
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('projects.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Humanitarian Projects & Field Programs
+          {t('projects.title', 'Humanitarian Projects & Field Programs')}
         </h1>
         <p className="text-content-secondary text-sm sm:text-base leading-relaxed">
-          Every project is backed by verified ground data, measurable outcomes, and independent financial auditing. 100% of your gift reaches the chosen program.
+          {t('projects.subtitle', 'Every project is backed by verified ground data, measurable outcomes, and independent financial auditing. 100% of your gift reaches the chosen program.')}
         </p>
       </div>
 
@@ -60,7 +60,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDo
           <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search projects or locations..."
+            placeholder={t('projects.search_placeholder', 'Search projects or locations...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
@@ -79,7 +79,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDo
                   : 'bg-surface-soft text-content-secondary hover:bg-surface-card hover:text-content-primary'
               }`}
             >
-              {cat}
+              {t(cat, cat)}
             </button>
           ))}
         </div>
@@ -89,11 +89,11 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDo
       {filteredProjects.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-3xl border border-content-border">
           <p className="text-content-muted text-sm font-medium">
-            No projects found matching your search criteria.
+            {t('projects.no_match', 'No projects found matching your search criteria.')}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}

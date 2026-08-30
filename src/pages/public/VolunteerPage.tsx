@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { VolunteerApplication } from '../../types';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import { 
@@ -9,6 +10,7 @@ import {
 
 export const VolunteerPage: React.FC = () => {
   const { addVolunteerApplication, volunteers, settings } = useDatabase();
+  const { t } = useLanguage();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -123,13 +125,13 @@ export const VolunteerPage: React.FC = () => {
       {/* Header */}
       <div className="text-center space-y-3">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('volunteer.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Volunteer Network & Identity Badges
+          {t('volunteer.title', 'Volunteer Network & Identity Badges')}
         </h1>
         <p className="text-content-secondary text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-          Be a part of life-saving winter distributions, water engineering projects, and smart classroom tutoring in Jammu & Kashmir.
+          {t('volunteer.subtitle', 'Be a part of life-saving winter distributions, water engineering projects, and smart classroom tutoring in Jammu & Kashmir.')}
         </p>
 
         {/* Tab Toggle */}
@@ -139,13 +141,13 @@ export const VolunteerPage: React.FC = () => {
               onClick={() => setActiveTab('apply')}
               className={`px-5 py-2 text-xs font-bold rounded-xl transition-all ${activeTab === 'apply' ? 'bg-brand-purple text-white shadow-md' : 'text-content-secondary hover:text-content-primary'}`}
             >
-              Apply as Volunteer
+              {t('volunteer.tab_apply', 'Apply as Volunteer')}
             </button>
             <button
               onClick={() => setActiveTab('status')}
               className={`px-5 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${activeTab === 'status' ? 'bg-brand-purple text-white shadow-md' : 'text-content-secondary hover:text-content-primary'}`}
             >
-              <Search className="w-3.5 h-3.5" /> Check Status & Access ID Card
+              <Search className="w-3.5 h-3.5" /> {t('volunteer.tab_status', 'Check Status & Access ID Card')}
             </button>
           </div>
         </div>
@@ -159,10 +161,10 @@ export const VolunteerPage: React.FC = () => {
               <IdCard className="w-6 h-6 text-brand-pink" />
             </div>
             <h3 className="text-xl font-extrabold text-content-primary">
-              Volunteer Verification & ID Card Retrieval
+              {t('volunteer.lookup_title', 'Volunteer Verification & ID Card Retrieval')}
             </h3>
             <p className="text-xs text-content-secondary">
-              Enter your registered email address to check your application review status or download your official approved Volunteer Identity Card.
+              {t('volunteer.lookup_subtitle', 'Enter your registered email address to check your application review status or download your official approved Volunteer Identity Card.')}
             </p>
           </div>
 
@@ -176,7 +178,7 @@ export const VolunteerPage: React.FC = () => {
               className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
             />
             <button type="submit" className="btn-primary !py-2.5 !px-5 text-xs font-bold">
-              Verify
+              {t('volunteer.verify_btn', 'Verify')}
             </button>
           </form>
 
@@ -530,7 +532,7 @@ export const VolunteerPage: React.FC = () => {
             className="btn-secondary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-pink-glow"
           >
             <HeartHandshake className="w-4 h-4" />
-            <span>Submit Volunteer Application</span>
+            <span>{t('volunteer.submit_btn', 'Submit Volunteer Application')}</span>
           </button>
         </form>
       )}

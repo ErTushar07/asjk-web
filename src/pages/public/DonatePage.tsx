@@ -79,13 +79,13 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       {/* Header */}
       <div className="text-center space-y-3">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('donate.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Make a Secure, Tax-Exempt Contribution
+          {t('donate.main_title', 'Make a Secure, Tax-Exempt Contribution')}
         </h1>
         <p className="text-content-secondary text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-          Your voluntary donation directly supports verified water pipelines, digital classrooms, emergency heating, and medicine across Jammu & Kashmir.
+          {t('donate.main_subtitle', 'Your voluntary donation directly supports verified water pipelines, digital classrooms, emergency heating, and medicine across Jammu & Kashmir.')}
         </p>
       </div>
 
@@ -97,7 +97,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
           <div className="space-y-2">
             <h3 className="text-2xl font-extrabold text-content-primary">
-              Thank You for Your Generous Support!
+              {t('donate.success_title', 'Thank You for Your Generous Support!')}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary max-w-md mx-auto">
               Your donation of <span className="font-bold text-brand-purple">{currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code}</span> has been processed and allocated.
@@ -106,15 +106,15 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
           <div className="p-4 bg-surface-soft rounded-2xl border border-content-border max-w-md mx-auto space-y-1.5 text-xs">
             <div className="flex justify-between">
-              <span className="text-content-muted">Receipt Number:</span>
+              <span className="text-content-muted">{t('receipt.number', 'Receipt Number')}:</span>
               <span className="font-mono font-bold text-brand-purple">{successResult.receipt.receiptNumber}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-content-muted">Transaction ID:</span>
+              <span className="text-content-muted">{t('receipt.transaction_id', 'Transaction ID')}:</span>
               <span className="font-mono text-content-primary">{successResult.payment.transactionId}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-content-muted">Allocated To:</span>
+              <span className="text-content-muted">{t('donate.allocated_to', 'Allocated To')}:</span>
               <span className="font-semibold text-content-primary">{successResult.donation.targetName}</span>
             </div>
           </div>
@@ -129,14 +129,14 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               className="btn-primary w-full sm:w-auto !py-3 !px-6 text-xs font-bold flex items-center justify-center gap-2"
             >
               <Download className="w-4 h-4" />
-              <span>Download Official PDF Tax Receipt</span>
+              <span>{t('donate.download_receipt', 'Download Official PDF Tax Receipt')}</span>
             </button>
 
             <button
               onClick={() => onNavigate('/dashboard')}
               className="btn-outline w-full sm:w-auto !py-3 !px-6 text-xs font-bold"
             >
-              Go to Donor Portal
+              {t('donate.view_dashboard', 'Go to Donor Portal')}
             </button>
           </div>
         </div>

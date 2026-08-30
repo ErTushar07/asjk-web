@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { 
@@ -24,6 +25,7 @@ interface TierOption {
 export const MembershipPage: React.FC = () => {
   const { addMembership, memberships, settings } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
+  const { t } = useLanguage();
 
   const formatAmount = (val: number) => formatOriginal(val, currentCurrency.code);
   const convertFromUSD = (valUSD: number) => convertUSDToCurrency(valUSD);
@@ -60,46 +62,46 @@ export const MembershipPage: React.FC = () => {
   const tiers: TierOption[] = [
     {
       id: 'general_member',
-      name: 'General Member (Entry Tier)',
+      name: t('membership.tier_general', 'General Member (Entry Tier)'),
       badge: 'COMMUNITY ENTRY · ₹500',
       baseAnnualUSD: 6,
-      description: 'Accessible community membership supporting local relief distribution and youth welfare.',
+      description: t('membership.desc_general', 'Accessible community membership supporting local relief distribution and youth welfare.'),
       benefits: [
-        'Official Digital & Printable NGO Membership Card',
-        'Foundation Newsletter & Relief Reports',
-        'Section 80G & 12A Tax Exemption Certificate',
-        'Invitation to community volunteer mobilization',
+        t('membership.ben_card', 'Official Digital & Printable NGO Membership Card'),
+        t('membership.ben_newsletter', 'Foundation Newsletter & Relief Reports'),
+        t('membership.ben_tax', 'Section 80G & 12A Tax Exemption Certificate'),
+        t('membership.ben_volunteer', 'Invitation to community volunteer mobilization'),
       ],
       gradient: 'from-emerald-950 via-slate-900 to-teal-950',
       borderColor: 'border-emerald-400',
     },
     {
       id: 'associate_silver',
-      name: 'Associate Member (Silver Tier)',
+      name: t('membership.tier_silver', 'Associate Member (Silver Tier)'),
       badge: 'SILVER TIER',
       baseAnnualUSD: 50,
-      description: 'Foundational membership supporting grassroots healthcare & school aid in Kashmir.',
+      description: t('membership.desc_silver', 'Foundational membership supporting grassroots healthcare & school aid in Kashmir.'),
       benefits: [
-        'Annual Audited Financial Transparency Report',
-        'Official Digital & Printable NGO Membership Card',
-        'Voting rights in public community aid surveys',
-        'Tax Exemption Certificate under Section 80G & 12A',
+        t('membership.ben_audit', 'Annual Audited Financial Transparency Report'),
+        t('membership.ben_card', 'Official Digital & Printable NGO Membership Card'),
+        t('membership.ben_voting', 'Voting rights in public community aid surveys'),
+        t('membership.ben_tax', 'Tax Exemption Certificate under Section 80G & 12A'),
       ],
       gradient: 'from-slate-700 via-slate-800 to-slate-900',
       borderColor: 'border-slate-300',
     },
     {
       id: 'patron_gold',
-      name: 'Sustaining Patron (Gold Tier)',
+      name: t('membership.tier_gold', 'Sustaining Patron (Gold Tier)'),
       badge: 'MOST POPULAR · GOLD TIER',
       baseAnnualUSD: 150,
-      description: 'Active patron empowering continuous clean water and winter relief logistics.',
+      description: t('membership.desc_gold', 'Active patron empowering continuous clean water and winter relief logistics.'),
       benefits: [
-        'All Associate Silver Member privileges',
-        'Priority quarterly project milestones & field dispatches',
-        'Recognition on Foundation Annual Donor Roll',
-        'Exclusive invitations to executive foundation webinars',
-        'Gold Metallic NGO Membership Badge (CR80)',
+        t('membership.desc_silver', 'Associate Silver Member privileges'),
+        t('membership.ben_milestones', 'Priority quarterly project milestones & field dispatches'),
+        t('membership.ben_roll', 'Recognition on Foundation Annual Donor Roll'),
+        t('membership.ben_webinars', 'Exclusive invitations to executive foundation webinars'),
+        t('membership.ben_gold_badge', 'Gold Metallic NGO Membership Badge (CR80)'),
       ],
       gradient: 'from-amber-950 via-slate-900 to-amber-950',
       borderColor: 'border-amber-400',
@@ -107,32 +109,32 @@ export const MembershipPage: React.FC = () => {
     },
     {
       id: 'founding_platinum',
-      name: 'Founding Council (Platinum Tier)',
+      name: t('membership.tier_platinum', 'Founding Council (Platinum Tier)'),
       badge: 'PLATINUM TIER',
       baseAnnualUSD: 500,
-      description: 'Strategic patron guiding emergency response, dialysis centers, and smart education.',
+      description: t('membership.desc_platinum', 'Strategic patron guiding emergency response, dialysis centers, and smart education.'),
       benefits: [
-        'All Sustaining Patron privileges',
-        'Participation in Advisory Council strategic reviews',
-        'Permanent plaque acknowledgment at community centers',
-        'Direct consultation on new project site selections',
-        'Platinum Prestige Membership Card & Certificate',
+        t('membership.desc_gold', 'Sustaining Patron privileges'),
+        t('membership.ben_advisory', 'Participation in Advisory Council strategic reviews'),
+        t('membership.ben_plaque', 'Permanent plaque acknowledgment at community centers'),
+        t('membership.ben_consultation', 'Direct consultation on new project site selections'),
+        t('membership.ben_platinum_badge', 'Platinum Prestige Membership Card & Certificate'),
       ],
       gradient: 'from-purple-950 via-slate-900 to-indigo-950',
       borderColor: 'border-purple-400',
     },
     {
       id: 'benefactor_diamond',
-      name: 'Benefactor Governor (Diamond Tier)',
+      name: t('membership.tier_diamond', 'Benefactor Governor (Diamond Tier)'),
       badge: 'DIAMOND CREST TIER',
       baseAnnualUSD: 1500,
-      description: 'Transformational philanthropist steering landmark infrastructure & multi-district relief.',
+      description: t('membership.desc_diamond', 'Transformational philanthropist steering landmark infrastructure & multi-district relief.'),
       benefits: [
-        'All Founding Council privileges',
-        'One-on-one executive briefings with Director General',
-        'Named sponsorship of emergency field convoys & medical camps',
-        'VIP delegation access during official field visits to J&K',
-        'Diamond Governor Metal Emblem ID Badge',
+        t('membership.desc_platinum', 'Founding Council privileges'),
+        t('membership.ben_briefings', 'One-on-one executive briefings with Director General'),
+        t('membership.ben_sponsorship', 'Named sponsorship of emergency field convoys & medical camps'),
+        t('membership.ben_vip', 'VIP delegation access during official field visits to J&K'),
+        t('membership.ben_diamond_badge', 'Diamond Governor Metal Emblem ID Badge'),
       ],
       gradient: 'from-cyan-950 via-slate-900 to-slate-950',
       borderColor: 'border-cyan-400',
@@ -205,13 +207,13 @@ export const MembershipPage: React.FC = () => {
       {/* Top Banner */}
       <div className="text-center space-y-3">
         <span className="text-xs font-black text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('membership.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-5xl font-black text-content-primary tracking-tight">
-          Official NGO Membership Program
+          {t('membership.title', 'Official NGO Membership Program')}
         </h1>
         <p className="text-content-secondary text-xs sm:text-base max-w-2xl mx-auto leading-relaxed">
-          Become an accredited patron of Al Shujaiat Foundation. Choose your membership tier and duration from <strong>1 to 10 Years</strong>, receive statutory voting rights, 80G tax exemptions, and an official printable Membership Credential.
+          {t('membership.subtitle', 'Become an accredited patron of Al Shujaiat Foundation. Choose your membership tier and duration from 1 to 10 Years, receive statutory voting rights, 80G tax exemptions, and an official printable Membership Credential.')}
         </p>
 
         {/* Tab Toggle */}
@@ -221,13 +223,13 @@ export const MembershipPage: React.FC = () => {
               onClick={() => setActiveTab('join')}
               className={`px-6 py-2.5 text-xs font-bold rounded-xl transition-all ${activeTab === 'join' ? 'bg-brand-purple text-white shadow-md' : 'text-content-secondary hover:text-content-primary'}`}
             >
-              Enroll as New NGO Member
+              {t('membership.tab_join', 'Enroll as New NGO Member')}
             </button>
             <button
               onClick={() => setActiveTab('lookup')}
               className={`px-6 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${activeTab === 'lookup' ? 'bg-brand-purple text-white shadow-md' : 'text-content-secondary hover:text-content-primary'}`}
             >
-              <Search className="w-3.5 h-3.5" /> Access Existing Membership Card
+              <Search className="w-3.5 h-3.5" /> {t('membership.tab_lookup', 'Access Existing Membership Card')}
             </button>
           </div>
         </div>
@@ -241,10 +243,10 @@ export const MembershipPage: React.FC = () => {
               <Crown className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-extrabold text-content-primary">
-              Lookup NGO Membership Credential
+              {t('membership.lookup_title', 'Lookup NGO Membership Credential')}
             </h3>
             <p className="text-xs text-content-secondary">
-              Enter your registered email address or Membership ID (e.g. <span className="font-mono font-bold">ASF-MBR-2026-7721</span>) to access and download your official Membership Card.
+              {t('membership.lookup_subtitle', 'Enter your registered email address or Membership ID to access and download your official Membership Card.')}
             </p>
           </div>
 
@@ -252,19 +254,19 @@ export const MembershipPage: React.FC = () => {
             <input
               type="text"
               required
-              placeholder="Email address or Membership ID..."
+              placeholder={t('membership.lookup_placeholder', 'Email address or Membership ID...')}
               value={lookupQuery}
               onChange={(e) => setLookupQuery(e.target.value)}
               className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
             />
             <button type="submit" className="btn-primary !py-2.5 !px-5 text-xs font-bold">
-              Search
+              {t('membership.lookup_btn', 'Search')}
             </button>
           </form>
 
           {lookupResult === 'not_found' && (
             <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-center text-xs space-y-1">
-              <p className="font-bold">No active membership found for "{lookupQuery}"</p>
+              <p className="font-bold">{t('membership.no_record', 'No active membership found for this query')}: "{lookupQuery}"</p>
               <p className="text-[11px] text-rose-600">Please verify your details or enroll for a new membership below.</p>
             </div>
           )}
@@ -276,7 +278,7 @@ export const MembershipPage: React.FC = () => {
                   <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
                   <div>
                     <h4 className="text-xs font-bold text-emerald-900 uppercase">
-                      ACTIVE NGO MEMBERSHIP CONFIRMED
+                      {t('membership.active_confirmed', 'ACTIVE NGO MEMBERSHIP CONFIRMED')}
                     </h4>
                     <p className="text-[11px] text-emerald-700">
                       ID: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Tier: {lookupResult.tierName} · Valid Thru: {lookupResult.validThru}
@@ -300,7 +302,7 @@ export const MembershipPage: React.FC = () => {
               <Crown className="w-8 h-8" />
             </div>
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-              PAYMENT VERIFIED · {confirmedMember.durationYears} YEARS ACCREDITED
+              PAYMENT VERIFIED · {confirmedMember.durationYears} {confirmedMember.durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')} ACCREDITED
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-content-primary">
               Welcome to the Al Shujaiat Foundation Charter!
@@ -345,63 +347,63 @@ export const MembershipPage: React.FC = () => {
           <div className="space-y-4">
             <div className="text-center">
               <h2 className="text-xl sm:text-2xl font-black text-content-primary">
-                1. Select Your Membership Level
+                {t('membership.step1_title', '1. Select Your Membership Level')}
               </h2>
               <p className="text-xs text-content-secondary">
-                All memberships directly sustain on-ground healthcare, emergency food packs, and clean water engineering.
+                {t('membership.step1_subtitle', 'All memberships directly sustain on-ground healthcare, emergency food packs, and clean water engineering.')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tiers.map((t) => {
-                const isSelected = selectedTier === t.id;
-                const convertedAnnual = convertFromUSD(t.baseAnnualUSD);
+              {tiers.map((tItem) => {
+                const isSelected = selectedTier === tItem.id;
+                const convertedAnnual = convertFromUSD(tItem.baseAnnualUSD);
 
                 return (
                   <div
-                    key={t.id}
-                    onClick={() => setSelectedTier(t.id)}
+                    key={tItem.id}
+                    onClick={() => setSelectedTier(tItem.id)}
                     className={`rounded-3xl border-2 p-5 cursor-pointer transition-all duration-300 relative flex flex-col justify-between ${
                       isSelected
                         ? 'border-brand-pink bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 shadow-brand-lg scale-[1.02]'
                         : 'border-content-border bg-white hover:border-brand-purple/40 hover:shadow-brand-sm'
                     }`}
                   >
-                    {t.popular && (
+                    {tItem.popular && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-brand-pink text-white font-black text-[9px] px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
-                        POPULAR CHOICE
+                        {t('membership.popular', 'POPULAR CHOICE')}
                       </span>
                     )}
 
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-content-muted">
-                          {t.badge}
+                          {tItem.badge}
                         </span>
                         {isSelected && <CheckCircle2 className="w-5 h-5 text-brand-pink" />}
                       </div>
 
                       <div>
                         <h3 className="text-base font-black text-content-primary leading-snug">
-                          {t.name}
+                          {tItem.name}
                         </h3>
                         <p className="text-[11px] text-content-secondary mt-1 leading-relaxed">
-                          {t.description}
+                          {tItem.description}
                         </p>
                       </div>
 
                       <div className="py-2 border-y border-content-border/60">
                         <div className="text-2xl font-black text-brand-purple font-mono">
                           {formatAmount(convertedAnnual)}
-                          <span className="text-xs text-content-muted font-normal"> / year</span>
+                          <span className="text-xs text-content-muted font-normal"> {t('membership.per_year', '/ year')}</span>
                         </div>
                         <p className="text-[9.5px] text-emerald-700 font-semibold mt-0.5">
-                          100% Tax Deductible (80G & 12A)
+                          {t('membership.tax_deductible', '100% Tax Deductible (80G & 12A)')}
                         </p>
                       </div>
 
                       <ul className="space-y-1.5 text-[11px] text-content-secondary">
-                        {t.benefits.map((b, idx) => (
+                        {tItem.benefits.map((b, idx) => (
                           <li key={idx} className="flex items-start gap-1.5 leading-tight">
                             <Check className="w-3.5 h-3.5 text-brand-pink flex-shrink-0 mt-0.5" />
                             <span>{b}</span>
@@ -418,7 +420,7 @@ export const MembershipPage: React.FC = () => {
                           : 'bg-surface-soft text-content-primary hover:bg-brand-purple/10'
                       }`}
                     >
-                      {isSelected ? 'Selected Tier' : 'Choose Level'}
+                      {isSelected ? t('membership.selected_tier', 'Selected Tier') : t('membership.choose_level', 'Choose Level')}
                     </button>
                   </div>
                 );
@@ -431,17 +433,17 @@ export const MembershipPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-content-border pb-4">
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-content-primary flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-brand-pink" /> 2. Choose Membership Duration (1 to 10 Years)
+                  <Clock className="w-5 h-5 text-brand-pink" /> {t('membership.step2_title', '2. Choose Membership Duration (1 to 10 Years)')}
                 </h2>
                 <p className="text-xs text-content-secondary mt-0.5">
-                  Select how many consecutive years you wish to enroll. Multi-year memberships receive long-term ID credential validation.
+                  {t('membership.step2_subtitle', 'Select how many consecutive years you wish to enroll. Multi-year memberships receive long-term ID credential validation.')}
                 </p>
               </div>
 
               <div className="text-right">
-                <span className="text-xs font-bold text-content-muted uppercase">Duration:</span>{' '}
+                <span className="text-xs font-bold text-content-muted uppercase">{t('membership.duration_label', 'Duration:')}</span>{' '}
                 <span className="text-base font-black text-brand-purple font-mono">
-                  {durationYears} {durationYears === 1 ? 'Year' : 'Years'}
+                  {durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}
                 </span>
               </div>
             </div>
@@ -460,7 +462,7 @@ export const MembershipPage: React.FC = () => {
                   }`}
                 >
                   <div className="text-sm">{yr}</div>
-                  <div className="text-[9px] font-normal uppercase">{yr === 1 ? 'Yr' : 'Yrs'}</div>
+                  <div className="text-[9px] font-normal uppercase">{yr === 1 ? t('membership.year', 'Yr') : t('membership.years', 'Yrs')}</div>
                 </button>
               ))}
             </div>
@@ -469,18 +471,18 @@ export const MembershipPage: React.FC = () => {
             <div className="bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white p-5 rounded-2xl border border-amber-400/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="space-y-1 text-center sm:text-left">
                 <span className="text-[9.5px] font-mono text-amber-300 font-bold uppercase tracking-wider">
-                  MEMBERSHIP CONTRIBUTION SUMMARY
+                  {t('membership.summary_title', 'MEMBERSHIP CONTRIBUTION SUMMARY')}
                 </span>
                 <h4 className="text-base font-extrabold text-white">
-                  {currentTierObj.name} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? 'Year Validity' : 'Years Validity'}</span>
+                  {currentTierObj.name} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}</span>
                 </h4>
                 <p className="text-xs text-white/70">
-                  Annual: {formatAmount(annualAmountLocal)} × {durationYears} Years = Total Contribution
+                  {formatAmount(annualAmountLocal)} × {durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}
                 </p>
               </div>
 
               <div className="text-center sm:text-right bg-white/10 px-5 py-3 rounded-xl border border-white/10">
-                <span className="text-[10px] text-amber-200 block uppercase font-bold">Total Contribution</span>
+                <span className="text-[10px] text-amber-200 block uppercase font-bold">{t('membership.total_contribution', 'Total Contribution')}</span>
                 <span className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
                   {formatAmount(totalAmountLocal)}
                 </span>
@@ -492,16 +494,18 @@ export const MembershipPage: React.FC = () => {
           <form onSubmit={handleEnrollMembership} className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-md space-y-6">
             <div>
               <h2 className="text-lg sm:text-xl font-black text-content-primary flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand-pink" /> 3. Member Information & Credential Details
+                <Users className="w-5 h-5 text-brand-pink" /> {t('membership.step3_title', '3. Member Information & Credential Details')}
               </h2>
               <p className="text-xs text-content-secondary mt-0.5">
-                These details will be encoded onto your official Al Shujaiat Foundation Membership ID Badge and 80G Tax Receipt.
+                {t('membership.step3_subtitle', 'These details will be encoded onto your official Al Shujaiat Foundation Membership ID Badge and 80G Tax Receipt.')}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Full Name (As on ID Card) *</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.full_name', 'Full Name (As on ID Card) *')}
+                </label>
                 <input
                   type="text"
                   required
@@ -512,7 +516,9 @@ export const MembershipPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Email Address (For Tax Receipt & Digital Card) *</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.email', 'Email Address (For Tax Receipt & Digital Card) *')}
+                </label>
                 <input
                   type="email"
                   required
@@ -526,7 +532,9 @@ export const MembershipPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.phone', 'Phone Number')}
+                </label>
                 <input
                   type="tel"
                   placeholder="+91 94190 12345"
@@ -536,7 +544,9 @@ export const MembershipPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">City / Region</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.city', 'City / Region')}
+                </label>
                 <input
                   type="text"
                   placeholder="Srinagar / New Delhi / London"
@@ -546,7 +556,9 @@ export const MembershipPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Country</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.country', 'Country')}
+                </label>
                 <input
                   type="text"
                   value={country}
@@ -555,7 +567,9 @@ export const MembershipPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Blood Group (ID Badge)</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('membership.blood_group', 'Blood Group (ID Badge)')}
+                </label>
                 <select
                   value={bloodGroup}
                   onChange={(e) => setBloodGroup(e.target.value)}
@@ -577,7 +591,7 @@ export const MembershipPage: React.FC = () => {
             <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
-                  <IdCard className="w-4 h-4 text-brand-pink" /> Passport Size Photograph (for Official Membership Card Badge)
+                  <IdCard className="w-4 h-4 text-brand-pink" /> {t('membership.photo_title', 'Passport Size Photograph (for Official Membership Card Badge)')}
                 </h4>
                 <span className="text-[10px] text-content-muted">JPG, PNG up to 5MB</span>
               </div>
@@ -603,7 +617,7 @@ export const MembershipPage: React.FC = () => {
                   <div className="pt-1 flex items-center gap-2 justify-center sm:justify-start">
                     <label className="btn-outline !py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5">
                       <UploadCloud className="w-3.5 h-3.5 text-brand-purple" />
-                      <span>{photoUrl ? 'Change Photo' : 'Upload Picture'}</span>
+                      <span>{photoUrl ? t('membership.change_photo', 'Change Photo') : t('membership.upload_btn', 'Upload Picture')}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -617,7 +631,7 @@ export const MembershipPage: React.FC = () => {
                         onClick={() => setPhotoUrl('')}
                         className="text-xs text-rose-600 hover:underline font-semibold"
                       >
-                        Remove
+                        {t('membership.remove_photo', 'Remove')}
                       </button>
                     )}
                   </div>
@@ -627,13 +641,15 @@ export const MembershipPage: React.FC = () => {
 
             {/* Payment Method Selector */}
             <div className="space-y-3 pt-2">
-              <label className="block text-xs font-semibold text-content-primary">Select Payment Method</label>
+              <label className="block text-xs font-semibold text-content-primary">
+                {t('membership.payment_method', 'Select Payment Method')}
+              </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { id: 'card', label: 'Credit / Debit Card', icon: CreditCard },
-                  { id: 'upi', label: 'UPI / NetBanking', icon: Sparkles },
-                  { id: 'paypal', label: 'PayPal Global', icon: Globe },
-                  { id: 'bank_wire', label: 'Direct Bank Wire', icon: Building },
+                  { id: 'card', label: t('membership.card', 'Credit / Debit Card'), icon: CreditCard },
+                  { id: 'upi', label: t('membership.upi', 'UPI / NetBanking'), icon: Sparkles },
+                  { id: 'paypal', label: t('membership.paypal', 'PayPal Global'), icon: Globe },
+                  { id: 'bank_wire', label: t('membership.bank_wire', 'Direct Bank Wire'), icon: Building },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -655,7 +671,7 @@ export const MembershipPage: React.FC = () => {
             {/* Submit & Generate Membership ID Card */}
             <div className="pt-4 border-t border-content-border flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs text-content-secondary">
-                <span className="font-bold text-content-primary">Security Note:</span> Encrypted 256-bit payment gateway. Instant 80G tax receipt generated.
+                {t('membership.security_note', 'Security Note: Encrypted 256-bit payment gateway. Instant 80G tax receipt generated.')}
               </div>
 
               <button
@@ -664,11 +680,11 @@ export const MembershipPage: React.FC = () => {
                 className="w-full sm:w-auto btn-primary !py-3.5 !px-8 text-sm font-black shadow-pink-glow flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
-                  <span>Activating Membership & Generating Card...</span>
+                  <span>{t('membership.processing', 'Activating Membership & Generating Card...')}</span>
                 ) : (
                   <>
                     <Crown className="w-4 h-4" />
-                    <span>Pay {formatAmount(totalAmountLocal)} & Activate {durationYears}-Year Membership</span>
+                    <span>{t('membership.pay_btn', 'Pay & Activate Membership')}: {formatAmount(totalAmountLocal)}</span>
                   </>
                 )}
               </button>

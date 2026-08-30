@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NgoMembership, SystemSettings } from '../../types';
 import { MembershipCardService } from '../../services/membershipCardService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   Download, Printer, RotateCw, User, 
   Calendar, Shield, Award, MapPin, Globe, Mail, Crown 
@@ -12,6 +13,7 @@ interface MembershipCardPreviewProps {
 }
 
 export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ member, settings }) => {
+  const { t } = useLanguage();
   const [showBackSide, setShowBackSide] = useState(false);
 
   const handleDownloadPDF = () => {
@@ -425,7 +427,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
           className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 w-full"
         >
           <RotateCw className="w-4 h-4 text-amber-600" />
-          <span>Flip ({showBackSide ? 'Front' : 'Back'})</span>
+          <span>{t('membership.flip', 'Flip')} ({showBackSide ? t('membership.front', 'Front') : t('membership.back', 'Back')})</span>
         </button>
 
         <button
@@ -434,7 +436,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
           className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 w-full"
         >
           <Printer className="w-4 h-4" />
-          <span>Print Badge</span>
+          <span>{t('membership.print', 'Print Badge')}</span>
         </button>
 
         <button
@@ -444,7 +446,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
           className="btn-primary !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-pink-glow border-none text-white w-full sm:col-span-1"
         >
           <Download className="w-4 h-4" />
-          <span>Download PDF</span>
+          <span>{t('membership.download_pdf', 'Download PDF')}</span>
         </button>
       </div>
     </div>

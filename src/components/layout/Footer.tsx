@@ -10,13 +10,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-brand-purple-dark text-white pt-16 pb-24 border-t border-brand-purple/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+    <footer className="bg-brand-purple-dark text-white pt-12 sm:pt-16 pb-20 sm:pb-24 border-t border-brand-purple/40 w-full max-w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-10">
           {/* Column 1: Foundation Credentials */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3.5 cursor-pointer" onClick={() => onNavigate('/')}>
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-white p-1 flex-shrink-0">
+          <div className="col-span-2 space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer" onClick={() => onNavigate('/')}>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-white p-1 flex-shrink-0">
                 <img
                   src="/images/logo.png"
                   alt="Al Shujaiat Foundation Jammu & Kashmir Logo"
@@ -41,7 +41,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-2 text-xs text-white/80">
               <div className="flex items-center gap-2 text-brand-blue font-semibold">
                 <ShieldCheck className="w-4 h-4 text-brand-pink flex-shrink-0" />
-                <span>Statutory Registrations & Credentials</span>
+                <span>{t('footer.credentials', 'Statutory Registrations & Credentials')}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-white/70 pt-1 border-t border-white/10">
                 <div>NGO DARPAN: <span className="text-white">JK/2018/0190361</span></div>
@@ -56,37 +56,37 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Column 2: Our Programs */}
           <div>
             <h4 className="text-sm font-bold text-brand-blue uppercase tracking-wider mb-4">
-              Programs & Initiatives
+              {t('footer.programs', 'Programs & Initiatives')}
             </h4>
             <ul className="space-y-2.5 text-xs text-white/70">
               <li>
                 <button onClick={() => onNavigate('/projects/clean-water-initiative')} className="hover:text-white transition-colors">
-                  Clean Water Initiative
+                  {t('Clean Water Initiative', 'Clean Water Initiative')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/global-education-access-program')} className="hover:text-white transition-colors">
-                  Global Education Access Program
+                  {t('Global Education Access Program', 'Global Education Access Program')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/community-healthcare-outreach')} className="hover:text-white transition-colors">
-                  Community Healthcare Outreach
+                  {t('Community Healthcare Outreach', 'Community Healthcare Outreach')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/emergency-relief-and-recovery')} className="hover:text-white transition-colors">
-                  Emergency Relief and Recovery
+                  {t('Emergency Relief and Recovery', 'Emergency Relief and Recovery')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/women-and-livelihood-development')} className="hover:text-white transition-colors">
-                  Women and Livelihood Development
+                  {t('Women and Livelihood Development', 'Women and Livelihood Development')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/climate-resilience-and-winter-survival')} className="hover:text-white transition-colors">
-                  Climate Resilience & Winter Survival
+                  {t('Climate Resilience & Winter Survival', 'Climate Resilience & Winter Survival')}
                 </button>
               </li>
             </ul>
@@ -95,7 +95,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Column 3: Transparency & Get Involved */}
           <div>
             <h4 className="text-sm font-bold text-brand-pink uppercase tracking-wider mb-4">
-              Governance & Audits
+              {t('footer.governance', 'Governance & Audits')}
             </h4>
             <ul className="space-y-2.5 text-xs text-white/70">
               <li>

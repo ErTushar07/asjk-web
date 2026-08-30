@@ -39,11 +39,11 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           onClick={() => onNavigate('/projects')}
           className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to All Projects
+          <ArrowLeft className="w-4 h-4" /> {t('project.back_to_all', 'Back to All Projects')}
         </button>
 
         <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-purple/10 text-brand-purple uppercase tracking-wider">
-          {project.category}
+          {t(project.category, project.category)}
         </span>
       </div>
 
@@ -60,7 +60,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           <span>·</span>
           <span className="flex items-center gap-1 font-mono">
             <Calendar className="w-4 h-4 text-brand-blue" />
-            Timeline: {new Date(project.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} – {new Date(project.expectedCompletionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+            {t('project.timeline', 'Timeline')}: {new Date(project.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} – {new Date(project.expectedCompletionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
           </span>
         </div>
       </div>
@@ -77,21 +77,21 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
               className="w-full h-full object-cover"
             />
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-brand-purple shadow-sm">
-              {project.beneficiariesCount.toLocaleString()}+ Direct Beneficiaries
+              {project.beneficiariesCount.toLocaleString()}+ {t('project.direct_beneficiaries', 'Direct Beneficiaries')}
             </div>
           </div>
 
           {/* Problem Statement & Context */}
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-4">
             <h3 className="text-lg font-extrabold text-content-primary">
-              The Challenge & Need in Kashmir
+              {t('project.challenge_title', 'The Challenge & Need in Kashmir')}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
               {project.problemStatement}
             </p>
             <div className="pt-2 border-t border-content-border/60">
               <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider mb-2">
-                Detailed Program Overview
+                {t('project.overview_title', 'Detailed Program Overview')}
               </h4>
               <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
                 {project.longDescription}
@@ -103,7 +103,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-3">
               <h4 className="font-extrabold text-sm text-brand-purple">
-                Key Objectives
+                {t('project.key_objectives', 'Key Objectives')}
               </h4>
               <ul className="space-y-2 text-xs text-content-secondary">
                 {project.objectives.map((obj, i) => (
@@ -117,7 +117,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
             <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-3">
               <h4 className="font-extrabold text-sm text-brand-blue">
-                Expected Measurable Outcomes
+                {t('project.expected_outcomes', 'Expected Measurable Outcomes')}
               </h4>
               <ul className="space-y-2 text-xs text-content-secondary">
                 {project.expectedOutcomes.map((out, i) => (
@@ -134,7 +134,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           {project.milestones.length > 0 && (
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
               <h3 className="text-lg font-extrabold text-content-primary">
-                Implementation Milestones & Budget Breakdown
+                {t('project.milestones_title', 'Implementation Milestones & Budget Breakdown')}
               </h3>
               <div className="space-y-4">
                 {project.milestones.map((ms) => (
@@ -165,7 +165,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           {project.updates.length > 0 && (
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
               <h3 className="text-lg font-extrabold text-content-primary">
-                Field Updates & Progress Reports
+                {t('project.field_updates', 'Field Updates & Progress Reports')}
               </h3>
               <div className="space-y-4">
                 {project.updates.map((upd) => (
@@ -188,13 +188,13 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           <div className="sticky top-28 bg-white rounded-3xl border border-content-border p-6 sm:p-8 shadow-brand-md space-y-6">
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-brand-pink uppercase tracking-widest block">
-                Verified Financial Ledger
+                {t('project.financial_ledger', 'Verified Financial Ledger')}
               </span>
               <div className="text-3xl font-black text-brand-purple">
                 {formatUSD(project.amountRaisedUSD)}
               </div>
               <p className="text-xs text-content-muted">
-                raised toward {formatUSD(project.fundingGoalUSD)} budget goal
+                {t('campaign.raised_toward', 'raised toward')} {formatUSD(project.fundingGoalUSD)} {t('project.budget_goal', 'budget goal')}
               </p>
             </div>
 
@@ -207,17 +207,17 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
                 />
               </div>
               <div className="flex justify-between text-xs font-bold text-content-secondary">
-                <span>{fundingPct}% Funded</span>
-                <span>{formatUSD(remainingUSD)} Needed</span>
+                <span>{fundingPct}% {t('project.funded', 'Funded')}</span>
+                <span>{formatUSD(remainingUSD)} {t('project.remaining', 'Needed')}</span>
               </div>
             </div>
 
             {/* Donors Count */}
             <div className="bg-surface-soft p-3 rounded-xl flex items-center justify-between text-xs text-content-secondary">
               <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-brand-purple" /> Verified Donors
+                <Users className="w-4 h-4 text-brand-purple" /> {t('project.verified_donors', 'Verified Donors')}
               </span>
-              <span className="font-black text-content-primary">{project.donorCount} Donors</span>
+              <span className="font-black text-content-primary">{project.donorCount} {t('project.donors', 'Donors')}</span>
             </div>
 
             {/* Donate Trigger Button */}
@@ -226,17 +226,17 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
               className="btn-secondary w-full !py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow"
             >
               <Heart className="w-4 h-4 fill-white" />
-              <span>Support This Project</span>
+              <span>{t('project.donate_now', 'Support This Project')}</span>
             </button>
 
             {/* Exemption & Transparency Note */}
             <div className="text-[11px] text-content-muted space-y-2 pt-2 border-t border-content-border">
               <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Instant 80G Tax Exemption PDF Receipt</span>
+                <span>{t('hero.stat_pdf', 'Instant 80G Tax Exemption PDF Receipt')}</span>
               </div>
               <p>
-                Al Shujaiat Foundation Jammu & Kashmir guarantees 100% direct program fund allocation with public auditing records.
+                {t('project.guarantee_note', 'Al Shujaiat Foundation Jammu & Kashmir guarantees 100% direct program fund allocation with public auditing records.')}
               </p>
             </div>
           </div>

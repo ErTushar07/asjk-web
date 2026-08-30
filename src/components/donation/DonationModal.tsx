@@ -161,13 +161,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({
           <div className="absolute top-0 right-0 w-48 h-48 bg-brand-pink/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
           <div className="relative z-10">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-blue border border-white/15 mb-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-pink" /> 100% Tax Deductible (80G / 501c3)
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-pink" /> {t('donate.tax_deductible', '100% Tax Deductible (80G / 501c3)')}
             </span>
             <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
               {t('donate.title', 'Make a Life-Changing Contribution')}
             </h3>
             <p className="text-white/80 text-xs sm:text-sm mt-1">
-              Allocated to: <span className="font-semibold text-brand-pink">{targetName}</span>
+              {t('donate.allocated_to', 'Allocated to')}: <span className="font-semibold text-brand-pink">{targetName}</span>
             </p>
           </div>
         </div>
@@ -193,27 +193,27 @@ export const DonationModal: React.FC<DonationModalProps> = ({
               {/* Receipt Summary Box */}
               <div className="bg-surface-soft border border-content-border rounded-2xl p-5 text-left max-w-md mx-auto space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-content-muted">Receipt Number:</span>
+                  <span className="text-content-muted">{t('receipt.number', 'Receipt Number')}:</span>
                   <span className="font-bold text-brand-purple font-mono">{successReceipt.receiptNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-content-muted">Amount Contributed:</span>
+                  <span className="text-content-muted">{t('receipt.amount', 'Amount Contributed')}:</span>
                   <span className="font-bold text-brand-pink text-sm">
                     {successReceipt.currency} {successReceipt.amount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-content-muted">Frequency:</span>
+                  <span className="text-content-muted">{t('receipt.frequency', 'Frequency')}:</span>
                   <span className="font-semibold capitalize text-content-primary">
-                    {frequency.replace('_', ' ')} Subscription
+                    {frequency.replace('_', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-content-muted">Allocated To:</span>
+                  <span className="text-content-muted">{t('donate.allocated_to', 'Allocated to')}:</span>
                   <span className="font-medium text-content-primary truncate max-w-[200px]">{successReceipt.projectName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-content-muted">Transaction ID:</span>
+                  <span className="text-content-muted">{t('receipt.transaction_id', 'Transaction ID')}:</span>
                   <span className="font-mono text-[11px] text-content-secondary">{successReceipt.transactionId}</span>
                 </div>
               </div>

@@ -6,6 +6,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
   onNavigate,
   onOpenDonateModal,
 }) => {
+  const { t } = useLanguage();
   const pillars = [
     {
       title: 'Clean Water & Sanitation',
@@ -62,51 +63,55 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       {/* Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('our_work.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Comprehensive Humanitarian & Developmental Programs
+          {t('our_work.title', 'Comprehensive Humanitarian & Developmental Programs')}
         </h1>
         <p className="text-content-secondary text-sm sm:text-base leading-relaxed">
-          Through strategic community infrastructure, emergency readiness, and grassroots partnerships, our foundation brings sustainable relief and long-term empowerment to Jammu & Kashmir.
+          {t('our_work.subtitle', 'Through strategic community infrastructure, emergency readiness, and grassroots partnerships, our foundation brings sustainable relief and long-term empowerment to Jammu & Kashmir.')}
         </p>
       </div>
 
       {/* Pillars Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
         {pillars.map((p, idx) => {
           const Icon = p.icon;
           return (
             <div
               key={idx}
-              className="bg-white rounded-3xl border border-content-border p-8 shadow-brand-sm hover:shadow-brand-md transition-all space-y-6 flex flex-col justify-between"
+              className="bg-white rounded-2xl sm:rounded-3xl border border-content-border p-3.5 sm:p-8 space-y-3 sm:space-y-6 shadow-brand-sm hover:shadow-brand-md transition-all flex flex-col justify-between group min-w-0"
             >
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-surface-soft flex items-center justify-center">
-                  <Icon className={`w-6 h-6 ${p.color}`} />
+              <div className="space-y-2 sm:space-y-4">
+                <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-surface-soft flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${p.color}`} />
                 </div>
-                <h3 className="text-lg font-extrabold text-content-primary">{p.title}</h3>
-                <p className="text-xs text-content-secondary leading-relaxed">{p.desc}</p>
-                <div className="p-3 bg-surface-soft rounded-xl text-[11px] font-bold text-brand-purple">
-                  {p.stats}
-                </div>
+                <h3 className="text-xs sm:text-xl font-bold sm:font-extrabold text-content-primary group-hover:text-brand-purple transition-colors line-clamp-1">
+                  {t(p.title, p.title)}
+                </h3>
+                <p className="text-[10px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">
+                  {t(p.title + '.desc', p.desc)}
+                </p>
               </div>
 
-              <div className="pt-4 border-t border-content-border flex items-center justify-between">
-                <button
-                  onClick={() => onNavigate(p.link)}
-                  className="text-xs font-bold text-brand-purple hover:underline flex items-center gap-1"
-                >
-                  <span>View Project</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={onOpenDonateModal}
-                  className="btn-secondary !py-1.5 !px-3 text-xs font-bold flex items-center gap-1"
-                >
-                  <Heart className="w-3 h-3 fill-white" />
-                  <span>Donate</span>
-                </button>
+              <div className="pt-2 sm:pt-4 border-t border-content-border/60 space-y-2">
+                <span className="text-[9px] sm:text-xs font-bold text-brand-purple block truncate">
+                  {p.stats}
+                </span>
+                <div className="flex items-center justify-between gap-1 pt-1">
+                  <button
+                    onClick={() => onNavigate(p.link)}
+                    className="text-[10px] sm:text-xs font-bold text-brand-pink hover:underline flex items-center gap-1"
+                  >
+                    <span>{t('project.view_details', 'Details')}</span> <ArrowRight className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={onOpenDonateModal}
+                    className="btn-primary !py-1 sm:!py-1.5 !px-2 sm:!px-3 text-[9px] sm:text-xs font-bold"
+                  >
+                    {t('project.donate_now', 'Donate')}
+                  </button>
+                </div>
               </div>
             </div>
           );

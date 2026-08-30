@@ -43,84 +43,81 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          About Al Shujaiat Foundation · Jammu & Kashmir
+          {t('about.badge', 'About Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Dedicated to Human Dignity & Sustainable Development
+          {t('about.title', 'Dedicated to Human Dignity & Sustainable Development')}
         </h1>
         <p className="text-content-secondary text-sm sm:text-base leading-relaxed">
-          Founded in Srinagar, Al Shujaiat Foundation Jammu & Kashmir is a non-profit registered charitable trust working relentlessly across the Himalayan valley to alleviate poverty, deliver clean drinking water, educate children, and provide emergency disaster relief.
+          {t('about.subtitle', 'Founded in Srinagar, Al Shujaiat Foundation Jammu & Kashmir is a non-profit registered charitable trust working relentlessly across the Himalayan valley to alleviate poverty, deliver clean drinking water, educate children, and provide emergency disaster relief.')}
         </p>
       </div>
 
       {/* Vision & Mission Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-brand-purple text-white p-8 sm:p-10 rounded-3xl space-y-4 relative overflow-hidden">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-            <Heart className="w-6 h-6 text-brand-pink fill-brand-pink" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-8">
+        <div className="bg-brand-purple text-white p-4 sm:p-10 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-4 relative overflow-hidden">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 flex items-center justify-center">
+            <Heart className="w-4 h-4 sm:w-6 sm:h-6 text-brand-pink fill-brand-pink" />
           </div>
-          <h3 className="text-2xl font-extrabold tracking-tight">Our Mission</h3>
-          <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
-            To empower impoverished and disaster-vulnerable communities in Jammu & Kashmir through sustainable clean water access, world-class digital education, comprehensive child sponsorship, and rapid humanitarian disaster response.
+          <h3 className="text-sm sm:text-2xl font-extrabold tracking-tight">{t('about.mission_title', 'Our Mission')}</h3>
+          <p className="text-white/80 text-[10px] sm:text-sm leading-relaxed">
+            {t('about.mission_desc', 'To empower impoverished and disaster-vulnerable communities in Jammu & Kashmir through sustainable clean water access, world-class digital education, comprehensive child sponsorship, and rapid humanitarian disaster response.')}
           </p>
         </div>
 
-        <div className="bg-surface-highlight text-content-primary p-8 sm:p-10 rounded-3xl border border-brand-blue/30 space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-brand-blue/20 flex items-center justify-center">
-            <Award className="w-6 h-6 text-brand-purple" />
+        <div className="bg-surface-highlight text-content-primary p-4 sm:p-10 rounded-2xl sm:rounded-3xl border border-brand-blue/30 space-y-2 sm:space-y-4">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-brand-blue/20 flex items-center justify-center">
+            <Award className="w-4 h-4 sm:w-6 sm:h-6 text-brand-purple" />
           </div>
-          <h3 className="text-2xl font-extrabold tracking-tight text-brand-purple">Our Vision</h3>
-          <p className="text-content-secondary text-xs sm:text-sm leading-relaxed">
-            A thriving, self-reliant Jammu & Kashmir where every child has access to quality schooling, every remote village has safe drinking water, and no family is left without warmth or survival support during winter crises.
+          <h3 className="text-sm sm:text-2xl font-extrabold tracking-tight text-brand-purple">{t('about.vision_title', 'Our Vision')}</h3>
+          <p className="text-content-secondary text-[10px] sm:text-sm leading-relaxed">
+            {t('about.vision_desc', 'A thriving, self-reliant Jammu & Kashmir where every child has access to quality schooling, every remote village has safe drinking water, and no family is left without warmth or survival support during winter crises.')}
           </p>
         </div>
       </div>
 
       {/* Core Values */}
-      <div className="space-y-8">
-        <h2 className="text-2xl font-extrabold text-content-primary text-center">Our Core Operating Values</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="space-y-6 sm:space-y-8">
+        <h2 className="text-lg sm:text-2xl font-extrabold text-content-primary text-center">{t('about.values_title', 'Our Core Operating Values')}</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {[
-            { title: '100% Transparency', desc: 'Every rupee and dollar is audited by independent licensed chartered accountants.' },
-            { title: 'Human Dignity', desc: 'Aid is delivered with respect and compassion, upholding beneficiary privacy.' },
-            { title: 'Local Empowerment', desc: 'Villagers and youth committees are trained to maintain long-term infrastructure.' },
-            { title: 'Rapid Response', desc: '24/7 disaster readiness teams deploy emergency aid within hours of any calamity.' },
+            { title: t('about.val_transparency', '100% Transparency'), desc: t('about.val_transparency_desc', 'Every rupee and dollar is audited by independent licensed chartered accountants.') },
+            { title: t('about.val_dignity', 'Human Dignity'), desc: t('about.val_dignity_desc', 'Aid is delivered with respect and compassion, upholding beneficiary privacy.') },
+            { title: t('about.val_empowerment', 'Local Empowerment'), desc: t('about.val_empowerment_desc', 'Villagers and youth committees are trained to maintain long-term infrastructure.') },
+            { title: t('about.val_response', 'Rapid Response'), desc: t('about.val_response_desc', '24/7 disaster readiness teams deploy emergency aid within hours of any calamity.') },
           ].map((v, i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-content-border space-y-2 shadow-brand-sm">
-              <CheckCircle2 className="w-5 h-5 text-brand-pink" />
-              <h4 className="font-bold text-sm text-content-primary">{v.title}</h4>
-              <p className="text-xs text-content-secondary leading-relaxed">{v.desc}</p>
+            <div key={i} className="bg-white p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border border-content-border space-y-1.5 sm:space-y-2 shadow-brand-sm">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-brand-pink" />
+              <h4 className="font-bold text-xs sm:text-sm text-content-primary">{v.title}</h4>
+              <p className="text-[10px] sm:text-xs text-content-secondary leading-relaxed">{v.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Leadership & Staff Structure */}
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-xs font-bold text-brand-pink uppercase tracking-wider block">
-            Executive Governance
+          <span className="text-[10px] sm:text-xs font-bold text-brand-pink uppercase tracking-wider block">
+            {t('about.gov_badge', 'Executive Governance')}
           </span>
-          <h2 className="text-2xl font-extrabold text-content-primary">
-            Leadership & Organizational Team
+          <h2 className="text-lg sm:text-2xl font-extrabold text-content-primary">
+            {t('about.gov_title', 'Leadership & Organizational Team')}
           </h2>
-          <p className="text-xs text-content-secondary">
-            Demonstration organizational profiles representing executive and program management.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
           {leadershipTeam.map((l, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-3xl border border-content-border text-center space-y-3 shadow-brand-sm flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="w-16 h-16 rounded-full bg-brand-purple/10 mx-auto flex items-center justify-center text-brand-purple font-black text-lg">
+            <div key={idx} className="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-content-border text-center space-y-2 sm:space-y-3 shadow-brand-sm flex flex-col justify-between min-w-0">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-brand-purple/10 mx-auto flex items-center justify-center text-brand-purple font-black text-xs sm:text-lg">
                   {l.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-base text-content-primary">{l.name}</h4>
-                  <p className="text-xs font-bold text-brand-pink">{l.role}</p>
+                  <h4 className="font-extrabold text-xs sm:text-base text-content-primary truncate">{l.name}</h4>
+                  <p className="text-[10px] sm:text-xs font-bold text-brand-pink truncate">{t(l.role, l.role)}</p>
                 </div>
-                <p className="text-xs text-content-secondary leading-relaxed">{l.bio}</p>
+                <p className="text-[10px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">{l.bio}</p>
               </div>
             </div>
           ))}
@@ -130,7 +127,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
       {/* Statutory Credentials */}
       <div className="bg-surface-soft p-8 rounded-3xl border border-content-border space-y-4">
         <h3 className="font-extrabold text-base text-brand-purple flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-brand-pink" /> Legal & Statutory Registrations
+          <ShieldCheck className="w-5 h-5 text-brand-pink" /> {t('about.statutory_title', 'Legal & Statutory Registrations')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs text-content-secondary font-mono">
           <div className="bg-white p-3.5 rounded-xl border border-content-border">

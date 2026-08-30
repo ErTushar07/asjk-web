@@ -132,7 +132,7 @@ export const App: React.FC = () => {
   const isAdminRoute = currentRoute.startsWith('/admin');
 
   return (
-    <div className={`min-h-screen flex flex-col ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className={`min-h-screen flex flex-col w-full max-w-full overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
       {!isAdminRoute && (
         <Navbar
           onNavigate={navigate}
@@ -141,14 +141,15 @@ export const App: React.FC = () => {
         />
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden">
         {renderCurrentPage()}
       </main>
 
       {!isAdminRoute && <Footer onNavigate={navigate} />}
 
-      {/* Global Interactive Simulation & Testing Bar (Hidden in Admin to prevent menu obstruction) */}
-      {!isAdminRoute && <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />}
+      {!isAdminRoute && typeof window !== 'undefined' && (window.location.search.includes('demo=true') || window.location.search.includes('simulator=true')) && (
+        <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />
+      )}
 
       {/* Global Modal Instance */}
       <DonationModal

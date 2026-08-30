@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { MapPin, Mail, Phone, Clock, CheckCircle2, Send } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const { addSupportTicket, settings } = useDatabase();
+  const { t } = useLanguage();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,13 +34,13 @@ export const ContactPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
-          Al Shujaiat Foundation · Jammu & Kashmir
+          {t('contact.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-content-primary tracking-tight">
-          Contact Headquarters & Donor Support Desk
+          {t('contact.title', 'Contact Headquarters & Donor Support Desk')}
         </h1>
         <p className="text-content-secondary text-sm leading-relaxed">
-          Have questions regarding project allocations, Section 80G receipts, recurring subscriptions, or field visits? Reach out directly.
+          {t('contact.subtitle', 'Have questions regarding project allocations, Section 80G receipts, recurring subscriptions, or field visits? Reach out directly.')}
         </p>
       </div>
 
@@ -46,12 +48,12 @@ export const ContactPage: React.FC = () => {
         {/* Left: Contact Info */}
         <div className="lg:col-span-5 bg-brand-purple text-white p-8 sm:p-10 rounded-3xl space-y-8 shadow-brand-md flex flex-col justify-between">
           <div className="space-y-6">
-            <h3 className="text-xl font-extrabold tracking-tight">Foundation Offices & Helplines</h3>
+            <h3 className="text-xl font-extrabold tracking-tight">{t('contact.offices_helplines', 'Foundation Offices & Helplines')}</h3>
             <div className="space-y-4 text-xs text-white/85">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-brand-pink flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">Registered Office:</span>
+                  <span className="font-bold text-white block mb-0.5">{t('contact.registered_office', 'Registered Office:')}</span>
                   <p>{settings.registeredAddress}</p>
                 </div>
               </div>

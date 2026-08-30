@@ -167,14 +167,14 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
             </button>
           </div>
 
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center justify-between gap-3 flex-wrap max-w-full">
             {/* Role Switcher */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-brand-blue uppercase">Role:</span>
+            <div className="flex items-center gap-2 max-w-full min-w-0">
+              <span className="text-[11px] font-bold text-brand-blue uppercase flex-shrink-0">Role:</span>
               <select
                 value={role}
                 onChange={(e) => switchRole(e.target.value as UserRole)}
-                className="bg-white/10 text-white text-xs font-medium rounded-lg px-2.5 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-pink"
+                className="bg-white/10 text-white text-xs font-medium rounded-lg px-2.5 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-pink max-w-[210px] sm:max-w-xs truncate"
               >
                 <option value="super_admin" className="text-content-primary">Executive Director (Mohd Amin Ganai)</option>
                 <option value="finance_admin" className="text-content-primary">Finance Director (Michael Carter)</option>

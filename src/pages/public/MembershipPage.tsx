@@ -23,7 +23,10 @@ interface TierOption {
 
 export const MembershipPage: React.FC = () => {
   const { addMembership, memberships, settings } = useDatabase();
-  const { currentCurrency, formatAmount, convertFromUSD } = useCurrency();
+  const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
+
+  const formatAmount = (val: number) => formatOriginal(val, currentCurrency.code);
+  const convertFromUSD = (valUSD: number) => convertUSDToCurrency(valUSD);
 
   const [selectedTier, setSelectedTier] = useState<MembershipTier>('patron_gold');
   const [durationYears, setDurationYears] = useState<number>(1);

@@ -75,12 +75,12 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
             {/* Header Content */}
             <div className="text-center pt-2 px-6 space-y-1 z-10">
-              {/* Center Emblem Logo: Seamless Transparent Blending */}
-              <div className="w-14 h-14 mx-auto flex items-center justify-center bg-transparent">
+              {/* Center Emblem Logo: Seamless Transparent Blending with Card Background */}
+              <div className="w-20 h-20 mx-auto flex items-center justify-center bg-transparent">
                 <img 
                   src="/images/logo.png" 
                   alt="Al Shujaiat Foundation Emblem" 
-                  className="w-full h-full object-contain mix-blend-multiply filter drop-shadow-sm" 
+                  className="w-full h-full object-contain mix-blend-multiply" 
                 />
               </div>
 
@@ -200,7 +200,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
             {/* Header Content */}
             <div className="text-center pt-2 px-6 space-y-1 z-10">
-              <div className="w-12 h-12 mx-auto flex items-center justify-center bg-transparent">
+              <div className="w-16 h-16 mx-auto flex items-center justify-center bg-transparent">
                 <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain mix-blend-multiply" />
               </div>
               <h3 style={{ color: themeBg }} className="text-lg font-black leading-none">ASFJK</h3>

@@ -118,11 +118,11 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
             {/* Header Content with Perfectly Blended Logo */}
             <div className="text-center pt-2 px-6 space-y-1 z-10">
               {/* Center Emblem Logo: Clean transparent mix-blend to eliminate white box artifact */}
-              <div className="w-14 h-14 mx-auto flex items-center justify-center bg-transparent">
+              <div className="w-20 h-20 mx-auto flex items-center justify-center bg-transparent">
                 <img 
                   src="/images/logo.png" 
                   alt="Al Shujaiat Foundation Emblem" 
-                  className="w-full h-full object-contain mix-blend-multiply filter drop-shadow-sm" 
+                  className="w-full h-full object-contain mix-blend-multiply" 
                 />
               </div>
 
@@ -241,7 +241,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
 
             {/* Header Content */}
             <div className="text-center pt-2 px-6 space-y-1 z-10">
-              <div className="w-12 h-12 mx-auto flex items-center justify-center bg-transparent">
+              <div className="w-16 h-16 mx-auto flex items-center justify-center bg-transparent">
                 <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain mix-blend-multiply" />
               </div>
               <h3 style={{ color: themeBg }} className="text-lg font-black leading-none">ASFJK</h3>

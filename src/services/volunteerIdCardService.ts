@@ -47,7 +47,7 @@ export class VolunteerIdCardService {
 
     // Logo & Header
     try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 22.5, 6, 9, 9);
+      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 20.5, 5, 13, 13);
     } catch {
       // Fallback
     }
@@ -55,79 +55,79 @@ export class VolunteerIdCardService {
     doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
-    doc.text('ASFJK', 27, 18, { align: 'center' });
+    doc.text('ASFJK', 27, 21.5, { align: 'center' });
 
     doc.setFontSize(3.8);
-    doc.text('AL SHUJAIAT FOUNDATION', 27, 20.5, { align: 'center' });
+    doc.text('AL SHUJAIAT FOUNDATION', 27, 24, { align: 'center' });
     doc.setFontSize(3.2);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
-    doc.text('JAMMU & KASHMIR', 27, 22.5, { align: 'center' });
+    doc.text('JAMMU & KASHMIR', 27, 26, { align: 'center' });
 
     // Card Title with Gold Lines
     doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
-    doc.text('VOLUNTEER', 27, 27.5, { align: 'center' });
+    doc.text('VOLUNTEER', 27, 30.5, { align: 'center' });
 
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.2);
-    doc.line(12, 29.5, 18, 29.5);
-    doc.line(36, 29.5, 42, 29.5);
+    doc.line(12, 32.5, 18, 32.5);
+    doc.line(36, 32.5, 42, 32.5);
     doc.setFontSize(4);
     doc.setTextColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.text('IDENTITY CARD', 27, 30.5, { align: 'center' });
+    doc.text('IDENTITY CARD', 27, 33.5, { align: 'center' });
 
     // Circular Photo Frame
     doc.setFillColor(goldLight[0], goldLight[1], goldLight[2]);
-    doc.circle(27, 43, 10.5, 'F');
+    doc.circle(27, 45.5, 9.5, 'F');
     doc.setFillColor(245, 247, 250);
-    doc.circle(27, 43, 10, 'F');
+    doc.circle(27, 45.5, 9, 'F');
 
     // Avatar Placeholder Graphic
     doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
-    doc.circle(27, 40.5, 3.5, 'F');
-    doc.roundedRect(21, 44.5, 12, 8, 1.5, 1.5, 'F');
+    doc.circle(27, 43, 3, 'F');
+    doc.roundedRect(21.5, 47, 11, 7, 1.5, 1.5, 'F');
 
     // Bottom Royal Navy Wave Base Container
     doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
-    doc.roundedRect(0, 56, 54, 30, 4, 4, 'F');
+    doc.roundedRect(0, 56.5, 54, 29.5, 4, 4, 'F');
 
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.3);
-    doc.line(0, 56, 54, 56);
+    doc.line(0, 56.5, 54, 56.5);
 
     // Candidate Info on Bottom
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     const displayName = volunteer.fullName.length > 22 ? volunteer.fullName.substring(0, 22) + '...' : volunteer.fullName;
-    doc.text(displayName.toUpperCase(), 27, 61, { align: 'center' });
+    doc.text(displayName.toUpperCase(), 27, 61.5, { align: 'center' });
 
     doc.setTextColor(199, 210, 254);
     doc.setFontSize(4.2);
     doc.setFont('helvetica', 'normal');
-    doc.text(volunteer.roleDesignation || 'Community Outreach Volunteer', 27, 64.5, { align: 'center' });
+    doc.text(volunteer.roleDesignation || 'Community Outreach Volunteer', 27, 65, { align: 'center' });
 
     doc.setTextColor(goldLight[0], goldLight[1], goldLight[2]);
     doc.setFont('courier', 'bold');
     doc.setFontSize(5);
-    doc.text(`VOL ID : ${volunteer.membershipNumber || 'ASFJK25V078'}`, 27, 68.5, { align: 'center' });
+    doc.text(`VOL ID : ${volunteer.membershipNumber || 'ASFJK25V078'}`, 27, 69, { align: 'center' });
 
     // Split Bar: Left QR Box, Right Slogan
     doc.setFillColor(255, 255, 255);
-    doc.rect(0, 72, 16, 14, 'F');
+    doc.rect(0, 72.5, 16, 13.5, 'F');
 
     doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
-    doc.rect(3, 74, 10, 10, 'F');
+    doc.rect(3, 74.5, 10, 9.5, 'F');
     doc.setFillColor(255, 255, 255);
-    doc.rect(5, 76, 6, 6, 'F');
+    doc.rect(5, 76.5, 6, 5.5, 'F');
     doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
-    doc.rect(7, 78, 2, 2, 'F');
+    doc.rect(7, 78.5, 2, 1.5, 'F');
 
     // Right Slogan
     doc.setFillColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.rect(16, 72, 38, 14, 'F');
+    doc.rect(16, 72.5, 38, 13.5, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(4.5);

@@ -205,7 +205,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
       {/* Sidebar Navigation */}
       <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 rounded-xl bg-white p-1 flex-shrink-0">
+          <div className="w-11 h-11 rounded-full bg-white p-1 flex-shrink-0 shadow-md flex items-center justify-center">
             <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
           </div>
           <div>

@@ -16,7 +16,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Column 1: Foundation Credentials */}
           <div className="col-span-2 space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer" onClick={() => onNavigate('/')}>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-white p-1 flex-shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white p-1 flex-shrink-0 shadow-md flex items-center justify-center">
                 <img
                   src="/images/logo.png"
                   alt="Al Shujaiat Foundation Jammu & Kashmir Logo"

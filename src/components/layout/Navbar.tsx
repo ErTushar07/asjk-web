@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
             className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group min-w-0 flex-shrink"
             onClick={() => onNavigate('/')}
           >
-            <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-xl overflow-hidden shadow-brand-sm group-hover:scale-105 transition-transform flex-shrink-0 bg-white p-0.5 border border-content-border/50">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shadow-brand-sm group-hover:scale-105 transition-transform flex-shrink-0 bg-white p-0.5 border border-content-border/60 flex items-center justify-center">
               <img 
                 src="/images/logo.png" 
                 alt="Al Shujaiat Foundation Jammu & Kashmir Logo" 

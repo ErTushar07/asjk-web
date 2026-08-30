@@ -67,7 +67,7 @@ interface DatabaseContextType {
   deleteCampaign: (id: string) => void;
   addStory: (story: Omit<Story, 'id'>) => void;
   addNews: (news: Omit<NewsArticle, 'id'>) => void;
-  addVolunteerApplication: (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => void;
+  addVolunteerApplication: (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => VolunteerApplication;
   updateVolunteerStatus: (id: string, status: any) => void;
   addPartnershipRequest: (req: Omit<PartnershipRequest, 'id' | 'submittedAt' | 'status'>) => void;
   updatePartnershipStatus: (id: string, status: any) => void;
@@ -702,15 +702,49 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setNews((prev) => [newArticle, ...prev]);
   };
 
-  const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => {
+  const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>): VolunteerApplication => {
+    const now = new Date();
+    const validThru = new Date();
+    validThru.setFullYear(now.getFullYear() + 1);
+
     const newApp: VolunteerApplication = {
       ...app,
       id: `vol_${Date.now()}`,
-      status: 'submitted',
-      submittedAt: new Date().toISOString(),
+      membershipNumber: app.membershipNumber || `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      roleDesignation: app.roleDesignation || 'Humanitarian Field Specialist',
+      bloodGroup: app.bloodGroup || 'O+',
+      validFrom: app.validFrom || now.toISOString().split('T')[0],
+      validThru: app.validThru || validThru.toISOString().split('T')[0],
+      status: 'approved',
+      submittedAt: now.toISOString(),
     };
     setVolunteers((prev) => [newApp, ...prev]);
-    recordAudit('sys_public', app.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer application from ${app.fullName} (${app.city})`);
+    recordAudit('sys_public', app.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer membership generated for ${app.fullName} (${newApp.membershipNumber})`);
+    return newApp;
+  };
+
+  const updateVolunteerStatus = (id: string, status: any) => {
+    const now = new Date();
+    const validThru = new Date();
+    validThru.setFullYear(now.getFullYear() + 1);
+
+    setVolunteers((prev) =>
+      prev.map((v) => {
+        if (v.id === id) {
+          return {
+            ...v,
+            status,
+            membershipNumber: v.membershipNumber || `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+            roleDesignation: v.roleDesignation || 'Humanitarian Field Specialist',
+            bloodGroup: v.bloodGroup || 'O+',
+            validFrom: v.validFrom || now.toISOString().split('T')[0],
+            validThru: v.validThru || validThru.toISOString().split('T')[0],
+          };
+        }
+        return v;
+      })
+    );
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'VOLUNTEER_STATUS_UPDATED', 'user', id, `Updated volunteer status to ${status}`);
   };
 
   const addPartnershipRequest = (req: Omit<PartnershipRequest, 'id' | 'submittedAt' | 'status'>) => {

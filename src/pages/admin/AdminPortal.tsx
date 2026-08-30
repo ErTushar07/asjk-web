@@ -5,13 +5,15 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { ReceiptService } from '../../services/receiptService';
 import { ReportService } from '../../services/reportService';
+import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
+import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
-  Mail, Phone, Send, Check, X, GraduationCap, Paperclip
+  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -62,6 +64,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
 
   // Selected Volunteer Modal State
   const [selectedVolunteer, setSelectedVolunteer] = useState<any | null>(null);
+  const [idCardModalVolunteer, setIdCardModalVolunteer] = useState<any | null>(null);
 
   // Calculate Financial Aggregates (Source of Truth)
   const successfulDonations = donations.filter((d) => d.status === 'successful');
@@ -1017,6 +1020,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                         >
                           <Eye className="w-3 h-3" /> View Dossier
                         </button>
+                        <button
+                          onClick={() => setIdCardModalVolunteer(v)}
+                          className="btn-outline !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1 text-brand-purple hover:bg-brand-purple/10"
+                        >
+                          <IdCard className="w-3 h-3 text-brand-pink" /> ID Card
+                        </button>
                         {v.status !== 'approved' && (
                           <button
                             onClick={() => updateVolunteerStatus(v.id, 'approved')}
@@ -1730,6 +1739,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdCardModalVolunteer(selectedVolunteer);
+                  }}
+                  className="btn-primary !py-2 !px-3 text-xs font-bold inline-flex items-center gap-1.5 shadow-pink-glow"
+                >
+                  <IdCard className="w-3.5 h-3.5" /> View Official ID Card
+                </button>
                 <a
                   href={`mailto:${selectedVolunteer.email}`}
                   className="btn-outline !py-2 !px-3 text-xs font-bold inline-flex items-center gap-1"
@@ -1749,6 +1767,37 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Volunteer Identity Card Modal */}
+      {idCardModalVolunteer && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-content-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                  <IdCard className="w-5 h-5 text-brand-pink" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-content-primary">
+                    Official Volunteer Identity Card
+                  </h3>
+                  <p className="text-[11px] text-content-secondary font-mono">
+                    ID: {idCardModalVolunteer.membershipNumber || `ASF-VOL-2026-${idCardModalVolunteer.id.slice(-4)}`} · Status: {idCardModalVolunteer.status.toUpperCase()}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIdCardModalVolunteer(null)}
+                className="p-1.5 rounded-full text-content-muted hover:text-content-primary hover:bg-surface-soft transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <VolunteerIdCardPreview volunteer={idCardModalVolunteer} settings={settings} />
           </div>
         </div>
       )}

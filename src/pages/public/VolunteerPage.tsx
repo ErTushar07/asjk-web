@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
-import { HeartHandshake, CheckCircle2, Shield, ArrowRight, UploadCloud, FileText, X, Paperclip } from 'lucide-react';
+import { VolunteerApplication } from '../../types';
+import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
+import { HeartHandshake, CheckCircle2, Shield, ArrowRight, UploadCloud, FileText, X, Paperclip, Award, IdCard } from 'lucide-react';
 
 export const VolunteerPage: React.FC = () => {
-  const { addVolunteerApplication } = useDatabase();
+  const { addVolunteerApplication, settings } = useDatabase();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -12,12 +14,14 @@ export const VolunteerPage: React.FC = () => {
   const [country, setCountry] = useState('United States');
   const [qualification, setQualification] = useState('');
   const [degreeLevel, setDegreeLevel] = useState("Bachelor's Degree");
+  const [bloodGroup, setBloodGroup] = useState('O+');
   const [resumeFile, setResumeFile] = useState<{ name: string; size: string; dataUrl?: string } | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'weekdays' | 'weekends' | 'full_time' | 'flexible'>('weekends');
   const [experienceYears, setExperienceYears] = useState(2);
   const [statement, setStatement] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [confirmedVolunteer, setConfirmedVolunteer] = useState<VolunteerApplication | null>(null);
 
   const availableSkills = [
     'Clean Water & Civil Engineering',
@@ -60,13 +64,22 @@ export const VolunteerPage: React.FC = () => {
       ? `${degreeLevel} - ${qualification.trim()}`
       : degreeLevel;
 
-    addVolunteerApplication({
+    // Derive role designation based on selected skills
+    let derivedRole = 'Humanitarian Field Specialist';
+    if (selectedSkills.includes('Healthcare & Medical Support')) derivedRole = 'Medical Support Volunteer';
+    else if (selectedSkills.includes('Clean Water & Civil Engineering')) derivedRole = 'Clean Water Infrastructure Lead';
+    else if (selectedSkills.includes('Education, STEM & Tutoring')) derivedRole = 'Education & Youth Mentor';
+    else if (selectedSkills.includes('Emergency Relief & Field Logistics')) derivedRole = 'Emergency Relief & Logistics';
+
+    const newApp = addVolunteerApplication({
       fullName,
       email,
       phone,
       city,
       country,
       qualification: fullQualification,
+      roleDesignation: derivedRole,
+      bloodGroup,
       resumeFileName: resumeFile?.name || `${fullName.replace(/\s+/g, '_')}_Resume.pdf`,
       resumeDataUrl: resumeFile?.dataUrl,
       skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
@@ -75,6 +88,7 @@ export const VolunteerPage: React.FC = () => {
       statement,
     });
 
+    setConfirmedVolunteer(newApp);
     setSubmitted(true);
   };
 
@@ -93,25 +107,49 @@ export const VolunteerPage: React.FC = () => {
         </p>
       </div>
 
-      {submitted ? (
-        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-content-border shadow-brand-md text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-8 h-8" />
+      {submitted && confirmedVolunteer ? (
+        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-lg space-y-8 animate-fadeIn">
+          {/* Top Success Banner */}
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-2xl font-extrabold text-content-primary">
+              Membership Confirmed & Identity Card Generated!
+            </h3>
+            <p className="text-xs sm:text-sm text-content-secondary max-w-lg mx-auto leading-relaxed">
+              Welcome to Al Shujaiat Foundation, <span className="font-bold text-brand-purple">{fullName}</span>. Your volunteer application has been approved and registered under Volunteer ID <span className="font-mono font-bold text-brand-pink">{confirmedVolunteer.membershipNumber}</span>. Your official printable identity card has been generated below.
+            </p>
           </div>
-          <h3 className="text-2xl font-extrabold text-content-primary">Application Submitted!</h3>
-          <p className="text-xs sm:text-sm text-content-secondary max-w-md mx-auto leading-relaxed">
-            Thank you for stepping forward, <span className="font-bold text-brand-purple">{fullName}</span>. Your qualifications and attached resume (<span className="font-mono text-brand-pink">{resumeFile?.name || 'Resume Attached'}</span>) have been received. Our volunteer coordination desk led by Sarah Mitchell will review your application and contact you at <span className="font-mono">{email}</span>.
-          </p>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setResumeFile(null);
-              setQualification('');
-            }}
-            className="btn-primary !py-2.5 !px-6 text-xs font-bold mt-4"
-          >
-            Submit Another Application
-          </button>
+
+          {/* Interactive ID Card Preview & Actions */}
+          <div className="bg-surface-soft p-6 sm:p-8 rounded-3xl border border-content-border space-y-6">
+            <div className="flex items-center justify-between border-b border-content-border pb-3">
+              <div className="flex items-center gap-2 text-brand-purple font-bold text-xs uppercase tracking-wider">
+                <IdCard className="w-4 h-4 text-brand-pink" />
+                <span>Official Digital Identity Credential</span>
+              </div>
+              <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                STATUS: ACTIVE & VERIFIED
+              </span>
+            </div>
+
+            <VolunteerIdCardPreview volunteer={confirmedVolunteer} settings={settings} />
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setConfirmedVolunteer(null);
+                setResumeFile(null);
+                setQualification('');
+              }}
+              className="btn-outline !py-2.5 !px-6 text-xs font-bold"
+            >
+              Submit Another Volunteer Application
+            </button>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
@@ -140,7 +178,7 @@ export const VolunteerPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
               <input
@@ -169,6 +207,23 @@ export const VolunteerPage: React.FC = () => {
                 onChange={(e) => setCountry(e.target.value)}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-content-primary mb-1">Blood Group (ID Badge)</label>
+              <select
+                value={bloodGroup}
+                onChange={(e) => setBloodGroup(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
+              >
+                <option value="O+">O Positive (O+)</option>
+                <option value="O-">O Negative (O-)</option>
+                <option value="A+">A Positive (A+)</option>
+                <option value="A-">A Negative (A-)</option>
+                <option value="B+">B Positive (B+)</option>
+                <option value="B-">B Negative (B-)</option>
+                <option value="AB+">AB Positive (AB+)</option>
+                <option value="AB-">AB Negative (AB-)</option>
+              </select>
             </div>
           </div>
 

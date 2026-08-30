@@ -306,6 +306,7 @@ export interface ImpactMetric {
 
 export interface VolunteerApplication {
   id: string;
+  membershipNumber?: string;
   fullName: string;
   email: string;
   phone: string;
@@ -314,6 +315,11 @@ export interface VolunteerApplication {
   qualification: string;
   resumeFileName?: string;
   resumeDataUrl?: string;
+  photoUrl?: string;
+  bloodGroup?: string;
+  roleDesignation?: string;
+  validFrom?: string;
+  validThru?: string;
   skills: string[];
   availability: 'weekdays' | 'weekends' | 'full_time' | 'flexible';
   experienceYears: number;

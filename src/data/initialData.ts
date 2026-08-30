@@ -989,12 +989,17 @@ export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
 export const INITIAL_VOLUNTEERS: VolunteerApplication[] = [
   {
     id: 'vol_001',
+    membershipNumber: 'ASF-VOL-2026-8819',
     fullName: 'Oliver Bennett',
     email: 'oliver.bennett@example.com',
     phone: '+44 7700 900123',
     city: 'London',
     country: 'United Kingdom',
     qualification: 'M.Sc in Disaster Logistics & Civil Management',
+    roleDesignation: 'Field Logistics & Emergency Responder',
+    bloodGroup: 'O+',
+    validFrom: '2026-02-10',
+    validThru: '2027-02-10',
     resumeFileName: 'Oliver_Bennett_CV_2026.pdf',
     skills: ['Logistics & Field Distribution', 'First Aid Responder', 'Photography'],
     availability: 'weekends',
@@ -1005,18 +1010,23 @@ export const INITIAL_VOLUNTEERS: VolunteerApplication[] = [
   },
   {
     id: 'vol_002',
+    membershipNumber: 'ASF-VOL-2026-9244',
     fullName: 'Amelia Davis',
     email: 'amelia.davis@example.org',
     phone: '+1 617 555 0184',
     city: 'Boston',
     country: 'United States',
     qualification: 'Master of Education (M.Ed) & STEM Curriculum Specialist',
+    roleDesignation: 'Education & Youth Mentor',
+    bloodGroup: 'A+',
+    validFrom: '2026-02-22',
+    validThru: '2027-02-22',
     resumeFileName: 'Amelia_Davis_Resume_Academic.pdf',
     skills: ['Education & Tutoring', 'Content Writing', 'Event Organization'],
     availability: 'flexible',
     experienceYears: 2,
     statement: 'Passionate about educational equity and expanding STEM access for adolescent youth.',
-    status: 'under_review',
+    status: 'approved',
     submittedAt: '2026-02-22T09:15:00Z'
   }
 ];

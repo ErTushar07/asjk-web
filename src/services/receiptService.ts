@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { Receipt, SystemSettings } from '../types';
+import { ASFJK_LOGO_BASE64 } from './logoAsset';
 
 export class ReceiptService {
   /**
@@ -24,37 +25,47 @@ export class ReceiptService {
     doc.setFillColor(228, 9, 129);
     doc.rect(0, 8, 210, 2, 'F');
 
+    // NGO Official Brand Logo
+    try {
+      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 18, 13, 20, 20);
+    } catch (e) {
+      // Fallback
+    }
+
     // Foundation Header
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
+    doc.setFontSize(13);
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text('AL SHUJAIAT FOUNDATION JAMMU & KASHMIR (ASFJK)', 20, 25);
+    doc.text('AL SHUJAIAT FOUNDATION JAMMU & KASHMIR (ASFJK)', 42, 18);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text(`Reg. Office: ${settings.registeredAddress}`, 20, 30);
-    doc.text(`Operating Office: ${settings.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123'}`, 20, 34);
-    doc.text(`Email: ${settings.email} | Helplines: ${settings.phone} / ${settings.emergencyPhone || '+91 94193 01319'} | Web: ${settings.websiteUrl}`, 20, 38);
+    doc.text(`Reg. Office: ${settings.registeredAddress}`, 42, 23);
+    doc.text(`Operating Office: ${settings.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123'}`, 42, 27);
+    doc.text(`Email: ${settings.email} | Helplines: ${settings.phone} / ${settings.emergencyPhone || '+91 94193 01319'} | Web: ${settings.websiteUrl}`, 42, 31);
 
     // Registration Credentials & Tax Exemption Header Block
     doc.setFillColor(243, 245, 250);
-    doc.roundedRect(20, 42, 170, 16, 2, 2, 'F');
-    doc.setFontSize(8);
+    doc.roundedRect(18, 36, 174, 18, 2, 2, 'F');
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text(`NGO-DARPAN / Reg: ${settings.registrationNumber}`, 25, 47);
-    doc.text(`80G Exemption No: ${settings.taxExemptionNumber80G}`, 25, 52);
-    doc.text(`LEI ID: ${settings.leiNumber || '9845008779YC3EE0IE41'}`, 110, 47);
-    doc.text(`FCRA / Trust Reg: ${settings.fcraRegistrationNumber}`, 110, 52);
+    doc.text(`NGO-DARPAN: ${settings.registrationNumber}`, 22, 41);
+    doc.text(`80G Exemption: ${settings.taxExemptionNumber80G}`, 22, 46);
+    doc.text(`12A Reg: ${settings.taxExemptionNumber12A || 'DEL-AR26932-27022018/8830'}`, 22, 51);
+    
+    doc.text(`FCRA Registration: ${settings.fcraRegistrationNumber}`, 110, 41);
+    doc.text(`LEI ID: ${settings.leiNumber || '9845008779YC3EE0IE41'}`, 110, 46);
+    doc.text(`Section 12A & 80G Certified Non-Profit Trust`, 110, 51);
 
     // Receipt Title Badge
     doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-    doc.roundedRect(20, 62, 170, 9, 1.5, 1.5, 'F');
+    doc.roundedRect(18, 58, 174, 8.5, 1.5, 1.5, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10.5);
     doc.setTextColor(255, 255, 255);
-    doc.text('OFFICIAL ASFJK CHARITABLE DONATION TAX RECEIPT', 105, 68, { align: 'center' });
+    doc.text('OFFICIAL CHARITABLE DONATION TAX RECEIPT', 105, 63.5, { align: 'center' });
 
     // Key Metadata Grid (Receipt #, Date, Txn ID)
     doc.setFontSize(9);

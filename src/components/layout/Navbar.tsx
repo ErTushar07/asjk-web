@@ -115,13 +115,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
 
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-2">
+        <div className="flex items-center justify-between h-20 sm:h-24 gap-3">
           {/* Logo and Brand Title */}
           <div 
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group min-w-0 flex-shrink"
+            className="flex items-center gap-2.5 sm:gap-4 cursor-pointer select-none group min-w-0 flex-shrink"
             onClick={() => onNavigate('/')}
           >
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shadow-brand-sm group-hover:scale-105 transition-transform flex-shrink-0 bg-white p-0.5 border border-content-border/60 flex items-center justify-center">
+            <div className="relative w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full overflow-hidden shadow-brand-md group-hover:scale-105 transition-transform flex-shrink-0 bg-white p-1 border-2 border-brand-purple/20 flex items-center justify-center">
               <img 
                 src="/images/logo.png" 
                 alt="Al Shujaiat Foundation Jammu & Kashmir Logo" 
@@ -129,10 +129,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               />
             </div>
             <div className="flex flex-col justify-center min-w-0">
-              <span className="font-bold text-xs sm:text-base lg:text-lg tracking-tight text-brand-purple leading-tight truncate block">
+              <span className="font-black text-sm sm:text-lg lg:text-xl tracking-tight text-brand-purple leading-tight truncate block">
                 {t('brand.name', 'Al Shujaiat Foundation')}
               </span>
-              <span className="text-[8px] sm:text-[10px] lg:text-[11px] font-semibold tracking-wider text-brand-pink uppercase truncate block">
+              <span className="text-[9px] sm:text-xs lg:text-sm font-extrabold tracking-wider text-brand-pink uppercase truncate block">
                 {t('brand.region', 'Jammu & Kashmir · India')}
               </span>
             </div>

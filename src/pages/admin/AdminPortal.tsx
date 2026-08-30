@@ -205,14 +205,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
       {/* Sidebar Navigation */}
       <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-11 h-11 rounded-full bg-white p-1 flex-shrink-0 shadow-md flex items-center justify-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1.5 flex-shrink-0 shadow-lg flex items-center justify-center border-2 border-white/20">
             <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-sm block leading-tight">FOUNDATION ADMIN</span>
+              <span className="font-black text-base block leading-tight">FOUNDATION ADMIN</span>
             </div>
-            <span className="text-[10px] text-brand-pink font-semibold uppercase">Al Shujaiat · J&K</span>
+            <span className="text-xs text-brand-pink font-bold uppercase tracking-wider">Al Shujaiat · J&K</span>
           </div>
         </div>
 

@@ -15,8 +15,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-10">
           {/* Column 1: Foundation Credentials */}
           <div className="col-span-2 space-y-3 sm:space-y-4">
-            <div className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer" onClick={() => onNavigate('/')}>
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white p-1 flex-shrink-0 shadow-md flex items-center justify-center">
+            <div className="flex items-center gap-3 sm:gap-4 cursor-pointer" onClick={() => onNavigate('/')}>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white p-1.5 flex-shrink-0 shadow-xl flex items-center justify-center border-2 border-white/20">
                 <img
                   src="/images/logo.png"
                   alt="Al Shujaiat Foundation Jammu & Kashmir Logo"
@@ -24,10 +24,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 />
               </div>
               <div>
-                <span className="font-extrabold text-lg tracking-tight text-white block">
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white block">
                   {t('brand.name', 'AL SHUJAIAT FOUNDATION')}
                 </span>
-                <span className="text-xs font-bold text-brand-pink tracking-wider uppercase block">
+                <span className="text-xs sm:text-sm font-bold text-brand-pink tracking-wider uppercase block">
                   {t('brand.region', 'Jammu & Kashmir · India')}
                 </span>
               </div>

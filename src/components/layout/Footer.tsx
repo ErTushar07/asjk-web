@@ -155,9 +155,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <Mail className="w-4 h-4 text-brand-blue flex-shrink-0" />
                 <a href="mailto:info@asfjk.org" className="hover:text-white font-mono">info@asfjk.org</a>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-brand-orange flex-shrink-0" />
-                <span className="font-mono text-[11px]">+91 1933 351585 / +91 94193 01319</span>
+              <li className="flex items-start gap-2 pt-1">
+                <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1.5 font-mono text-[11px]">
+                  <div>
+                    <a href="tel:+911933351585" className="hover:text-white transition-colors block text-white/90">
+                      +91 1933 351585
+                    </a>
+                  </div>
+                  <div>
+                    <a href="tel:+919419301319" className="hover:text-white transition-colors block text-white/90">
+                      +91 94193 01319
+                    </a>
+                  </div>
+                </div>
               </li>
               <li className="pt-1">
                 <button

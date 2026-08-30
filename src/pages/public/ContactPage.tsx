@@ -74,9 +74,20 @@ export const ContactPage: React.FC = () => {
 
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <div>
+                <div className="space-y-1.5">
                   <span className="font-bold text-white block mb-0.5">Helplines & WhatsApp:</span>
-                  <p className="font-mono">{settings.phone} / {settings.emergencyPhone}</p>
+                  <div className="space-y-1 font-mono text-xs">
+                    <div>
+                      <a href={`tel:${settings.phone.replace(/\s+/g, '')}`} className="hover:text-emerald-300 transition-colors inline-block">
+                        {settings.phone}
+                      </a>
+                    </div>
+                    <div>
+                      <a href={`tel:${settings.emergencyPhone.replace(/\s+/g, '')}`} className="hover:text-emerald-300 transition-colors inline-block">
+                        {settings.emergencyPhone}
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

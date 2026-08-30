@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { VolunteerApplication, SystemSettings } from '../../types';
 import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
 import { 
-  Download, Printer, RotateCw, User, Phone, 
-  Calendar, Shield, QrCode, Heart, Award, MapPin, Globe, Mail 
+  Download, Printer, RotateCw, User, 
+  Calendar, Shield, Award, MapPin, Globe, Mail, Heart 
 } from 'lucide-react';
 
 interface VolunteerIdCardPreviewProps {
@@ -32,6 +32,9 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
     };
   };
 
+  // Primary Brand Color matching the Logo Font & Emblem: Deep Royal Navy/Purple (#1E1B4B / #2E1065)
+  const themeBg = '#1E1B4B'; // Logo Signature Brand Color
+
   // Fallback photo
   const defaultPhoto = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
   const photoSrc = volunteer.photoUrl || defaultPhoto;
@@ -42,9 +45,9 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
       <div className="relative group perspective-1000">
         {!showBackSide ? (
           /* =========================================================
-             FRONT SIDE (EXACT MATCH TO REFERENCE DESIGN)
+             FRONT SIDE (SEAMLESSLY BLENDED LOGO & LOGO FONT COLOR)
              ========================================================= */
-          <div className="w-full bg-white text-slate-800 rounded-[2.5rem] border-2 border-emerald-800/20 shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]">
+          <div className="w-full bg-white text-slate-800 rounded-[2.5rem] border-2 border-indigo-900/20 shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]">
             
             {/* Top Lanyard Slot */}
             <div className="flex justify-center pt-3.5 z-20">
@@ -53,66 +56,65 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               </div>
             </div>
 
-            {/* Top-Left Green Diagonal Accent with Gold Trim */}
-            <div className="absolute top-0 left-0 w-44 h-36 bg-[#0A4D3C] rounded-br-[4rem] overflow-hidden pointer-events-none z-0">
+            {/* Top-Left Corner Accent: Confined to corner so it NEVER overlaps the center logo */}
+            <div 
+              style={{ backgroundColor: themeBg }}
+              className="absolute top-0 left-0 w-24 h-24 rounded-br-[3rem] overflow-hidden pointer-events-none z-0 shadow-sm"
+            >
               {/* Gold Divider Line */}
-              <div className="absolute bottom-0 right-0 w-full h-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500" />
-              {/* Subtle Topo / Wave Texture */}
-              <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-20,20 Q40,60 100,10 T200,80" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-                <path d="M-20,50 Q60,100 120,40 T220,110" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-                <path d="M-20,80 Q80,140 140,70 T240,140" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-              </svg>
+              <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
             </div>
 
             {/* Left Edge Vertical Micro-Text */}
-            <div className="absolute left-2.5 top-28 -rotate-90 origin-left text-[7.5px] font-black uppercase tracking-[0.25em] text-[#0A4D3C]/70 z-10 select-none">
+            <div 
+              style={{ color: themeBg }}
+              className="absolute left-2 top-24 -rotate-90 origin-left text-[7px] font-black uppercase tracking-[0.25em] opacity-75 z-10 select-none"
+            >
               SERVICE | COMPASSION | EMPOWERMENT
             </div>
 
             {/* Header Content */}
-            <div className="text-center pt-3 px-6 space-y-1 z-10">
-              {/* Center Emblem Logo */}
-              <div className="w-14 h-14 mx-auto flex items-center justify-center">
+            <div className="text-center pt-2 px-6 space-y-1 z-10">
+              {/* Center Emblem Logo: Seamless Transparent Blending */}
+              <div className="w-14 h-14 mx-auto flex items-center justify-center bg-transparent">
                 <img 
                   src="/images/logo.png" 
                   alt="Al Shujaiat Foundation Emblem" 
-                  className="w-full h-full object-contain filter drop-shadow-md" 
+                  className="w-full h-full object-contain mix-blend-multiply filter drop-shadow-sm" 
                 />
               </div>
 
               {/* Foundation Brand Header */}
-              <h2 className="text-2xl font-black text-[#0A4D3C] tracking-tight leading-none">
+              <h2 style={{ color: themeBg }} className="text-2xl font-black tracking-tight leading-none">
                 ASFJK
               </h2>
-              <p className="text-[8.5px] font-extrabold uppercase tracking-wider text-[#0A4D3C] leading-tight">
+              <p style={{ color: themeBg }} className="text-[8.5px] font-extrabold uppercase tracking-wider leading-tight">
                 AL SHUJAIAT FOUNDATION
               </p>
               <p className="text-[7.5px] font-bold text-slate-500 uppercase tracking-widest leading-none">
                 JAMMU & KASHMIR
               </p>
-              <p className="text-[9.5px] text-amber-700 font-bold font-serif pt-0.5 leading-none">
+              <p className="text-[9px] text-amber-700 font-bold font-serif pt-0.5 leading-none">
                 خدمتِ انسانیت، ہماری پہچان
               </p>
 
               {/* Title Section */}
               <div className="pt-2">
-                <h3 className="text-lg font-black tracking-wider text-[#0A4D3C] uppercase leading-none">
+                <h3 style={{ color: themeBg }} className="text-lg font-black tracking-wider uppercase leading-none">
                   VOLUNTEER
                 </h3>
                 <div className="flex items-center justify-center gap-2 pt-0.5">
-                  <div className="w-8 h-[1.5px] bg-amber-500" />
-                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-amber-600">
+                  <div className="w-7 h-[1.5px] bg-amber-500" />
+                  <span className="text-[8.5px] font-extrabold uppercase tracking-widest text-amber-600">
                     IDENTITY CARD
                   </span>
-                  <div className="w-8 h-[1.5px] bg-amber-500" />
+                  <div className="w-7 h-[1.5px] bg-amber-500" />
                 </div>
               </div>
             </div>
 
             {/* Center Area: Circular Framed Portrait Photo */}
             <div className="relative py-2 flex justify-center items-center z-10">
-              {/* Circular Photo with Gold Outer Ring */}
               <div className="relative w-36 h-36 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-amber-300 to-amber-600 shadow-xl flex items-center justify-center">
                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-slate-100 flex items-center justify-center">
                   <img 
@@ -123,20 +125,23 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
                 </div>
               </div>
 
-              {/* Subtle background watermark icon */}
+              {/* Watermark */}
               <div className="absolute right-4 opacity-5 pointer-events-none">
-                <img src="/images/logo.png" alt="watermark" className="w-28 h-28 object-contain" />
+                <img src="/images/logo.png" alt="watermark" className="w-24 h-24 object-contain mix-blend-multiply" />
               </div>
             </div>
 
-            {/* Bottom Section: Deep Green Wave with Name, Role, ID & QR */}
-            <div className="bg-[#0A4D3C] text-white pt-4 pb-0 rounded-t-[2.5rem] rounded-b-[2.2rem] relative z-10 shadow-lg border-t-2 border-amber-400/40">
+            {/* Bottom Section: Royal Brand Navy Wave with Name, Role, ID & QR */}
+            <div 
+              style={{ backgroundColor: themeBg }}
+              className="text-white pt-4 pb-0 rounded-t-[2.5rem] rounded-b-[2.2rem] relative z-10 shadow-lg border-t-2 border-amber-400/40"
+            >
               {/* Candidate Info */}
               <div className="text-center px-4 space-y-0.5">
                 <h4 className="text-lg font-black uppercase tracking-tight text-white leading-tight">
                   {volunteer.fullName}
                 </h4>
-                <p className="text-xs font-semibold text-emerald-200 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wide">
                   {volunteer.roleDesignation || 'Community Outreach Volunteer'}
                 </p>
                 <p className="text-xs font-black tracking-widest text-amber-300 font-mono pt-1">
@@ -145,7 +150,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               </div>
 
               {/* Bottom Split Bar: QR Code (Left) & Gold Slogan Box (Right) */}
-              <div className="mt-3.5 flex items-stretch border-t border-emerald-800/60 bg-[#063B2E] rounded-b-[2.2rem] overflow-hidden">
+              <div className="mt-3.5 flex items-stretch border-t border-white/10 bg-black/20 rounded-b-[2.2rem] overflow-hidden">
                 {/* Left QR Code Box */}
                 <div className="bg-white p-2 flex items-center justify-center border-r border-amber-400/30">
                   <div className="w-12 h-12 flex items-center justify-center">
@@ -158,13 +163,13 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
                 </div>
 
                 {/* Right Slogan Box (Warm Gold) */}
-                <div className="flex-1 bg-gradient-to-r from-amber-600 to-amber-500 text-[#1E1B4B] p-2 flex items-center justify-center gap-2">
-                  <Heart className="w-6 h-6 text-[#1E1B4B] fill-[#1E1B4B]/20 flex-shrink-0" />
+                <div className="flex-1 bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 p-2 flex items-center justify-center gap-2">
+                  <Heart className="w-6 h-6 text-slate-950 fill-slate-950/20 flex-shrink-0" />
                   <div className="text-left leading-tight">
-                    <span className="text-[9.5px] font-black uppercase tracking-wider block text-[#1E1B4B]">
+                    <span className="text-[9.5px] font-black uppercase tracking-wider block text-slate-950">
                       TOGETHER
                     </span>
-                    <span className="text-[8px] font-extrabold uppercase tracking-wide block text-[#1E1B4B]/90">
+                    <span className="text-[8px] font-extrabold uppercase tracking-wide block text-slate-900">
                       WE MAKE A DIFFERENCE
                     </span>
                   </div>
@@ -174,9 +179,9 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
           </div>
         ) : (
           /* =========================================================
-             BACK SIDE (EXACT MATCH TO REFERENCE DESIGN)
+             BACK SIDE
              ========================================================= */
-          <div className="w-full bg-white text-slate-800 rounded-[2.5rem] border-2 border-emerald-800/20 shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]">
+          <div className="w-full bg-white text-slate-800 rounded-[2.5rem] border-2 border-indigo-900/20 shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]">
             
             {/* Top Lanyard Slot */}
             <div className="flex justify-center pt-3.5 z-20">
@@ -185,17 +190,20 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               </div>
             </div>
 
-            {/* Top-Left Green Diagonal Accent with Gold Trim */}
-            <div className="absolute top-0 left-0 w-36 h-28 bg-[#0A4D3C] rounded-br-[3.5rem] overflow-hidden pointer-events-none z-0">
-              <div className="absolute bottom-0 right-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-500" />
+            {/* Top-Left Corner Accent */}
+            <div 
+              style={{ backgroundColor: themeBg }}
+              className="absolute top-0 left-0 w-20 h-20 rounded-br-[2.5rem] overflow-hidden pointer-events-none z-0"
+            >
+              <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
             </div>
 
             {/* Header Content */}
-            <div className="text-center pt-3 px-6 space-y-1 z-10">
-              <div className="w-12 h-12 mx-auto flex items-center justify-center">
-                <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
+            <div className="text-center pt-2 px-6 space-y-1 z-10">
+              <div className="w-12 h-12 mx-auto flex items-center justify-center bg-transparent">
+                <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain mix-blend-multiply" />
               </div>
-              <h3 className="text-lg font-black text-[#0A4D3C] leading-none">ASFJK</h3>
+              <h3 style={{ color: themeBg }} className="text-lg font-black leading-none">ASFJK</h3>
               <p className="text-[8px] font-extrabold uppercase tracking-wider text-slate-600">
                 AL SHUJAIAT FOUNDATION · JAMMU & KASHMIR
               </p>
@@ -203,7 +211,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               {/* Divider Header */}
               <div className="flex items-center justify-center gap-2 pt-1.5">
                 <div className="w-10 h-[1.5px] bg-amber-500" />
-                <span className="text-xs font-black uppercase tracking-widest text-[#0A4D3C]">
+                <span style={{ color: themeBg }} className="text-xs font-black uppercase tracking-widest">
                   VOLUNTEER
                 </span>
                 <div className="w-10 h-[1.5px] bg-amber-500" />
@@ -226,7 +234,10 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               <div className="space-y-2 text-xs">
                 {/* Name */}
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#0A4D3C] text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div 
+                    style={{ backgroundColor: themeBg }}
+                    className="w-7 h-7 rounded-lg text-white flex items-center justify-center flex-shrink-0 shadow-sm"
+                  >
                     <User className="w-4 h-4" />
                   </div>
                   <div>
@@ -241,7 +252,10 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
                 {/* Role */}
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#0A4D3C] text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div 
+                    style={{ backgroundColor: themeBg }}
+                    className="w-7 h-7 rounded-lg text-white flex items-center justify-center flex-shrink-0 shadow-sm"
+                  >
                     <Award className="w-4 h-4 text-amber-300" />
                   </div>
                   <div>
@@ -256,7 +270,10 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
                 {/* Valid Dates (Side-by-Side) */}
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#0A4D3C] text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div 
+                    style={{ backgroundColor: themeBg }}
+                    className="w-7 h-7 rounded-lg text-white flex items-center justify-center flex-shrink-0 shadow-sm"
+                  >
                     <Calendar className="w-4 h-4 text-emerald-300" />
                   </div>
                   <div className="flex items-center gap-4">
@@ -282,7 +299,10 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
                 {/* Emergency Contact */}
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#0A4D3C] text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div 
+                    style={{ backgroundColor: themeBg }}
+                    className="w-7 h-7 rounded-lg text-white flex items-center justify-center flex-shrink-0 shadow-sm"
+                  >
                     <Shield className="w-4 h-4 text-rose-300" />
                   </div>
                   <div>
@@ -303,7 +323,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
                   <p className="font-serif italic text-base text-slate-800 font-bold leading-none">
                     Mohd Amin Ganai
                   </p>
-                  <p className="text-[10px] font-black uppercase tracking-tight text-[#0A4D3C] leading-none pt-0.5">
+                  <p style={{ color: themeBg }} className="text-[10px] font-black uppercase tracking-tight leading-none pt-0.5">
                     Mohd Amin Ganai
                   </p>
                   <p className="text-[8px] font-semibold text-slate-500 leading-none">
@@ -328,8 +348,11 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
               </div>
             </div>
 
-            {/* Bottom Footer Bar (Deep Green) */}
-            <div className="bg-[#0A4D3C] text-white px-5 py-2.5 rounded-b-[2.2rem] flex items-center justify-between text-[8px] z-10">
+            {/* Bottom Footer Bar */}
+            <div 
+              style={{ backgroundColor: themeBg }}
+              className="text-white px-5 py-2.5 rounded-b-[2.2rem] flex items-center justify-between text-[8px] z-10"
+            >
               <div className="space-y-0.5 text-left">
                 <p className="flex items-center gap-1 text-white/90">
                   <MapPin className="w-2.5 h-2.5 text-amber-300" /> {settings.operatingAddress || 'Luragam Tral Pulwama, Jammu & Kashmir'}
@@ -361,7 +384,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
         <button
           type="button"
           onClick={() => setShowBackSide(!showBackSide)}
-          className="btn-outline !py-2.5 !px-4 text-xs font-bold flex items-center gap-1.5 text-[#0A4D3C] hover:bg-emerald-50"
+          className="btn-outline !py-2.5 !px-4 text-xs font-bold flex items-center gap-1.5 hover:bg-slate-50"
         >
           <RotateCw className="w-4 h-4 text-amber-600" />
           <span>Flip Card ({showBackSide ? 'Front Side' : 'Back Side'})</span>
@@ -380,7 +403,8 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
           <button
             type="button"
             onClick={handleDownloadPDF}
-            className="btn-primary !py-2.5 !px-5 text-xs font-bold flex items-center gap-1.5 shadow-pink-glow bg-[#0A4D3C] hover:bg-[#063B2E] border-none text-white"
+            style={{ backgroundColor: themeBg }}
+            className="btn-primary !py-2.5 !px-5 text-xs font-bold flex items-center gap-1.5 shadow-pink-glow border-none text-white"
           >
             <Download className="w-4 h-4" />
             <span>Download Identity Card (PDF)</span>

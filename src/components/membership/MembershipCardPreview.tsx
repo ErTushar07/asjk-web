@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { NgoMembership, SystemSettings } from '../../types';
 import { MembershipCardService } from '../../services/membershipCardService';
 import { 
-  Download, Printer, RotateCw, User, Phone, 
-  Calendar, Shield, QrCode, Heart, Award, MapPin, Globe, Mail, Crown 
+  Download, Printer, RotateCw, User, 
+  Calendar, Shield, Award, MapPin, Globe, Mail, Crown 
 } from 'lucide-react';
 
 interface MembershipCardPreviewProps {
@@ -32,21 +32,28 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
     };
   };
 
-  // Tier Theme Styling (Palette, Gradient, and Accents)
-  let themeBg = '#0A4D3C'; // General Member default (Emerald Green)
-  let themeBorder = 'border-emerald-800/20';
+  // Tier Theme Styling (Palette, Gradient, and Accents matching Logo aesthetics)
+  let themeBg = '#1E1B4B'; // Deep Royal Navy/Purple (Logo Brand Font)
+  let themeBorder = 'border-indigo-900/20';
   let tierLabel = 'GENERAL MEMBER';
   let tierSubColor = 'text-emerald-200';
   let tierGold = 'text-amber-300';
-  let bannerColor = 'from-amber-600 to-amber-500';
+  let bannerColor = 'from-amber-600 to-amber-500 text-slate-950';
 
-  if (member.tier === 'associate_silver') {
-    themeBg = '#1E293B'; // Slate / Silver Charcoal
+  if (member.tier === 'general_member') {
+    themeBg = '#064E3B'; // Deep Forest Emerald
+    themeBorder = 'border-emerald-800/20';
+    tierLabel = 'GENERAL MEMBER';
+    tierSubColor = 'text-emerald-200';
+    tierGold = 'text-amber-300';
+    bannerColor = 'from-emerald-600 to-teal-500 text-white';
+  } else if (member.tier === 'associate_silver') {
+    themeBg = '#1E293B'; // Slate Steel Charcoal
     themeBorder = 'border-slate-700/30';
     tierLabel = 'ASSOCIATE SILVER MEMBER';
     tierSubColor = 'text-slate-300';
     tierGold = 'text-slate-200';
-    bannerColor = 'from-slate-400 to-slate-300 text-slate-900';
+    bannerColor = 'from-slate-300 via-slate-200 to-slate-400 text-slate-900';
   } else if (member.tier === 'patron_gold') {
     themeBg = '#78350F'; // Royal Amber & Gold
     themeBorder = 'border-amber-700/30';
@@ -55,7 +62,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
     tierGold = 'text-amber-300';
     bannerColor = 'from-amber-500 to-yellow-400 text-amber-950';
   } else if (member.tier === 'founding_platinum') {
-    themeBg = '#4A044E'; // Royal Velvet Purple
+    themeBg = '#3B0764'; // Royal Velvet Purple (Logo Brand Tone)
     themeBorder = 'border-purple-800/30';
     tierLabel = 'FOUNDING PLATINUM PATRON';
     tierSubColor = 'text-purple-200';
@@ -80,7 +87,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
       <div className="relative group perspective-1000">
         {!showBackSide ? (
           /* =========================================================
-             FRONT SIDE (TIER-COLORED EXACT MATCH TO REFERENCE DESIGN)
+             FRONT SIDE (SEAMLESSLY BLENDED LOGO, TIER COLOR, NO AMOUNTS)
              ========================================================= */
           <div className={`w-full bg-white text-slate-800 rounded-[2.5rem] border-2 ${themeBorder} shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]`}>
             
@@ -91,35 +98,31 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
               </div>
             </div>
 
-            {/* Top-Left Dynamic Tier Corner Accent with Gold Trim */}
+            {/* Top-Left Corner Accent: Confined to corner to NEVER overlap the center logo */}
             <div 
               style={{ backgroundColor: themeBg }}
-              className="absolute top-0 left-0 w-44 h-36 rounded-br-[4rem] overflow-hidden pointer-events-none z-0"
+              className="absolute top-0 left-0 w-24 h-24 rounded-br-[3rem] overflow-hidden pointer-events-none z-0 shadow-sm"
             >
               {/* Gold Divider Line */}
-              <div className="absolute bottom-0 right-0 w-full h-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500" />
-              <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-                <path d="M-20,20 Q40,60 100,10 T200,80" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-                <path d="M-20,50 Q60,100 120,40 T220,110" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-              </svg>
+              <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
             </div>
 
             {/* Left Edge Vertical Micro-Text */}
             <div 
               style={{ color: themeBg }}
-              className="absolute left-2.5 top-28 -rotate-90 origin-left text-[7.5px] font-black uppercase tracking-[0.25em] opacity-80 z-10 select-none"
+              className="absolute left-2 top-24 -rotate-90 origin-left text-[7px] font-black uppercase tracking-[0.25em] opacity-75 z-10 select-none"
             >
               SERVICE | CHARTER | EMPOWERMENT
             </div>
 
-            {/* Header Content */}
-            <div className="text-center pt-3 px-6 space-y-1 z-10">
-              {/* Center Emblem Logo */}
-              <div className="w-14 h-14 mx-auto flex items-center justify-center">
+            {/* Header Content with Perfectly Blended Logo */}
+            <div className="text-center pt-2 px-6 space-y-1 z-10">
+              {/* Center Emblem Logo: Clean transparent mix-blend to eliminate white box artifact */}
+              <div className="w-14 h-14 mx-auto flex items-center justify-center bg-transparent">
                 <img 
                   src="/images/logo.png" 
                   alt="Al Shujaiat Foundation Emblem" 
-                  className="w-full h-full object-contain filter drop-shadow-md" 
+                  className="w-full h-full object-contain mix-blend-multiply filter drop-shadow-sm" 
                 />
               </div>
 
@@ -132,7 +135,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
               <p className="text-[7.5px] font-bold text-slate-500 uppercase tracking-widest leading-none">
                 JAMMU & KASHMIR · REGISTERED TRUST
               </p>
-              <p className="text-[9.5px] text-amber-700 font-bold font-serif pt-0.5 leading-none">
+              <p className="text-[9px] text-amber-700 font-bold font-serif pt-0.5 leading-none">
                 خدمتِ انسانیت، ہماری پہچان
               </p>
 
@@ -142,11 +145,11 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                   NGO MEMBERSHIP
                 </h3>
                 <div className="flex items-center justify-center gap-2 pt-0.5">
-                  <div className="w-8 h-[1.5px] bg-amber-500" />
-                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-amber-600">
+                  <div className="w-7 h-[1.5px] bg-amber-500" />
+                  <span className="text-[8.5px] font-extrabold uppercase tracking-widest text-amber-600">
                     {tierLabel}
                   </span>
-                  <div className="w-8 h-[1.5px] bg-amber-500" />
+                  <div className="w-7 h-[1.5px] bg-amber-500" />
                 </div>
               </div>
             </div>
@@ -163,23 +166,24 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                 </div>
               </div>
 
+              {/* Watermark */}
               <div className="absolute right-4 opacity-5 pointer-events-none">
-                <img src="/images/logo.png" alt="watermark" className="w-28 h-28 object-contain" />
+                <img src="/images/logo.png" alt="watermark" className="w-24 h-24 object-contain mix-blend-multiply" />
               </div>
             </div>
 
-            {/* Bottom Section: Dynamic Tier Wave Container */}
+            {/* Bottom Section: Dynamic Tier Wave Container (NO PAYMENT AMOUNTS SHOWN) */}
             <div 
               style={{ backgroundColor: themeBg }}
               className="text-white pt-4 pb-0 rounded-t-[2.5rem] rounded-b-[2.2rem] relative z-10 shadow-lg border-t-2 border-amber-400/40"
             >
-              {/* Member Info */}
+              {/* Member Info: Pure Executive Accreditation */}
               <div className="text-center px-4 space-y-0.5">
                 <h4 className="text-lg font-black uppercase tracking-tight text-white leading-tight">
                   {member.fullName}
                 </h4>
                 <p className={`text-xs font-semibold ${tierSubColor} uppercase tracking-wide`}>
-                  {member.tierName} · {member.durationYears} {member.durationYears === 1 ? 'Year' : 'Years'}
+                  {member.tierName} · {member.durationYears} {member.durationYears === 1 ? 'Year Accredited' : 'Years Accredited'}
                 </p>
                 <p className={`text-xs font-black tracking-widest ${tierGold} font-mono pt-1`}>
                   MBR ID : {member.membershipNumber}
@@ -216,7 +220,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
           </div>
         ) : (
           /* =========================================================
-             BACK SIDE (TIER-COLORED EXACT MATCH TO REFERENCE DESIGN)
+             BACK SIDE (SEAMLESSLY BLENDED LOGO, TIER COLOR, NO AMOUNTS)
              ========================================================= */
           <div className={`w-full bg-white text-slate-800 rounded-[2.5rem] border-2 ${themeBorder} shadow-2xl overflow-hidden relative transition-all duration-500 transform hover:scale-[1.01] flex flex-col justify-between min-h-[600px]`}>
             
@@ -227,18 +231,18 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
               </div>
             </div>
 
-            {/* Top-Left Tier Diagonal Accent */}
+            {/* Top-Left Tier Corner Accent */}
             <div 
               style={{ backgroundColor: themeBg }}
-              className="absolute top-0 left-0 w-36 h-28 rounded-br-[3.5rem] overflow-hidden pointer-events-none z-0"
+              className="absolute top-0 left-0 w-20 h-20 rounded-br-[2.5rem] overflow-hidden pointer-events-none z-0"
             >
-              <div className="absolute bottom-0 right-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-500" />
+              <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
             </div>
 
             {/* Header Content */}
-            <div className="text-center pt-3 px-6 space-y-1 z-10">
-              <div className="w-12 h-12 mx-auto flex items-center justify-center">
-                <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
+            <div className="text-center pt-2 px-6 space-y-1 z-10">
+              <div className="w-12 h-12 mx-auto flex items-center justify-center bg-transparent">
+                <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain mix-blend-multiply" />
               </div>
               <h3 style={{ color: themeBg }} className="text-lg font-black leading-none">ASFJK</h3>
               <p className="text-[8px] font-extrabold uppercase tracking-wider text-slate-600">
@@ -255,7 +259,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
               </div>
             </div>
 
-            {/* Body Information */}
+            {/* Body Information (NO PAYMENT AMOUNTS SHOWN) */}
             <div className="px-6 py-2 space-y-3 z-10 text-left">
               <div className="text-center space-y-1 border-b border-slate-100 pb-2">
                 <p className="text-[9.5px] text-slate-700 leading-snug font-medium">
@@ -286,7 +290,7 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                   </div>
                 </div>
 
-                {/* Tier & Contribution */}
+                {/* Tier Level & Designation */}
                 <div className="flex items-center gap-3">
                   <div 
                     style={{ backgroundColor: themeBg }}
@@ -296,10 +300,10 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                   </div>
                   <div>
                     <span className="text-[8.5px] font-black uppercase tracking-wider text-slate-400 block leading-none">
-                      TIER & CONTRIBUTION
+                      MEMBERSHIP LEVEL / TIER
                     </span>
                     <span className="font-bold text-slate-800 text-xs">
-                      {member.tierName} ({member.currency} {member.paidAmount.toLocaleString()})
+                      {member.tierName}
                     </span>
                   </div>
                 </div>

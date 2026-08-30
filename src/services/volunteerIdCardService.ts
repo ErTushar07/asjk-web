@@ -13,28 +13,27 @@ export class VolunteerIdCardService {
       format: [54, 86], // Standard Vertical Portrait CR80 (54mm x 86mm)
     });
 
-    const forestGreen = [10, 77, 60]; // #0A4D3C
+    const royalNavy = [30, 27, 75]; // #1E1B4B (Brand Logo Font Color)
     const goldAccent = [217, 119, 6]; // #D97706
     const goldLight = [251, 191, 36]; // #FBBF24
 
     // ==========================================
     // PAGE 1: FRONT OF THE ID CARD (PORTRAIT)
     // ==========================================
-    // Clean White Card Canvas
     doc.setFillColor(255, 255, 255);
     doc.roundedRect(0, 0, 54, 86, 3, 3, 'F');
 
     // Outer Border
-    doc.setDrawColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setDrawColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setLineWidth(0.3);
     doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
 
-    // Top-Left Green Diagonal Accent Corner
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
-    doc.triangle(0, 0, 30, 0, 0, 24, 'F');
+    // Top-Left Corner Accent
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
+    doc.triangle(0, 0, 18, 0, 0, 16, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.setLineWidth(0.4);
-    doc.line(0, 24, 30, 0);
+    doc.setLineWidth(0.3);
+    doc.line(0, 16, 18, 0);
 
     // Top Lanyard Slot
     doc.setFillColor(230, 235, 240);
@@ -42,7 +41,7 @@ export class VolunteerIdCardService {
 
     // Left Vertical Text
     doc.setFontSize(3.2);
-    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.text('SERVICE | COMPASSION | EMPOWERMENT', 1.8, 48, { angle: 90 });
 
@@ -53,7 +52,7 @@ export class VolunteerIdCardService {
       // Fallback
     }
 
-    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.text('ASFJK', 27, 18, { align: 'center' });
@@ -66,7 +65,7 @@ export class VolunteerIdCardService {
     doc.text('JAMMU & KASHMIR', 27, 22.5, { align: 'center' });
 
     // Card Title with Gold Lines
-    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.text('VOLUNTEER', 27, 27.5, { align: 'center' });
@@ -86,27 +85,26 @@ export class VolunteerIdCardService {
     doc.circle(27, 43, 10, 'F');
 
     // Avatar Placeholder Graphic
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.circle(27, 40.5, 3.5, 'F');
     doc.roundedRect(21, 44.5, 12, 8, 1.5, 1.5, 'F');
 
-    // Bottom Green Wave Base Container
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    // Bottom Royal Navy Wave Base Container
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.roundedRect(0, 56, 54, 30, 4, 4, 'F');
 
-    // Golden divider line across wave top
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.3);
     doc.line(0, 56, 54, 56);
 
-    // Candidate Info on Green Bottom
+    // Candidate Info on Bottom
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     const displayName = volunteer.fullName.length > 22 ? volunteer.fullName.substring(0, 22) + '...' : volunteer.fullName;
     doc.text(displayName.toUpperCase(), 27, 61, { align: 'center' });
 
-    doc.setTextColor(167, 243, 208);
+    doc.setTextColor(199, 210, 254);
     doc.setFontSize(4.2);
     doc.setFont('helvetica', 'normal');
     doc.text(volunteer.roleDesignation || 'Community Outreach Volunteer', 27, 64.5, { align: 'center' });
@@ -120,15 +118,14 @@ export class VolunteerIdCardService {
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 72, 16, 14, 'F');
 
-    // QR Representation
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.rect(3, 74, 10, 10, 'F');
     doc.setFillColor(255, 255, 255);
     doc.rect(5, 76, 6, 6, 'F');
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.rect(7, 78, 2, 2, 'F');
 
-    // Right Slogan (Warm Gold)
+    // Right Slogan
     doc.setFillColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.rect(16, 72, 38, 14, 'F');
     doc.setTextColor(255, 255, 255);
@@ -146,16 +143,16 @@ export class VolunteerIdCardService {
     doc.setFillColor(255, 255, 255);
     doc.roundedRect(0, 0, 54, 86, 3, 3, 'F');
 
-    doc.setDrawColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setDrawColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setLineWidth(0.3);
     doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
 
-    // Top-Left Green Accent Corner
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
-    doc.triangle(0, 0, 24, 0, 0, 18, 'F');
+    // Top-Left Corner Accent
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
+    doc.triangle(0, 0, 18, 0, 0, 16, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.3);
-    doc.line(0, 18, 24, 0);
+    doc.line(0, 16, 18, 0);
 
     // Lanyard slot
     doc.setFillColor(230, 235, 240);
@@ -168,7 +165,7 @@ export class VolunteerIdCardService {
       // Fallback
     }
 
-    doc.setTextColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.5);
     doc.text('ASFJK', 27, 16.5, { align: 'center' });
@@ -242,7 +239,7 @@ export class VolunteerIdCardService {
     doc.text('ASFJK', 42, 69.5, { align: 'center' });
 
     // Footer Bar
-    doc.setFillColor(forestGreen[0], forestGreen[1], forestGreen[2]);
+    doc.setFillColor(royalNavy[0], royalNavy[1], royalNavy[2]);
     doc.rect(0, 75, 54, 11, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(3);

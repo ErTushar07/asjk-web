@@ -16,18 +16,21 @@ export class MembershipCardService {
     const goldAccent = [217, 119, 6]; // #D97706
     const goldLight = [251, 191, 36]; // #FBBF24
 
-    // Tier-specific primary color palette
-    let primaryColor = [10, 77, 60]; // General Member: Forest Green (#0A4D3C)
+    // Tier-specific primary color palette matching logo tone
+    let primaryColor = [30, 27, 75]; // #1E1B4B (Brand Royal Navy/Purple)
     let tierTitle = 'GENERAL MEMBER';
 
-    if (member.tier === 'associate_silver') {
+    if (member.tier === 'general_member') {
+      primaryColor = [6, 78, 59]; // Forest Green (#064E3B)
+      tierTitle = 'GENERAL MEMBER';
+    } else if (member.tier === 'associate_silver') {
       primaryColor = [30, 41, 59]; // Slate / Silver Charcoal (#1E293B)
       tierTitle = 'ASSOCIATE SILVER';
     } else if (member.tier === 'patron_gold') {
       primaryColor = [120, 53, 15]; // Royal Amber (#78350F)
       tierTitle = 'PATRON GOLD';
     } else if (member.tier === 'founding_platinum') {
-      primaryColor = [74, 4, 78]; // Royal Velvet Purple (#4A044E)
+      primaryColor = [59, 7, 100]; // Royal Velvet Purple (#3B0764)
       tierTitle = 'FOUNDING PLATINUM';
     } else if (member.tier === 'benefactor_diamond') {
       primaryColor = [8, 51, 68]; // Deep Sapphire Cyan (#083344)
@@ -45,12 +48,12 @@ export class MembershipCardService {
     doc.setLineWidth(0.3);
     doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
 
-    // Top-Left Tier Accent Triangle
+    // Top-Left Corner Accent: small triangle that doesn't collide with center logo
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.triangle(0, 0, 30, 0, 0, 24, 'F');
+    doc.triangle(0, 0, 18, 0, 0, 16, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
-    doc.setLineWidth(0.4);
-    doc.line(0, 24, 30, 0);
+    doc.setLineWidth(0.3);
+    doc.line(0, 16, 18, 0);
 
     // Top Lanyard Slot
     doc.setFillColor(230, 235, 240);
@@ -114,7 +117,7 @@ export class MembershipCardService {
     doc.setLineWidth(0.3);
     doc.line(0, 56, 54, 56);
 
-    // Member Info on Bottom
+    // Member Info on Bottom (NO PAYMENT AMOUNTS)
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
@@ -164,12 +167,12 @@ export class MembershipCardService {
     doc.setLineWidth(0.3);
     doc.roundedRect(0.5, 0.5, 53, 85, 2.5, 2.5, 'D');
 
-    // Top-Left Accent
+    // Top-Left Accent Corner
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.triangle(0, 0, 24, 0, 0, 18, 'F');
+    doc.triangle(0, 0, 18, 0, 0, 16, 'F');
     doc.setDrawColor(goldAccent[0], goldAccent[1], goldAccent[2]);
     doc.setLineWidth(0.3);
-    doc.line(0, 18, 24, 0);
+    doc.line(0, 16, 18, 0);
 
     // Lanyard slot
     doc.setFillColor(230, 235, 240);
@@ -201,7 +204,7 @@ export class MembershipCardService {
     doc.text('This card identifies the bearer as an accredited NGO Member of Al Shujaiat Foundation (ASFJK).', 27, 28, { align: 'center', maxWidth: 46 });
     doc.text('This card is valid for the statutory period shown below.', 27, 33, { align: 'center' });
 
-    // Data Fields
+    // Data Fields (NO MONETARY AMOUNTS)
     doc.setFontSize(3.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(148, 163, 184);
@@ -212,10 +215,10 @@ export class MembershipCardService {
 
     doc.setFontSize(3.5);
     doc.setTextColor(148, 163, 184);
-    doc.text('TIER & CONTRIBUTION', 5, 45);
+    doc.text('MEMBERSHIP LEVEL / TIER', 5, 45);
     doc.setTextColor(15, 23, 42);
     doc.setFontSize(4.2);
-    doc.text(`${member.tierName} (${member.currency} ${member.paidAmount.toLocaleString()})`, 5, 48);
+    doc.text(member.tierName, 5, 48);
 
     doc.setFontSize(3.5);
     doc.setTextColor(148, 163, 184);

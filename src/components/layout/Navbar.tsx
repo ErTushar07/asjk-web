@@ -34,6 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
     { name: t('nav.stories', 'Stories'), route: '/stories' },
     { name: t('nav.news', 'News'), route: '/news' },
     { name: t('nav.volunteer', 'Volunteer'), route: '/volunteer' },
+    { name: t('nav.membership', 'Membership'), route: '/membership' },
     { name: t('nav.partners', 'Partners'), route: '/partners' },
     { name: t('nav.contact', 'Contact'), route: '/contact' },
   ];

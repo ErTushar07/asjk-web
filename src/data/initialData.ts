@@ -1,7 +1,7 @@
 import {
   Project, Campaign, Donation, Payment, RecurringDonation, Receipt, Refund,
   Story, NewsArticle, ImpactMetric, VolunteerApplication, PartnershipRequest,
-  SupportTicket, AuditLog, SystemSettings, User
+  NgoMembership, SupportTicket, AuditLog, SystemSettings, User
 } from '../types';
 
 export const INITIAL_USERS: User[] = [
@@ -1045,6 +1045,55 @@ export const INITIAL_PARTNERSHIPS: PartnershipRequest[] = [
     message: 'We would like to co-fund 20 solar water filtration wells with ASFJK in northern Kashmir.',
     status: 'in_discussion',
     submittedAt: '2026-01-18T16:00:00Z'
+  }
+];
+
+export const INITIAL_MEMBERSHIPS: NgoMembership[] = [
+  {
+    id: 'mbr_001',
+    membershipNumber: 'ASF-MBR-2026-7721',
+    fullName: 'Zubair Ahmad Lone',
+    email: 'zubair.lone@example.com',
+    phone: '+91 94190 12345',
+    city: 'Srinagar',
+    country: 'India',
+    tier: 'founding_platinum',
+    tierName: 'Founding Patron (Platinum Tier)',
+    durationYears: 5,
+    annualAmountUSD: 500,
+    totalAmountUSD: 2500,
+    currency: 'INR',
+    paidAmount: 200000,
+    validFrom: '2026-01-01',
+    validThru: '2031-01-01',
+    paymentMethod: 'Bank Wire / UPI',
+    transactionId: 'TXN-MBR-2026-9901',
+    receiptNumber: 'ASJ-REC-2026-8801',
+    status: 'active',
+    createdAt: '2026-01-01T10:00:00Z',
+  },
+  {
+    id: 'mbr_002',
+    membershipNumber: 'ASF-MBR-2026-8834',
+    fullName: 'Dr. Faisal Rashid',
+    email: 'faisal.rashid@example.org',
+    phone: '+44 7700 900555',
+    city: 'London',
+    country: 'United Kingdom',
+    tier: 'patron_gold',
+    tierName: 'Patron Member (Gold Tier)',
+    durationYears: 3,
+    annualAmountUSD: 150,
+    totalAmountUSD: 450,
+    currency: 'GBP',
+    paidAmount: 360,
+    validFrom: '2026-02-15',
+    validThru: '2029-02-15',
+    paymentMethod: 'Stripe / Card',
+    transactionId: 'TXN-MBR-2026-4432',
+    receiptNumber: 'ASJ-REC-2026-9214',
+    status: 'active',
+    createdAt: '2026-02-15T12:30:00Z',
   }
 ];
 

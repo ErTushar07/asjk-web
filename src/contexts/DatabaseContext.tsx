@@ -2,13 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Project, Campaign, Donation, Payment, RecurringDonation, Receipt, Refund,
   Story, NewsArticle, ImpactMetric, VolunteerApplication, PartnershipRequest,
-  SupportTicket, AuditLog, SystemSettings, DonationFrequency, PaymentMethod, PaymentStatus
+  NgoMembership, SupportTicket, AuditLog, SystemSettings, DonationFrequency, PaymentMethod, PaymentStatus
 } from '../types';
 import {
   INITIAL_PROJECTS, INITIAL_CAMPAIGNS, INITIAL_DONATIONS, INITIAL_PAYMENTS,
   INITIAL_RECURRING_DONATIONS, INITIAL_RECEIPTS, INITIAL_REFUNDS, INITIAL_STORIES,
   INITIAL_NEWS, INITIAL_IMPACT_METRICS, INITIAL_VOLUNTEERS, INITIAL_PARTNERSHIPS,
-  INITIAL_SUPPORT_TICKETS, INITIAL_AUDIT_LOGS, INITIAL_SYSTEM_SETTINGS
+  INITIAL_MEMBERSHIPS, INITIAL_SUPPORT_TICKETS, INITIAL_AUDIT_LOGS, INITIAL_SYSTEM_SETTINGS
 } from '../data/initialData';
 import { PaymentService } from '../services/paymentService';
 
@@ -49,6 +49,7 @@ interface DatabaseContextType {
   impactMetrics: ImpactMetric[];
   volunteers: VolunteerApplication[];
   partnerships: PartnershipRequest[];
+  memberships: NgoMembership[];
   supportTickets: SupportTicket[];
   auditLogs: AuditLog[];
   settings: SystemSettings;
@@ -71,6 +72,8 @@ interface DatabaseContextType {
   updateVolunteerStatus: (id: string, status: any) => void;
   addPartnershipRequest: (req: Omit<PartnershipRequest, 'id' | 'submittedAt' | 'status'>) => void;
   updatePartnershipStatus: (id: string, status: any) => void;
+  addMembership: (data: Omit<NgoMembership, 'id' | 'membershipNumber' | 'createdAt' | 'status' | 'validFrom' | 'validThru'> & { validFrom?: string; validThru?: string; status?: NgoMembership['status'] }) => NgoMembership;
+  updateMembershipStatus: (id: string, status: NgoMembership['status']) => void;
   addSupportTicket: (tkt: Omit<SupportTicket, 'id' | 'ticketNumber' | 'createdAt' | 'status'>) => void;
   updateSupportTicketStatus: (id: string, status: 'open' | 'in_progress' | 'resolved' | 'closed', response?: string) => void;
   updateSettings: (newSettings: Partial<SystemSettings>) => void;
@@ -149,6 +152,11 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return saved ? JSON.parse(saved) : INITIAL_PARTNERSHIPS;
   });
 
+  const [memberships, setMemberships] = useState<NgoMembership[]>(() => {
+    const saved = localStorage.getItem('asfjk_db_memberships');
+    return saved ? JSON.parse(saved) : INITIAL_MEMBERSHIPS;
+  });
+
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(() => {
     const saved = localStorage.getItem('asfjk_db_tickets');
     return saved ? JSON.parse(saved) : INITIAL_SUPPORT_TICKETS;
@@ -211,6 +219,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     localStorage.setItem('asfjk_db_audit', JSON.stringify(auditLogs));
   }, [auditLogs]);
+  useEffect(() => {
+    localStorage.setItem('asfjk_db_memberships', JSON.stringify(memberships));
+  }, [memberships]);
   useEffect(() => {
     localStorage.setItem('asfjk_db_settings', JSON.stringify(settings));
   }, [settings]);
@@ -704,22 +715,14 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>): VolunteerApplication => {
     const now = new Date();
-    const validThru = new Date();
-    validThru.setFullYear(now.getFullYear() + 1);
-
     const newApp: VolunteerApplication = {
       ...app,
       id: `vol_${Date.now()}`,
-      membershipNumber: app.membershipNumber || `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-      roleDesignation: app.roleDesignation || 'Humanitarian Field Specialist',
-      bloodGroup: app.bloodGroup || 'O+',
-      validFrom: app.validFrom || now.toISOString().split('T')[0],
-      validThru: app.validThru || validThru.toISOString().split('T')[0],
-      status: 'approved',
+      status: 'submitted', // Under review until approved by admin
       submittedAt: now.toISOString(),
     };
     setVolunteers((prev) => [newApp, ...prev]);
-    recordAudit('sys_public', app.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer membership generated for ${app.fullName} (${newApp.membershipNumber})`);
+    recordAudit('sys_public', app.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer application submitted by ${app.fullName} (${app.city})`);
     return newApp;
   };
 
@@ -731,14 +734,15 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setVolunteers((prev) =>
       prev.map((v) => {
         if (v.id === id) {
+          const isApproving = status === 'approved';
           return {
             ...v,
             status,
-            membershipNumber: v.membershipNumber || `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+            membershipNumber: v.membershipNumber || (isApproving ? `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}` : undefined),
             roleDesignation: v.roleDesignation || 'Humanitarian Field Specialist',
             bloodGroup: v.bloodGroup || 'O+',
-            validFrom: v.validFrom || now.toISOString().split('T')[0],
-            validThru: v.validThru || validThru.toISOString().split('T')[0],
+            validFrom: v.validFrom || (isApproving ? now.toISOString().split('T')[0] : undefined),
+            validThru: v.validThru || (isApproving ? validThru.toISOString().split('T')[0] : undefined),
           };
         }
         return v;
@@ -756,6 +760,30 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setPartnerships((prev) => [newReq, ...prev]);
     recordAudit('sys_public', req.organizationName, 'public', 'PARTNERSHIP_REQUESTED', 'setting', newReq.id, `New partnership inquiry from ${req.organizationName}`);
+  };
+
+  const addMembership = (data: Omit<NgoMembership, 'id' | 'membershipNumber' | 'createdAt' | 'status' | 'validFrom' | 'validThru'> & { validFrom?: string; validThru?: string; status?: NgoMembership['status'] }): NgoMembership => {
+    const now = new Date();
+    const validThru = new Date();
+    validThru.setFullYear(now.getFullYear() + (data.durationYears || 1));
+
+    const newMbr: NgoMembership = {
+      ...data,
+      id: `mbr_${Date.now()}`,
+      membershipNumber: `ASF-MBR-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: data.status || 'active',
+      validFrom: data.validFrom || now.toISOString().split('T')[0],
+      validThru: data.validThru || validThru.toISOString().split('T')[0],
+      createdAt: now.toISOString(),
+    };
+    setMemberships((prev) => [newMbr, ...prev]);
+    recordAudit('sys_public', data.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years)`);
+    return newMbr;
+  };
+
+  const updateMembershipStatus = (id: string, status: NgoMembership['status']) => {
+    setMemberships((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'MEMBERSHIP_STATUS_UPDATED', 'user', id, `Updated membership status to ${status}`);
   };
 
   const addSupportTicket = (tkt: Omit<SupportTicket, 'id' | 'ticketNumber' | 'createdAt' | 'status'>) => {
@@ -799,6 +827,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setImpactMetrics(INITIAL_IMPACT_METRICS);
     setVolunteers(INITIAL_VOLUNTEERS);
     setPartnerships(INITIAL_PARTNERSHIPS);
+    setMemberships(INITIAL_MEMBERSHIPS);
     setSupportTickets(INITIAL_SUPPORT_TICKETS);
     setAuditLogs(INITIAL_AUDIT_LOGS);
     setSettings(INITIAL_SYSTEM_SETTINGS);
@@ -820,6 +849,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         impactMetrics,
         volunteers,
         partnerships,
+        memberships,
         supportTickets,
         auditLogs,
         settings,
@@ -840,6 +870,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateVolunteerStatus,
         addPartnershipRequest,
         updatePartnershipStatus,
+        addMembership,
+        updateMembershipStatus,
         addSupportTicket,
         updateSupportTicketStatus,
         updateSettings,

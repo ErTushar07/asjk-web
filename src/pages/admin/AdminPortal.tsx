@@ -7,13 +7,16 @@ import { ReceiptService } from '../../services/receiptService';
 import { ReportService } from '../../services/reportService';
 import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
+import { MembershipCardService } from '../../services/membershipCardService';
+import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
+import { NgoMembership } from '../../types';
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
-  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award
+  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -25,11 +28,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const { user, role, hasPermission } = useAuth();
   const { 
     projects, campaigns, donations, payments, recurringDonations, 
-    receipts, refunds, stories, news, volunteers, partnerships, 
+    receipts, refunds, stories, news, volunteers, partnerships, memberships,
     supportTickets, auditLogs, settings, createProject, updateProject, 
     deleteProject, createCampaign, updateCampaign, deleteCampaign,
     processRefund, updateRecurringStatus, simulateRetryRecurringPayment,
-    updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus 
+    updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus, updateMembershipStatus 
   } = useDatabase();
   const { formatUSD } = useCurrency();
   const { supportedLanguages } = useLanguage();
@@ -65,6 +68,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   // Selected Volunteer Modal State
   const [selectedVolunteer, setSelectedVolunteer] = useState<any | null>(null);
   const [idCardModalVolunteer, setIdCardModalVolunteer] = useState<any | null>(null);
+  const [selectedMembershipModal, setSelectedMembershipModal] = useState<NgoMembership | null>(null);
 
   // Calculate Financial Aggregates (Source of Truth)
   const successfulDonations = donations.filter((d) => d.status === 'successful');
@@ -85,6 +89,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     { id: 'refunds', label: 'Refunds & Reversals', icon: RotateCcw },
     { id: 'reports', label: 'Financial Reports & Exports', icon: Download },
     { id: 'volunteers', label: 'Volunteer Applications', icon: HeartHandshake },
+    { id: 'memberships', label: 'NGO Memberships', icon: Crown },
     { id: 'partners', label: 'Partnership Requests', icon: Shield },
     { id: 'support', label: 'Support Tickets', icon: HelpCircle },
     { id: 'languages', label: 'Languages & Translations', icon: Languages },
@@ -1049,6 +1054,109 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
+        {/* 11B. NGO MEMBERSHIPS LEDGER TAB */}
+        {activeTab === 'memberships' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-content-primary flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-amber-500" />
+                  Accredited NGO Memberships Ledger ({memberships.length})
+                </h3>
+                <p className="text-xs text-content-secondary">
+                  Manage tiered patron enrollments (1 to 10 Years duration), total contribution receipts, and issue official NGO Membership Cards.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => ReportService.exportToCSV(memberships, 'ASFJK_NGO_Memberships')}
+                  className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" /> Export Members CSV
+                </button>
+                <button
+                  onClick={() => onNavigate('/membership')}
+                  className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5 shadow-pink-glow"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New Member Enrollment
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Member Details</th>
+                    <th className="py-3 px-4">Tier Level</th>
+                    <th className="py-3 px-4">Duration & Validity</th>
+                    <th className="py-3 px-4">Contribution Paid</th>
+                    <th className="py-3 px-4">Payment & Receipt</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {memberships.map((m) => (
+                    <tr key={m.id} className="hover:bg-surface-soft transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-content-primary uppercase">{m.fullName}</div>
+                        <div className="text-content-secondary font-mono text-[11px]">{m.email}</div>
+                        <div className="text-[10px] text-content-muted">{m.city}, {m.country}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 ${
+                          m.tier === 'patron_gold' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                          m.tier === 'founding_platinum' ? 'bg-purple-100 text-purple-900 border border-purple-300' :
+                          m.tier === 'benefactor_diamond' ? 'bg-cyan-100 text-cyan-900 border border-cyan-300' :
+                          'bg-slate-100 text-slate-800 border border-slate-300'
+                        }`}>
+                          <Crown className="w-3 h-3" />
+                          {m.tier.replace('_', ' ')}
+                        </span>
+                        <div className="text-[10px] text-content-muted mt-0.5 font-mono">{m.membershipNumber}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-brand-purple font-mono">{m.durationYears} {m.durationYears === 1 ? 'Year' : 'Years'}</div>
+                        <div className="text-[10px] text-content-secondary">{m.validFrom} to {m.validThru}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-extrabold text-emerald-700 font-mono text-xs">
+                          {m.currency} {m.paidAmount.toLocaleString()}
+                        </div>
+                        <div className="text-[10px] text-content-muted">Total Paid</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-[11px] font-medium text-content-primary">{m.paymentMethod}</div>
+                        <div className="text-[10px] font-mono text-content-secondary truncate max-w-[130px]">{m.receiptNumber || m.transactionId}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                          {m.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right space-x-1.5">
+                        <button
+                          onClick={() => setSelectedMembershipModal(m)}
+                          className="btn-primary !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1 shadow-pink-glow"
+                        >
+                          <Crown className="w-3 h-3 text-amber-300" /> Membership Card
+                        </button>
+                        <a
+                          href={`mailto:${m.email}`}
+                          className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"
+                        >
+                          <Mail className="w-3 h-3" /> Email
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* 12. PARTNERSHIP REQUESTS TAB */}
         {activeTab === 'partners' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
@@ -1798,6 +1906,37 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
             </div>
 
             <VolunteerIdCardPreview volunteer={idCardModalVolunteer} settings={settings} />
+          </div>
+        </div>
+      )}
+
+      {/* NGO Membership Card Modal */}
+      {selectedMembershipModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-content-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                  <Crown className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-content-primary">
+                    Official NGO Membership Credential
+                  </h3>
+                  <p className="text-[11px] text-content-secondary font-mono">
+                    ID: {selectedMembershipModal.membershipNumber} · {selectedMembershipModal.tierName} · {selectedMembershipModal.durationYears} Years
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedMembershipModal(null)}
+                className="p-1.5 rounded-full text-content-muted hover:text-content-primary hover:bg-surface-soft transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <MembershipCardPreview member={selectedMembershipModal} settings={settings} />
           </div>
         </div>
       )}

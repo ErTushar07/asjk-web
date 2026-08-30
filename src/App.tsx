@@ -19,6 +19,7 @@ import { TransparencyPage } from './pages/public/TransparencyPage';
 import { StoriesPage } from './pages/public/StoriesPage';
 import { NewsPage } from './pages/public/NewsPage';
 import { VolunteerPage } from './pages/public/VolunteerPage';
+import { MembershipPage } from './pages/public/MembershipPage';
 import { PartnersPage } from './pages/public/PartnersPage';
 import { DonatePage } from './pages/public/DonatePage';
 import { ContactPage } from './pages/public/ContactPage';
@@ -111,6 +112,7 @@ export const App: React.FC = () => {
     if (currentRoute === '/stories') return <StoriesPage onNavigate={navigate} />;
     if (currentRoute === '/news') return <NewsPage onNavigate={navigate} />;
     if (currentRoute === '/volunteer') return <VolunteerPage />;
+    if (currentRoute === '/membership') return <MembershipPage />;
     if (currentRoute === '/partners') return <PartnersPage />;
     if (currentRoute === '/donate') return <DonatePage onNavigate={navigate} />;
     if (currentRoute === '/contact') return <ContactPage />;

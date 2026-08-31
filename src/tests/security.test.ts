@@ -169,3 +169,45 @@ describe('Validation Service - Input Sanitization & XSS Neutralization', () => {
     expect(invalidEmailRes.errors.donorEmail).toBeDefined();
   });
 });
+
+describe('Security Service - Backend Authorization & Permission Isolation', () => {
+  beforeEach(() => {
+    SecurityService.clearSession();
+  });
+
+  it('rejects unauthenticated users from administrative privileges', () => {
+    expect(SecurityService.isVerifiedAdminSession()).toBe(false);
+    expect(SecurityService.hasAdminPermission('projects:manage')).toBe(false);
+    expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(false);
+  });
+
+  it('rejects normal donor accounts from administrative access', () => {
+    SecurityService.createSession('usr_donor_123', 'donor', false);
+    expect(SecurityService.isVerifiedAdminSession()).toBe(false);
+    expect(SecurityService.hasAdminPermission('projects:manage')).toBe(false);
+    expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(false);
+  });
+
+  it('authorizes super admin session with all granular permissions', () => {
+    SecurityService.createSession('usr_super_admin', 'super_admin', true);
+    expect(SecurityService.isVerifiedAdminSession()).toBe(true);
+    expect(SecurityService.hasAdminPermission('projects:manage')).toBe(true);
+    expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(true);
+    expect(SecurityService.hasAdminPermission('content:manage')).toBe(true);
+  });
+
+  it('enforces role-based boundaries for finance vs project administrators', () => {
+    // Finance Admin
+    SecurityService.createSession('usr_fin_admin', 'finance_admin', true);
+    expect(SecurityService.isVerifiedAdminSession()).toBe(true);
+    expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(true);
+    expect(SecurityService.hasAdminPermission('projects:manage')).toBe(false);
+
+    // Project Manager
+    SecurityService.createSession('usr_proj_mgr', 'project_manager', true);
+    expect(SecurityService.isVerifiedAdminSession()).toBe(true);
+    expect(SecurityService.hasAdminPermission('projects:manage')).toBe(true);
+    expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(false);
+  });
+});
+

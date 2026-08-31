@@ -253,4 +253,39 @@ export class SecurityService {
 
     return false;
   }
+
+  /**
+   * Evaluates if active session is an authorized, verified administrator
+   */
+  public static isVerifiedAdminSession(): boolean {
+    const session = this.getActiveSession();
+    if (!session) return false;
+    if (!session.twoFactorVerified) return false;
+    const adminRoles = ['super_admin', 'finance_admin', 'project_manager', 'content_manager', 'auditor'];
+    return adminRoles.includes(session.role);
+  }
+
+  /**
+   * Evaluates if active session has a specific administrative permission
+   */
+  public static hasAdminPermission(permission: string): boolean {
+    const session = this.getActiveSession();
+    if (!session || !session.twoFactorVerified) return false;
+    if (session.role === 'super_admin') return true;
+
+    switch (permission) {
+      case 'refunds:manage':
+        return session.role === 'finance_admin';
+      case 'finances:view':
+        return ['finance_admin', 'auditor'].includes(session.role);
+      case 'projects:manage':
+        return session.role === 'project_manager';
+      case 'content:manage':
+        return session.role === 'content_manager';
+      case 'donors:support':
+        return ['donor_support', 'finance_admin'].includes(session.role);
+      default:
+        return false;
+    }
+  }
 }

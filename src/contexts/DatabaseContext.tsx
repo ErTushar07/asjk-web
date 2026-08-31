@@ -580,7 +580,20 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   /**
-   * Process full or partial refund
+   * Strict Administrative Authorization Guard
+   * Throws 401/403 if called without a verified, 2FA-validated admin session
+   */
+  const checkAdminAuth = (permission?: string): void => {
+    if (!SecurityService.isVerifiedAdminSession()) {
+      throw new Error('401 Unauthorized: Administrative session required.');
+    }
+    if (permission && !SecurityService.hasAdminPermission(permission)) {
+      throw new Error(`403 Forbidden: Missing required administrative permission "${permission}".`);
+    }
+  };
+
+  /**
+   * Process full or partial refund (Protected: Finance Admin only)
    */
   const processRefund = (
     donationId: string,
@@ -588,6 +601,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     reason: string,
     user: { id: string; name: string; role: string }
   ): boolean => {
+    checkAdminAuth('refunds:manage');
+
     const donation = donations.find((d) => d.id === donationId);
     if (!donation) return false;
 
@@ -663,9 +678,10 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   /**
-   * Project Management
+   * Project Management (Protected)
    */
   const createProject = (projectData: Omit<Project, 'id' | 'amountRaisedUSD' | 'donorCount'>): Project => {
+    checkAdminAuth('projects:manage');
     const newProj: Project = {
       ...projectData,
       id: `proj_${Date.now()}`,
@@ -678,19 +694,22 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateProject = (id: string, updates: Partial<Project>) => {
+    checkAdminAuth('projects:manage');
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'PROJECT_UPDATED', 'project', id, `Updated project fields`);
   };
 
   const deleteProject = (id: string) => {
+    checkAdminAuth('projects:manage');
     setProjects((prev) => prev.filter((p) => p.id !== id));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'PROJECT_DELETED', 'project', id, `Deleted project`);
   };
 
   /**
-   * Campaign Management
+   * Campaign Management (Protected)
    */
   const createCampaign = (campData: Omit<Campaign, 'id' | 'amountRaisedUSD' | 'donorCount'>): Campaign => {
+    checkAdminAuth('projects:manage');
     const newCamp: Campaign = {
       ...campData,
       id: `camp_${Date.now()}`,
@@ -703,20 +722,24 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateCampaign = (id: string, updates: Partial<Campaign>) => {
+    checkAdminAuth('projects:manage');
     setCampaigns((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
   };
 
   const deleteCampaign = (id: string) => {
+    checkAdminAuth('projects:manage');
     setCampaigns((prev) => prev.filter((c) => c.id !== id));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'CAMPAIGN_DELETED', 'campaign', id, `Deleted campaign`);
   };
 
   const addStory = (story: Omit<Story, 'id'>) => {
+    checkAdminAuth('content:manage');
     const newStory: Story = { ...story, id: `story_${Date.now()}` };
     setStories((prev) => [newStory, ...prev]);
   };
 
   const addNews = (article: Omit<NewsArticle, 'id'>) => {
+    checkAdminAuth('content:manage');
     const newArticle: NewsArticle = { ...article, id: `news_${Date.now()}` };
     setNews((prev) => [newArticle, ...prev]);
   };
@@ -741,6 +764,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateVolunteerStatus = (id: string, status: any) => {
+    checkAdminAuth();
     const now = new Date();
     const validThru = new Date();
     validThru.setFullYear(now.getFullYear() + 1);
@@ -813,6 +837,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateMembershipStatus = (id: string, status: NgoMembership['status']) => {
+    checkAdminAuth();
     setMemberships((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'MEMBERSHIP_STATUS_UPDATED', 'user', id, `Updated membership status to ${status}`);
   };
@@ -839,22 +864,26 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updatePartnershipStatus = (id: string, status: any) => {
+    checkAdminAuth();
     setPartnerships((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'PARTNERSHIP_STATUS_UPDATED', 'setting', id, `Updated partnership status to ${status}`);
   };
 
   const updateSupportTicketStatus = (id: string, status: 'open' | 'in_progress' | 'resolved' | 'closed', response?: string) => {
+    checkAdminAuth();
     setSupportTickets((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status, response: response || t.response } : t))
     );
   };
 
   const updateSettings = (newSettings: Partial<SystemSettings>) => {
+    checkAdminAuth();
     setSettings((prev) => ({ ...prev, ...newSettings }));
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'SETTINGS_UPDATED', 'setting', 'sys_core', `Updated foundation system settings`);
   };
 
   const resetToDemoData = () => {
+    checkAdminAuth();
     setProjects(INITIAL_PROJECTS);
     setCampaigns(INITIAL_CAMPAIGNS);
     setDonations(INITIAL_DONATIONS);

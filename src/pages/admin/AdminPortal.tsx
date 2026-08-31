@@ -10,6 +10,7 @@ import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCa
 import { MembershipCardService } from '../../services/membershipCardService';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { NgoMembership } from '../../types';
+import { SecurityService } from '../../services/securityService';
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
@@ -26,6 +27,20 @@ interface AdminPortalProps {
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboard', onNavigate }) => {
   const { user, role, hasPermission } = useAuth();
+
+  // Strict Defense-in-Depth Render Guard: Unauthenticated users or non-admins are never rendered
+  if (!user || user.role === 'donor' || !SecurityService.isVerifiedAdminSession()) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-white text-center">
+        <h2 className="text-xl font-bold mb-2">401 - Unauthorized Access</h2>
+        <p className="text-xs text-slate-400 mb-4">A valid, 2FA-verified administrative session is required.</p>
+        <button onClick={() => onNavigate('/')} className="px-4 py-2 bg-brand-purple text-white text-xs font-bold rounded-xl">
+          Return to Public Site
+        </button>
+      </div>
+    );
+  }
+
   const { 
     projects, campaigns, donations, payments, recurringDonations, 
     receipts, refunds, stories, news, volunteers, partnerships, memberships,

@@ -10,31 +10,59 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
-  const { login, register, switchRole } = useAuth();
+  const { login, register } = useAuth();
   const { t } = useLanguage();
 
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('david.thompson@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedDemoRole, setSelectedDemoRole] = useState<UserRole>('donor');
   const [submittedReset, setSubmittedReset] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, selectedDemoRole);
-    if (selectedDemoRole === 'donor') {
-      onNavigate('/dashboard');
-    } else {
-      onNavigate('/admin');
+    setAuthError(null);
+    setLoading(true);
+
+    try {
+      const res = await login(email, password);
+      if (res.success) {
+        onNavigate('/dashboard');
+      } else {
+        setAuthError(res.error || 'Invalid email or password.');
+      }
+    } catch (err: any) {
+      setAuthError('Authentication service unavailable.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
     if (!name || !email) return;
-    register(name, email, phone);
-    onNavigate('/dashboard');
+
+    if (!password || password.length < 8) {
+      setAuthError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await register(name, email, password, phone);
+      if (res.success) {
+        onNavigate('/dashboard');
+      } else {
+        setAuthError(res.error || 'Registration failed.');
+      }
+    } catch (err) {
+      setAuthError('Registration service error.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleForgotSubmit = (e: React.FormEvent) => {
@@ -70,40 +98,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
           </p>
         </div>
 
+        {authError && (
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+            {authError}
+          </div>
+        )}
+
         {mode === 'login' && (
           <form onSubmit={handleLoginSubmit} className="space-y-4">
-            {/* Demo Quick Role Selector */}
-            <div className="bg-surface-highlight p-3 rounded-2xl border border-brand-blue/30 space-y-1.5">
-              <span className="block text-[11px] font-bold text-brand-purple uppercase">
-                Demo Role Preset
-              </span>
-              <select
-                value={selectedDemoRole}
-                onChange={(e) => {
-                  const r = e.target.value as UserRole;
-                  setSelectedDemoRole(r);
-                  if (r === 'super_admin') setEmail('amin.ganai@asfjk.org');
-                  else if (r === 'finance_admin') setEmail('michael.carter@asfjk.org');
-                  else if (r === 'project_manager') setEmail('daniel.wilson@asfjk.org');
-                  else if (r === 'content_manager') setEmail('emily.carter@asfjk.org');
-                  else setEmail('david.thompson@example.com');
-                }}
-                className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-content-border bg-white"
-              >
-                <option value="donor">Donor (David Thompson - Donor Portal)</option>
-                <option value="super_admin">Executive Director (Mohd Amin Ganai - Admin)</option>
-                <option value="finance_admin">Finance Director (Michael Carter - Admin)</option>
-                <option value="project_manager">Project Manager (Daniel Wilson - Admin)</option>
-                <option value="content_manager">Communications Director (Emily Carter - Admin)</option>
-                <option value="auditor">Auditor (Independent Compliance - Admin)</option>
-              </select>
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-content-primary mb-1">Email Address</label>
               <input
                 type="email"
                 required
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"

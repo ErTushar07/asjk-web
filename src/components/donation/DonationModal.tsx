@@ -529,28 +529,6 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                       <p className="text-[10px] text-content-muted">J&K Bank / HDFC Official Accounts</p>
                     </div>
                   </label>
-
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                      paymentMethod === 'sandbox_card'
-                        ? 'border-brand-purple bg-surface-highlight ring-1 ring-brand-purple'
-                        : 'border-content-border hover:bg-surface-soft'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      value="sandbox_card"
-                      checked={paymentMethod === 'sandbox_card'}
-                      onChange={() => setPaymentMethod('sandbox_card')}
-                      className="hidden"
-                    />
-                    <Lock className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-bold text-content-primary">Instant Sandbox Simulator</p>
-                      <p className="text-[10px] text-content-muted">Auto-approved instant test gift</p>
-                    </div>
-                  </label>
                 </div>
               </div>
 

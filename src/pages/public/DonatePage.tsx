@@ -410,18 +410,6 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 <Building className="w-4 h-4 text-brand-blue" />
                 <span className="text-xs font-semibold text-content-primary">Direct Bank Wire / NEFT</span>
               </label>
-
-              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'sandbox_card' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'sandbox_card'}
-                  onChange={() => setPaymentMethod('sandbox_card')}
-                  className="text-brand-purple focus:ring-brand-purple"
-                />
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span className="text-xs font-semibold text-content-primary">Instant Sandbox Simulator</span>
-              </label>
             </div>
           </div>
 

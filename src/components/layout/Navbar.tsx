@@ -16,7 +16,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpenDonateModal }) => {
   const { currentLanguage, setLanguage, supportedLanguages, t, isRTL } = useLanguage();
   const { currentCurrency, setCurrency, availableCurrencies } = useCurrency();
-  const { user, isAuthenticated, isAdmin, isDonor, role, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [currDropdownOpen, setCurrDropdownOpen] = useState(false);
@@ -227,104 +227,91 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               )}
             </div>
 
-            {/* User Account / Portal Switcher */}
-            <div className="relative">
+            {/* User Account / Donor Portal */}
+            {!isAuthenticated ? (
               <button
-                onClick={() => {
-                  setUserDropdownOpen(!userDropdownOpen);
-                  setLangDropdownOpen(false);
-                  setCurrDropdownOpen(false);
-                }}
-                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-surface-soft hover:bg-surface-card border border-content-border text-content-primary transition-colors flex items-center gap-1 text-xs font-medium flex-shrink-0"
-                title="Account & Portals"
+                onClick={() => onNavigate('/login')}
+                className="p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-content-border hover:border-brand-purple text-content-primary hover:text-brand-purple transition-colors flex items-center gap-1.5 text-xs font-bold flex-shrink-0"
+                title="Donor Sign In"
               >
-                {isAdmin ? (
-                  <Shield className="w-4 h-4 text-brand-purple" />
-                ) : (
-                  <UserIcon className="w-4 h-4 text-brand-pink" />
-                )}
-                <span className="hidden md:inline max-w-[100px] truncate font-semibold">
-                  {user ? user.name.split(' ')[0] : 'Portal'}
-                </span>
-                <ChevronDown className="w-3 h-3 text-content-muted" />
+                <LogIn className="w-3.5 h-3.5 text-brand-purple" />
+                <span className="hidden md:inline">{t('nav.signin', 'Sign In')}</span>
               </button>
+            ) : (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setUserDropdownOpen(!userDropdownOpen);
+                    setLangDropdownOpen(false);
+                    setCurrDropdownOpen(false);
+                  }}
+                  className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-surface-soft hover:bg-surface-card border border-content-border text-content-primary transition-colors flex items-center gap-1 text-xs font-semibold flex-shrink-0"
+                  title="My Account"
+                >
+                  <UserIcon className="w-4 h-4 text-brand-pink" />
+                  <span className="hidden md:inline max-w-[110px] truncate font-semibold">
+                    {user ? user.name.split(' ')[0] : 'My Account'}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-content-muted" />
+                </button>
 
-              {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
-                  {isAuthenticated && user && (
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
                     <div className="px-4 py-2 border-b border-content-border">
-                      <p className="text-xs font-bold text-content-primary">{user.name}</p>
-                      <p className="text-[10px] text-content-muted truncate">{user.email}</p>
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-purple/10 text-brand-purple uppercase">
-                        {user.role.replace('_', ' ')}
-                      </span>
+                      <p className="text-xs font-bold text-content-primary">{user?.name}</p>
+                      <p className="text-[10px] text-content-muted truncate">{user?.email}</p>
                     </div>
-                  )}
 
-                  <div className="py-1">
-                    {/* Admin Dashboard */}
-                    <button
-                      onClick={() => {
-                        onNavigate('/admin');
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-content-primary hover:bg-surface-soft transition-colors"
-                    >
-                      <Shield className="w-3.5 h-3.5 text-brand-purple" />
-                      <span>Admin Portal</span>
-                    </button>
-
-                    {/* Donor Portal */}
-                    <button
-                      onClick={() => {
-                        onNavigate('/dashboard');
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-content-primary hover:bg-surface-soft transition-colors"
-                    >
-                      <Heart className="w-3.5 h-3.5 text-brand-pink" />
-                      <span>Donor Portal</span>
-                    </button>
-
-                    {/* My Receipts */}
-                    <button
-                      onClick={() => {
-                        onNavigate('/receipts');
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-content-primary hover:bg-surface-soft transition-colors"
-                    >
-                      <FileText className="w-3.5 h-3.5 text-brand-blue" />
-                      <span>Tax Receipts</span>
-                    </button>
-
-                    <div className="border-t border-content-border my-1" />
-
-                    {!isAuthenticated ? (
+                    <div className="py-1">
                       <button
                         onClick={() => {
-                          onNavigate('/login');
+                          onNavigate('/dashboard');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-brand-purple hover:bg-surface-soft"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
                       >
-                        <LogIn className="w-3.5 h-3.5" /> Sign In
+                        <Heart className="w-3.5 h-3.5 text-brand-pink" />
+                        <span>Donor Dashboard</span>
                       </button>
-                    ) : (
+
+                      <button
+                        onClick={() => {
+                          onNavigate('/receipts');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-brand-blue" />
+                        <span>Tax Receipts (80G)</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onNavigate('/profile');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                      >
+                        <UserIcon className="w-3.5 h-3.5 text-content-muted" />
+                        <span>Profile & Security</span>
+                      </button>
+
+                      <div className="border-t border-content-border my-1" />
+
                       <button
                         onClick={() => {
                           logout();
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-semibold"
                       >
                         Sign Out
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Donate Now Button */}
             <button

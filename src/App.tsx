@@ -3,7 +3,6 @@ import { useLanguage } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { DemoControlBar } from './components/common/DemoControlBar';
 import { DonationModal } from './components/donation/DonationModal';
 
 // Public Pages
@@ -36,10 +35,11 @@ import { DonorProfilePage } from './pages/donor/DonorProfilePage';
 
 // Admin Portal
 import { AdminPortal } from './pages/admin/AdminPortal';
+import { AdminAuthGate } from './pages/admin/AdminAuthGate';
 
 export const App: React.FC = () => {
   const { currentLanguage, isRTL } = useLanguage();
-  const { role } = useAuth();
+  const { user, isAdmin, twoFactorVerified, role } = useAuth();
 
   // Simple, robust client router that supports back/forward navigation and direct links
   const [currentRoute, setCurrentRoute] = useState<string>(() => {
@@ -73,8 +73,11 @@ export const App: React.FC = () => {
 
   // Determine which page to render
   const renderCurrentPage = () => {
-    // Admin Routes
+    // Admin Routes - Strictly protected by Defense-in-Depth Authentication Gate
     if (currentRoute.startsWith('/admin')) {
+      if (!user || !isAdmin || !twoFactorVerified) {
+        return <AdminAuthGate onSuccess={() => navigate('/admin/dashboard')} onNavigate={navigate} />;
+      }
       const parts = currentRoute.split('/');
       const tab = parts[2] || 'dashboard';
       return <AdminPortal initialTab={tab} onNavigate={navigate} />;
@@ -146,10 +149,6 @@ export const App: React.FC = () => {
       </main>
 
       {!isAdminRoute && <Footer onNavigate={navigate} />}
-
-      {!isAdminRoute && typeof window !== 'undefined' && (window.location.search.includes('demo=true') || window.location.search.includes('simulator=true')) && (
-        <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />
-      )}
 
       {/* Global Modal Instance */}
       <DonationModal

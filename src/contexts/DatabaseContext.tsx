@@ -11,6 +11,8 @@ import {
   INITIAL_MEMBERSHIPS, INITIAL_SUPPORT_TICKETS, INITIAL_AUDIT_LOGS, INITIAL_SYSTEM_SETTINGS
 } from '../data/initialData';
 import { PaymentService } from '../services/paymentService';
+import { ValidationService } from '../services/validationService';
+import { SecurityService } from '../services/securityService';
 
 interface ProcessDonationInput {
   amount: number;
@@ -257,15 +259,21 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
    * Process Donation with atomic financial calculations & receipts
    */
   const processDonation = async (input: ProcessDonationInput): Promise<ProcessDonationResult> => {
+    const val = ValidationService.validateDonationInput(input);
+    if (!val.isValid) {
+      throw new Error(`Donation validation failed: ${Object.values(val.errors).join(', ')}`);
+    }
+    const cleanInput: ProcessDonationInput = val.sanitizedData;
+
     const paymentResult = await PaymentService.processPayment({
-      amount: input.amount,
-      currency: input.currency,
-      frequency: input.frequency,
-      method: input.paymentMethod,
-      donorName: input.donorName,
-      donorEmail: input.donorEmail,
-      targetId: input.targetId,
-      targetName: input.targetName,
+      amount: cleanInput.amount,
+      currency: cleanInput.currency,
+      frequency: cleanInput.frequency,
+      method: cleanInput.paymentMethod,
+      donorName: cleanInput.donorName,
+      donorEmail: cleanInput.donorEmail,
+      targetId: cleanInput.targetId,
+      targetName: cleanInput.targetName,
       idempotencyKey: `idem_${Date.now()}`,
     });
 
@@ -714,15 +722,21 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>): VolunteerApplication => {
+    const val = ValidationService.validateVolunteerApplication(app);
+    if (!val.isValid) {
+      throw new Error(`Volunteer application validation error: ${Object.values(val.errors).join(', ')}`);
+    }
+    const cleanApp = val.sanitizedData;
+
     const now = new Date();
     const newApp: VolunteerApplication = {
-      ...app,
+      ...cleanApp,
       id: `vol_${Date.now()}`,
       status: 'submitted', // Under review until approved by admin
       submittedAt: now.toISOString(),
     };
     setVolunteers((prev) => [newApp, ...prev]);
-    recordAudit('sys_public', app.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer application submitted by ${app.fullName} (${app.city})`);
+    recordAudit('sys_public', cleanApp.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer application submitted by ${cleanApp.fullName} (${cleanApp.city})`);
     return newApp;
   };
 
@@ -752,32 +766,49 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const addPartnershipRequest = (req: Omit<PartnershipRequest, 'id' | 'submittedAt' | 'status'>) => {
+    const cleanOrgName = ValidationService.sanitizeString(req.organizationName);
+    const cleanContact = ValidationService.sanitizeString(req.contactPerson);
+    const cleanEmail = req.email ? req.email.trim().toLowerCase() : '';
+    const cleanPhone = ValidationService.sanitizeString(req.phone);
+    const cleanProposal = ValidationService.sanitizeString(req.proposalSummary);
+
     const newReq: PartnershipRequest = {
       ...req,
+      organizationName: cleanOrgName,
+      contactPerson: cleanContact,
+      email: cleanEmail,
+      phone: cleanPhone,
+      proposalSummary: cleanProposal,
       id: `part_${Date.now()}`,
       status: 'new',
       submittedAt: new Date().toISOString(),
     };
     setPartnerships((prev) => [newReq, ...prev]);
-    recordAudit('sys_public', req.organizationName, 'public', 'PARTNERSHIP_REQUESTED', 'setting', newReq.id, `New partnership inquiry from ${req.organizationName}`);
+    recordAudit('sys_public', cleanOrgName, 'public', 'PARTNERSHIP_REQUESTED', 'setting', newReq.id, `New partnership inquiry from ${cleanOrgName}`);
   };
 
   const addMembership = (data: Omit<NgoMembership, 'id' | 'membershipNumber' | 'createdAt' | 'status' | 'validFrom' | 'validThru'> & { validFrom?: string; validThru?: string; status?: NgoMembership['status'] }): NgoMembership => {
+    const val = ValidationService.validateMembership(data);
+    if (!val.isValid) {
+      throw new Error(`Membership validation error: ${Object.values(val.errors).join(', ')}`);
+    }
+    const cleanData = val.sanitizedData;
+
     const now = new Date();
     const validThru = new Date();
-    validThru.setFullYear(now.getFullYear() + (data.durationYears || 1));
+    validThru.setFullYear(now.getFullYear() + (cleanData.durationYears || 1));
 
     const newMbr: NgoMembership = {
-      ...data,
+      ...cleanData,
       id: `mbr_${Date.now()}`,
       membershipNumber: `ASF-MBR-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-      status: data.status || 'active',
-      validFrom: data.validFrom || now.toISOString().split('T')[0],
-      validThru: data.validThru || validThru.toISOString().split('T')[0],
+      status: cleanData.status || 'active',
+      validFrom: cleanData.validFrom || now.toISOString().split('T')[0],
+      validThru: cleanData.validThru || validThru.toISOString().split('T')[0],
       createdAt: now.toISOString(),
     };
     setMemberships((prev) => [newMbr, ...prev]);
-    recordAudit('sys_public', data.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years)`);
+    recordAudit('sys_public', cleanData.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years)`);
     return newMbr;
   };
 
@@ -787,15 +818,24 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const addSupportTicket = (tkt: Omit<SupportTicket, 'id' | 'ticketNumber' | 'createdAt' | 'status'>) => {
+    const cleanName = ValidationService.sanitizeString(tkt.name);
+    const cleanEmail = tkt.email ? tkt.email.trim().toLowerCase() : '';
+    const cleanSubject = ValidationService.sanitizeString(tkt.subject);
+    const cleanMessage = ValidationService.sanitizeString(tkt.message);
+
     const newTkt: SupportTicket = {
       ...tkt,
+      name: cleanName,
+      email: cleanEmail,
+      subject: cleanSubject,
+      message: cleanMessage,
       id: `tkt_${Date.now()}`,
       ticketNumber: `TKT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'open',
       createdAt: new Date().toISOString(),
     };
     setSupportTickets((prev) => [newTkt, ...prev]);
-    recordAudit('sys_public', tkt.name, 'public', 'SUPPORT_TICKET_CREATED', 'setting', newTkt.id, `Support ticket created: ${tkt.subject}`);
+    recordAudit('sys_public', cleanName, 'public', 'SUPPORT_TICKET_CREATED', 'setting', newTkt.id, `Support ticket created: ${cleanSubject}`);
   };
 
   const updatePartnershipStatus = (id: string, status: any) => {

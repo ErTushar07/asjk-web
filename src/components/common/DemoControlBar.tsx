@@ -5,7 +5,7 @@ import { UserRole } from '../../types';
 import { Shield, RefreshCw, AlertTriangle, Zap, CheckCircle2, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 
 export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ onOpenDonateModal }) => {
-  const { role, switchRole } = useAuth();
+  const { role } = useAuth();
   const { 
     processDonation, 
     simulateFailedRecurringPayment, 
@@ -168,21 +168,12 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
           </div>
 
           <div className="flex items-center justify-between gap-3 flex-wrap max-w-full">
-            {/* Role Switcher */}
+            {/* Active Role Indicator */}
             <div className="flex items-center gap-2 max-w-full min-w-0">
-              <span className="text-[11px] font-bold text-brand-blue uppercase flex-shrink-0">Role:</span>
-              <select
-                value={role}
-                onChange={(e) => switchRole(e.target.value as UserRole)}
-                className="bg-white/10 text-white text-xs font-medium rounded-lg px-2.5 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-brand-pink max-w-[210px] sm:max-w-xs truncate"
-              >
-                <option value="super_admin" className="text-content-primary">Executive Director (Mohd Amin Ganai)</option>
-                <option value="finance_admin" className="text-content-primary">Finance Director (Michael Carter)</option>
-                <option value="project_manager" className="text-content-primary">Project Manager (Daniel Wilson)</option>
-                <option value="content_manager" className="text-content-primary">Communications Director (Emily Carter)</option>
-                <option value="auditor" className="text-content-primary">Auditor (Independent Compliance)</option>
-                <option value="donor" className="text-content-primary">Donor (David Thompson)</option>
-              </select>
+              <span className="text-[11px] font-bold text-brand-blue uppercase flex-shrink-0">Active Role:</span>
+              <span className="bg-white/10 text-white text-xs font-bold rounded-lg px-2.5 py-1.5 border border-white/20 uppercase tracking-wide">
+                {role}
+              </span>
             </div>
 
             {/* Quick Simulation Actions */}

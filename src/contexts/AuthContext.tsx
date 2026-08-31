@@ -212,35 +212,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Register a new donor account securely
+   * Donor Registration - Under Scheduled Development
    */
-  const register = async (name: string, email: string, password = '', phone?: string): Promise<LoginResult> => {
-    const cleanEmail = email.trim().toLowerCase();
-    
-    if (!name || name.trim().length < 2) {
-      return { success: false, error: 'Name must be at least 2 characters.' };
-    }
-
-    if (!password || password.length < 8) {
-      return { success: false, error: 'Password must be at least 8 characters long.' };
-    }
-
-    const newUser: User = {
-      id: `usr_${Date.now()}`,
-      name: name.trim(),
-      email: cleanEmail,
-      phone,
-      role: 'donor',
-      preferredLanguage: 'en',
-      preferredCurrency: 'USD',
-      createdAt: new Date().toISOString(),
+  const register = async (_name: string, _email: string, _password = '', _phone?: string): Promise<LoginResult> => {
+    return {
+      success: false,
+      error: 'Donor registration is temporarily undergoing scheduled enhancements and will be back soon. You can continue making direct donations!'
     };
-
-    SecurityService.createSession(newUser.id, 'donor', false);
-    setUser(newUser);
-    setTwoFactorVerified(false);
-
-    return { success: true };
   };
 
   /**

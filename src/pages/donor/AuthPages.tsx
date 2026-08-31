@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { UserRole } from '../../types';
-import { Heart, Shield, Lock, Mail, ArrowRight, User as UserIcon, CheckCircle2 } from 'lucide-react';
+import { Heart, Shield, Lock, Mail, ArrowRight, User as UserIcon, CheckCircle2, Clock, HeartHandshake } from 'lucide-react';
 
 interface AuthPageProps {
   mode: 'login' | 'register' | 'forgot-password';
@@ -160,72 +160,52 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
         )}
 
         {mode === 'register' && (
-          <form onSubmit={handleRegisterSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Full Name *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. David Thompson"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
+          <div className="text-center space-y-5 animate-fadeIn">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
+              <Clock className="w-8 h-8" />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Email Address *</label>
-              <input
-                type="email"
-                required
-                placeholder="e.g. david.thompson@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
+            <div className="space-y-2">
+              <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800">
+                Registration Under Development
+              </span>
+              <h3 className="text-xl font-extrabold text-content-primary">
+                Will Be Back Soon
+              </h3>
+              <p className="text-xs text-content-secondary leading-relaxed max-w-sm mx-auto">
+                Donor account registration is currently being enhanced with multi-currency pledge management, instant tax certificate generation, and dedicated impact tracking.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
-              <input
-                type="tel"
-                placeholder="+1 415 555 0192"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
+            <div className="p-4 rounded-2xl bg-surface-soft border border-content-border text-left space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-brand-purple">
+                <HeartHandshake className="w-4 h-4 text-brand-pink flex-shrink-0" />
+                <span>You can still donate without an account</span>
+              </div>
+              <p className="text-[11px] text-content-secondary leading-relaxed">
+                Direct contributions for all humanitarian appeals and clean water projects remain 100% active. Official computer-generated 80G tax receipts are issued immediately upon donation.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Create Password *</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
-            </div>
+            <div className="flex flex-col gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => onNavigate('/donate')}
+                className="btn-secondary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-pink-glow"
+              >
+                <Heart className="w-4 h-4 fill-white" />
+                <span>Make a Direct Donation</span>
+              </button>
 
-            <button
-              type="submit"
-              className="btn-secondary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-pink-glow"
-            >
-              <span>Create Account</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <div className="text-center text-xs text-content-secondary pt-2">
-              Already have an account?{' '}
               <button
                 type="button"
                 onClick={() => onNavigate('/login')}
-                className="font-bold text-brand-purple hover:underline"
+                className="w-full py-2.5 px-4 rounded-xl border border-content-border hover:bg-surface-soft text-content-primary font-bold text-xs transition-colors"
               >
-                Sign In
+                Sign In to Existing Account
               </button>
             </div>
-          </form>
+          </div>
         )}
 
         {mode === 'forgot-password' && (

@@ -794,7 +794,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const cleanContact = ValidationService.sanitizeString(req.contactPerson);
     const cleanEmail = req.email ? req.email.trim().toLowerCase() : '';
     const cleanPhone = ValidationService.sanitizeString(req.phone);
-    const cleanProposal = ValidationService.sanitizeString(req.proposalSummary);
+    const cleanMessage = ValidationService.sanitizeString(req.message);
 
     const newReq: PartnershipRequest = {
       ...req,
@@ -802,7 +802,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       contactPerson: cleanContact,
       email: cleanEmail,
       phone: cleanPhone,
-      proposalSummary: cleanProposal,
+      message: cleanMessage,
       id: `part_${Date.now()}`,
       status: 'new',
       submittedAt: new Date().toISOString(),

@@ -24,6 +24,7 @@ import { DonatePage } from './pages/public/DonatePage';
 import { ContactPage } from './pages/public/ContactPage';
 import { FAQPage } from './pages/public/FAQPage';
 import { LegalPage } from './pages/public/LegalPages';
+import { NotFoundPage } from './pages/public/NotFoundPage';
 
 // Donor Pages
 import { AuthPage } from './pages/donor/AuthPages';
@@ -73,14 +74,29 @@ export const App: React.FC = () => {
 
   // Determine which page to render
   const renderCurrentPage = () => {
-    // Admin Routes - Strictly protected by Defense-in-Depth Authentication Gate
+    // Admin Routes - Stealth protection: Completely hidden as 404 to the public
     if (currentRoute.startsWith('/admin')) {
-      if (!user || !isAdmin || !twoFactorVerified) {
+      const isStaffKeyPresent = typeof window !== 'undefined' && (
+        window.location.search.includes('staff=asfjk') || 
+        window.location.search.includes('access=staff') || 
+        window.sessionStorage.getItem('asfjk_staff_gate_unlocked') === 'true'
+      );
+
+      if (user && isAdmin && twoFactorVerified) {
+        const parts = currentRoute.split('/');
+        const tab = parts[2] || 'dashboard';
+        return <AdminPortal initialTab={tab} onNavigate={navigate} />;
+      }
+
+      if (isStaffKeyPresent) {
+        try {
+          window.sessionStorage.setItem('asfjk_staff_gate_unlocked', 'true');
+        } catch (e) {}
         return <AdminAuthGate onSuccess={() => navigate('/admin/dashboard')} onNavigate={navigate} />;
       }
-      const parts = currentRoute.split('/');
-      const tab = parts[2] || 'dashboard';
-      return <AdminPortal initialTab={tab} onNavigate={navigate} />;
+
+      // Public visitors attempting to access /admin see standard 404 Page Not Found
+      return <NotFoundPage onNavigate={navigate} />;
     }
 
     // Donor Routes
@@ -127,9 +143,13 @@ export const App: React.FC = () => {
     if (currentRoute === '/refund-policy') return <LegalPage type="refund-policy" />;
     if (currentRoute === '/donation-policy') return <LegalPage type="donation-policy" />;
     if (currentRoute === '/cookie-policy') return <LegalPage type="cookie-policy" />;
+    // Root Home
+    if (currentRoute === '/' || currentRoute === '') {
+      return <HomePage onNavigate={navigate} onOpenDonateModal={handleOpenDonateModal} />;
+    }
 
-    // Default Home
-    return <HomePage onNavigate={navigate} onOpenDonateModal={handleOpenDonateModal} />;
+    // Unrecognized routes render 404
+    return <NotFoundPage onNavigate={navigate} />;
   };
 
   const isAdminRoute = currentRoute.startsWith('/admin');

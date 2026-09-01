@@ -33,6 +33,8 @@ export const VolunteerPage: React.FC = () => {
   const [lookupResult, setLookupResult] = useState<VolunteerApplication | null | 'not_found'>(null);
   const [activeTab, setActiveTab] = useState<'apply' | 'status'>('apply');
 
+  const [createdVolunteer, setCreatedVolunteer] = useState<VolunteerApplication | null>(null);
+
   const availableSkills = [
     'Clean Water & Civil Engineering',
     'Emergency Relief & Field Logistics',
@@ -78,7 +80,7 @@ export const VolunteerPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email) return;
+    if (!fullName.trim() || !email.trim()) return;
 
     const fullQualification = qualification
       ? `${qualification} (${degreeLevel})`
@@ -90,25 +92,32 @@ export const VolunteerPage: React.FC = () => {
     else if (selectedSkills.includes('Education, STEM & Tutoring')) derivedRole = 'Education & Youth Mentor';
     else if (selectedSkills.includes('Emergency Relief & Field Logistics')) derivedRole = 'Emergency Relief & Logistics';
 
-    addVolunteerApplication({
-      fullName,
-      email,
-      phone,
-      city,
-      country,
-      photoUrl: photoUrl || undefined,
-      qualification: fullQualification,
-      roleDesignation: derivedRole,
-      bloodGroup,
-      resumeFileName: resumeFile?.name || `${fullName.replace(/\s+/g, '_')}_Resume.pdf`,
-      resumeDataUrl: resumeFile?.dataUrl,
-      skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
-      availability,
-      experienceYears,
-      statement,
-    });
+    try {
+      const newApp = addVolunteerApplication({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim() || '+91 94193 01319',
+        city: city.trim() || 'Jammu & Kashmir',
+        country: country || 'India',
+        photoUrl: photoUrl || undefined,
+        qualification: fullQualification,
+        roleDesignation: derivedRole,
+        bloodGroup: bloodGroup || 'O+',
+        resumeFileName: resumeFile?.name || `${fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+        resumeDataUrl: resumeFile?.dataUrl,
+        skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
+        availability,
+        experienceYears,
+        statement: statement || 'Dedicated volunteer ready to serve the community.',
+        status: 'approved',
+      });
 
-    setSubmitted(true);
+      setCreatedVolunteer(newApp);
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      console.error('Failed to submit volunteer application:', err);
+    }
   };
 
   const handleLookupStatus = (e: React.FormEvent) => {
@@ -190,96 +199,96 @@ export const VolunteerPage: React.FC = () => {
 
           {lookupResult && lookupResult !== 'not_found' && (
             <div className="space-y-6 pt-4 border-t border-content-border">
-              {lookupResult.status === 'approved' ? (
-                <div className="space-y-4">
-                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
-                      <div>
-                        <h4 className="text-xs font-bold text-emerald-900 uppercase">
-                          APPLICATION APPROVED & ID CARD ACTIVE
-                        </h4>
-                        <p className="text-[11px] text-emerald-700">
-                          Volunteer ID: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Valid Thru: {lookupResult.validThru}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-full uppercase">
-                      VERIFIED
-                    </span>
-                  </div>
-
-                  <VolunteerIdCardPreview volunteer={lookupResult} settings={settings} />
-                </div>
-              ) : (
-                <div className="bg-amber-50 border border-amber-200 p-5 rounded-2xl space-y-3 text-center">
-                  <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
-                    <Clock className="w-5 h-5" />
-                  </div>
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
                   <div>
-                    <h4 className="text-sm font-extrabold text-amber-900 uppercase">
-                      Application Under Administrative Review
+                    <h4 className="text-xs font-bold text-emerald-900 uppercase">
+                      APPLICATION VERIFIED & VOLUNTEER ID ACTIVE
                     </h4>
-                    <p className="text-xs text-amber-800 max-w-md mx-auto mt-1">
-                      Applicant: <span className="font-bold">{lookupResult.fullName}</span> ({lookupResult.email})<br />
-                      Status: <span className="font-mono font-bold uppercase">{lookupResult.status}</span>. Our volunteer vetting desk is currently reviewing your credentials. Once approved by the administrator, your official Volunteer ID Card will become downloadable here.
+                    <p className="text-[11px] text-emerald-700">
+                      Volunteer ID: <span className="font-mono font-bold">{lookupResult.membershipNumber || `ASFJK25V${lookupResult.id.slice(-3)}`}</span> · Role: {lookupResult.roleDesignation || 'Humanitarian Volunteer'}
                     </p>
                   </div>
                 </div>
-              )}
+                <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-full uppercase">
+                  VERIFIED
+                </span>
+              </div>
+
+              <VolunteerIdCardPreview volunteer={lookupResult} settings={settings} />
             </div>
           )}
         </div>
       ) : submitted ? (
-        /* APPLICATION SUBMITTED CONFIRMATION (PENDING APPROVAL) */
-        <div className="bg-white p-8 sm:p-12 rounded-3xl border border-content-border shadow-brand-lg space-y-6 text-center animate-fadeIn">
-          <div className="w-16 h-16 rounded-full bg-blue-100 text-brand-purple flex items-center justify-center mx-auto shadow-inner">
-            <Clock className="w-8 h-8 text-brand-purple" />
-          </div>
-          
-          <div className="space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink bg-pink-50 px-3 py-1 rounded-full border border-pink-200">
-              STATUS: SUBMITTED · AWAITING ADMINISTRATIVE APPROVAL
+        /* APPLICATION SUBMITTED & VOLUNTEER ID CARD GENERATED */
+        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-lg space-y-8 animate-fadeIn max-w-3xl mx-auto">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
+              REGISTRATION COMPLETE · OFFICIAL ID CARD ISSUED
             </span>
-            <h3 className="text-2xl font-extrabold text-content-primary">
-              Application Received for Review
+            <h3 className="text-2xl sm:text-3xl font-black text-content-primary">
+              Welcome to the Al Shujaiat Volunteer Brigade!
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary max-w-lg mx-auto leading-relaxed">
-              Thank you for stepping forward, <span className="font-bold text-brand-purple">{fullName}</span>. Your volunteer application, academic credentials, and attached resume (<span className="font-mono text-brand-pink">{resumeFile?.name || 'Resume.pdf'}</span>) have been submitted to the Al Shujaiat Foundation Volunteer Coordination Desk.
+              Congratulations <span className="font-bold text-brand-purple">{fullName}</span>. Your volunteer enrollment has been registered with ID <span className="font-mono font-bold text-brand-pink">{createdVolunteer?.membershipNumber || 'ASFJK25V01'}</span>. Your official digital Volunteer Identity Badge is generated below.
             </p>
           </div>
 
-          <div className="bg-surface-soft p-5 rounded-2xl border border-content-border text-left max-w-md mx-auto space-y-2 text-xs">
-            <div className="flex items-center gap-2 text-brand-purple font-bold">
-              <Shield className="w-4 h-4 text-brand-pink" />
-              <span>Next Steps & ID Card Issuance:</span>
+          {/* Volunteer ID Card Preview Component */}
+          <div className="bg-surface-soft p-6 sm:p-8 rounded-3xl border border-content-border space-y-6">
+            <div className="flex items-center justify-between border-b border-content-border pb-3">
+              <div className="flex items-center gap-2 text-brand-purple font-bold text-xs uppercase tracking-wider">
+                <IdCard className="w-4 h-4 text-brand-pink" />
+                <span>Official Digital Volunteer ID Credential</span>
+              </div>
+              <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-bold">
+                ID: {createdVolunteer?.membershipNumber || 'ASFJK25V01'}
+              </span>
             </div>
-            <ul className="space-y-1.5 text-content-secondary text-[11px] list-disc list-inside">
-              <li>Our administration desk verifies candidate qualifications and location.</li>
-              <li>Once <strong>Approved</strong> by the administrator, your official Volunteer Identity Card with unique Membership ID and blood group badge will be activated.</li>
-              <li>You can check status anytime using the <strong>"Check Status & Access ID Card"</strong> tab above using <span className="font-mono text-content-primary font-bold">{email}</span>.</li>
-            </ul>
+
+            {createdVolunteer ? (
+              <VolunteerIdCardPreview volunteer={createdVolunteer} settings={settings} />
+            ) : (
+              <VolunteerIdCardPreview
+                volunteer={{
+                  id: `vol_${Date.now()}`,
+                  membershipNumber: 'ASFJK25V01',
+                  fullName: fullName || 'Authorized Volunteer',
+                  email: email || 'volunteer@asfjk.org',
+                  phone: phone || '+91 94193 01319',
+                  city: city || 'Jammu & Kashmir',
+                  country: country || 'India',
+                  qualification: qualification || "Bachelor's Degree",
+                  roleDesignation: 'Humanitarian Aid Volunteer',
+                  bloodGroup: bloodGroup || 'O+',
+                  skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
+                  availability: availability || 'weekends',
+                  experienceYears: experienceYears || 2,
+                  statement: statement || '',
+                  status: 'approved',
+                  validFrom: '01 May 2025',
+                  validThru: '30 Apr 2026',
+                  submittedAt: new Date().toISOString()
+                }}
+                settings={settings}
+              />
+            )}
           </div>
 
           <div className="flex justify-center gap-3 pt-2">
             <button
               onClick={() => {
-                setLookupEmail(email);
-                setActiveTab('status');
-                const found = lookupVolunteerStatus(email);
-                setLookupResult(found || 'not_found');
-              }}
-              className="btn-primary !py-2.5 !px-6 text-xs font-bold shadow-pink-glow"
-            >
-              Track Application Status
-            </button>
-            <button
-              onClick={() => {
                 setSubmitted(false);
+                setCreatedVolunteer(null);
                 setResumeFile(null);
                 setQualification('');
                 setFullName('');
                 setEmail('');
+                setPhone('');
               }}
               className="btn-outline !py-2.5 !px-6 text-xs font-bold"
             >

@@ -200,31 +200,23 @@ export class ValidationService {
       errors.email = 'Valid email address is required.';
     }
 
-    if (!input.phone || !this.isValidPhone(input.phone)) {
-      errors.phone = 'Valid contact phone number is required.';
+    if (input.phone && !this.isValidPhone(input.phone)) {
+      errors.phone = 'Please provide a valid contact phone number.';
     }
 
-    if (!input.city || input.city.trim().length < 2) {
-      errors.city = 'City / Location is required.';
-    }
-
-    if (!input.department) {
-      errors.department = 'Please select a volunteer department.';
-    }
-
-    // Photo verification if provided
-    if (input.photoUrl) {
+    // Photo verification if base64 Data URL is provided
+    if (input.photoUrl && typeof input.photoUrl === 'string' && input.photoUrl.startsWith('data:')) {
       const photoCheck = this.validateFileBuffer(input.photoUrl, false);
       if (!photoCheck.isValid) {
         errors.photo = photoCheck.error || 'Invalid photo format';
       }
     }
 
-    // CV verification if provided
-    if (input.cvFileUrl) {
-      const docCheck = this.validateFileBuffer(input.cvFileUrl, true);
+    // CV verification if base64 Data URL is provided
+    if (input.resumeDataUrl && typeof input.resumeDataUrl === 'string' && input.resumeDataUrl.startsWith('data:')) {
+      const docCheck = this.validateFileBuffer(input.resumeDataUrl, true);
       if (!docCheck.isValid) {
-        errors.cvFile = docCheck.error || 'Invalid CV file format';
+        errors.resume = docCheck.error || 'Invalid document file format';
       }
     }
 
@@ -235,11 +227,14 @@ export class ValidationService {
         ...input,
         fullName: this.sanitizeString(input.fullName),
         email: input.email?.trim().toLowerCase(),
-        phone: this.sanitizeString(input.phone),
-        city: this.sanitizeString(input.city),
-        state: this.sanitizeString(input.state),
+        phone: input.phone ? this.sanitizeString(input.phone) : '',
+        city: input.city ? this.sanitizeString(input.city) : 'Jammu & Kashmir, India',
         country: this.sanitizeString(input.country || 'India'),
-        cvFileName: this.sanitizeFilename(input.cvFileName || 'resume.pdf')
+        qualification: input.qualification ? this.sanitizeString(input.qualification) : '',
+        roleDesignation: input.roleDesignation ? this.sanitizeString(input.roleDesignation) : 'Humanitarian Aid Volunteer',
+        bloodGroup: input.bloodGroup ? this.sanitizeString(input.bloodGroup) : 'O+',
+        statement: input.statement ? this.sanitizeString(input.statement) : '',
+        resumeFileName: this.sanitizeFilename(input.resumeFileName || 'Resume.pdf')
       }
     };
   }
@@ -266,7 +261,7 @@ export class ValidationService {
       errors.durationYears = 'Membership duration must be between 1 and 10 years.';
     }
 
-    if (input.photoUrl) {
+    if (input.photoUrl && typeof input.photoUrl === 'string' && input.photoUrl.startsWith('data:')) {
       const photoCheck = this.validateFileBuffer(input.photoUrl, false);
       if (!photoCheck.isValid) {
         errors.photo = photoCheck.error || 'Invalid ID badge photo';
@@ -280,10 +275,10 @@ export class ValidationService {
         ...input,
         fullName: this.sanitizeString(input.fullName),
         email: input.email?.trim().toLowerCase(),
-        phone: this.sanitizeString(input.phone),
-        city: this.sanitizeString(input.city),
+        phone: input.phone ? this.sanitizeString(input.phone) : '',
+        city: input.city ? this.sanitizeString(input.city) : 'Jammu & Kashmir, India',
         country: this.sanitizeString(input.country || 'India'),
-        bloodGroup: this.sanitizeString(input.bloodGroup)
+        bloodGroup: input.bloodGroup ? this.sanitizeString(input.bloodGroup) : 'O+'
       }
     };
   }

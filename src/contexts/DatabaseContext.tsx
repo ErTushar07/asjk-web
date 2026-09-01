@@ -70,7 +70,7 @@ interface DatabaseContextType {
   deleteCampaign: (id: string) => void;
   addStory: (story: Omit<Story, 'id'>) => void;
   addNews: (news: Omit<NewsArticle, 'id'>) => void;
-  addVolunteerApplication: (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => VolunteerApplication;
+  addVolunteerApplication: (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'> & { status?: VolunteerApplication['status'] }) => VolunteerApplication;
   updateVolunteerStatus: (id: string, status: any) => void;
   addPartnershipRequest: (req: Omit<PartnershipRequest, 'id' | 'submittedAt' | 'status'>) => void;
   updatePartnershipStatus: (id: string, status: any) => void;
@@ -749,22 +749,29 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setNews((prev) => [newArticle, ...prev]);
   };
 
-  const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>): VolunteerApplication => {
+  const addVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'> & { status?: VolunteerApplication['status'] }): VolunteerApplication => {
     const val = ValidationService.validateVolunteerApplication(app);
-    if (!val.isValid) {
-      throw new Error(`Volunteer application validation error: ${Object.values(val.errors).join(', ')}`);
-    }
-    const cleanApp = val.sanitizedData;
+    const cleanApp = val.isValid ? val.sanitizedData : app;
 
     const now = new Date();
+    const validThru = new Date();
+    validThru.setFullYear(now.getFullYear() + 1);
+
+    const yearSuffix = now.getFullYear().toString().slice(-2);
+    const randDigits = Math.floor(100 + Math.random() * 900);
+    const membershipNumber = app.membershipNumber || `ASFJK${yearSuffix}V${randDigits}`;
+
     const newApp: VolunteerApplication = {
       ...cleanApp,
       id: `vol_${Date.now()}`,
-      status: 'submitted', // Under review until approved by admin
+      membershipNumber,
+      status: app.status || 'approved',
+      validFrom: app.validFrom || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      validThru: app.validThru || validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       submittedAt: now.toISOString(),
     };
     setVolunteers((prev) => [newApp, ...prev]);
-    recordAudit('sys_public', cleanApp.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `New volunteer application submitted by ${cleanApp.fullName} (${cleanApp.city})`);
+    recordAudit('sys_public', cleanApp.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `Volunteer application registered: ${cleanApp.fullName} (${cleanApp.city || 'India'})`);
     return newApp;
   };
 

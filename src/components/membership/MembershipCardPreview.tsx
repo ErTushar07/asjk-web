@@ -109,14 +109,6 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
               <div className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-500" />
             </div>
 
-            {/* Left Edge Vertical Micro-Text */}
-            <div 
-              style={{ color: themeBg }}
-              className="absolute left-2 top-24 -rotate-90 origin-left text-[7px] font-black uppercase tracking-[0.25em] opacity-75 z-10 select-none"
-            >
-              SERVICE | CHARTER | EMPOWERMENT
-            </div>
-
             {/* Header Content with Perfectly Blended Logo */}
             <div className="text-center pt-2 px-6 space-y-1 z-10">
               {/* Center Emblem Logo: Clean transparent mix-blend to eliminate white box artifact */}
@@ -166,11 +158,6 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                     className="w-full h-full object-cover object-top"
                   />
                 </div>
-              </div>
-
-              {/* Watermark */}
-              <div className="absolute right-4 opacity-5 pointer-events-none">
-                <img src="/images/logo.png" alt="watermark" className="w-24 h-24 object-contain mix-blend-multiply" />
               </div>
             </div>
 

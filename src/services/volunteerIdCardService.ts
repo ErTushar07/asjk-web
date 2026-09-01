@@ -39,12 +39,6 @@ export class VolunteerIdCardService {
     doc.setFillColor(230, 235, 240);
     doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
 
-    // Left Vertical Text
-    doc.setFontSize(3.2);
-    doc.setTextColor(royalNavy[0], royalNavy[1], royalNavy[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SERVICE | COMPASSION | EMPOWERMENT', 1.8, 48, { angle: 90 });
-
     // Logo & Header
     try {
       doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 20.5, 5, 13, 13);

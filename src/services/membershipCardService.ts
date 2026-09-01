@@ -59,12 +59,6 @@ export class MembershipCardService {
     doc.setFillColor(230, 235, 240);
     doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
 
-    // Left Vertical Text
-    doc.setFontSize(3.2);
-    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SERVICE | CHARTER | EMPOWERMENT', 1.8, 48, { angle: 90 });
-
     // Logo & Header
     try {
       doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 22.5, 6, 9, 9);

@@ -80,6 +80,11 @@ interface DatabaseContextType {
   updateSupportTicketStatus: (id: string, status: 'open' | 'in_progress' | 'resolved' | 'closed', response?: string) => void;
   updateSettings: (newSettings: Partial<SystemSettings>) => void;
   resetToDemoData: () => void;
+
+  // Data Minimization Lookup Queries
+  lookupVolunteerStatus: (email: string) => VolunteerApplication | null;
+  lookupMembership: (query: string) => NgoMembership | null;
+  lookupDonationReceipt: (receiptNumber: string, donorEmail: string) => Receipt | null;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
@@ -900,7 +905,44 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSupportTickets(INITIAL_SUPPORT_TICKETS);
     setAuditLogs(INITIAL_AUDIT_LOGS);
     setSettings(INITIAL_SYSTEM_SETTINGS);
-    localStorage.clear();
+    try {
+      localStorage.clear();
+    } catch (e) {}
+  };
+
+  /**
+   * Data Minimization Query: Single-record lookup for Volunteer status
+   */
+  const lookupVolunteerStatus = (email: string): VolunteerApplication | null => {
+    if (!email || !email.trim()) return null;
+    const cleanEmail = email.trim().toLowerCase();
+    const found = volunteers.find((v) => v.email.trim().toLowerCase() === cleanEmail);
+    return found ? { ...found } : null;
+  };
+
+  /**
+   * Data Minimization Query: Single-record lookup for NGO Membership status
+   */
+  const lookupMembership = (query: string): NgoMembership | null => {
+    if (!query || !query.trim()) return null;
+    const cleanQuery = query.trim().toLowerCase();
+    const found = memberships.find(
+      (m) => m.membershipNumber.toLowerCase() === cleanQuery || m.email.toLowerCase() === cleanQuery
+    );
+    return found ? { ...found } : null;
+  };
+
+  /**
+   * Data Minimization Query: Single-record lookup for official donation receipt
+   */
+  const lookupDonationReceipt = (receiptNumber: string, donorEmail: string): Receipt | null => {
+    if (!receiptNumber || !donorEmail) return null;
+    const cleanRec = receiptNumber.trim().toLowerCase();
+    const cleanEmail = donorEmail.trim().toLowerCase();
+    const found = receipts.find(
+      (r) => r.receiptNumber.toLowerCase() === cleanRec && r.donorEmail.toLowerCase() === cleanEmail
+    );
+    return found ? { ...found } : null;
   };
 
   return (
@@ -945,6 +987,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateSupportTicketStatus,
         updateSettings,
         resetToDemoData,
+        lookupVolunteerStatus,
+        lookupMembership,
+        lookupDonationReceipt,
       }}
     >
       {children}

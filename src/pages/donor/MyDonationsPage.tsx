@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { ReceiptService } from '../../services/receiptService';
 import { Download, Search, Filter, FileText, ArrowLeft } from 'lucide-react';
 
 export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const { donations, receipts, settings } = useDatabase();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const donorEmail = (user?.email || '').toLowerCase().trim();
+
   const filtered = donations.filter((d) => {
+    const isOwner = d.donorEmail.toLowerCase().trim() === donorEmail;
     const matchesSearch =
       d.donationNumber.toLowerCase().includes(search.toLowerCase()) ||
       d.targetName.toLowerCase().includes(search.toLowerCase()) ||
       d.donorName.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return isOwner && matchesSearch && matchesStatus;
   });
 
   return (

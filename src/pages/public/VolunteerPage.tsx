@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export const VolunteerPage: React.FC = () => {
-  const { addVolunteerApplication, volunteers, settings } = useDatabase();
+  const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
   const { t } = useLanguage();
 
   const [fullName, setFullName] = useState('');
@@ -61,15 +61,14 @@ export const VolunteerPage: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const sizeKB = (file.size / 1024).toFixed(1);
       const reader = new FileReader();
       reader.onload = () => {
         setResumeFile({
           name: file.name,
-          size: `${sizeKB} KB`,
+          size: `${(file.size / 1024).toFixed(1)} KB`,
           dataUrl: reader.result as string,
         });
       };
@@ -81,12 +80,11 @@ export const VolunteerPage: React.FC = () => {
     e.preventDefault();
     if (!fullName || !email) return;
 
-    const fullQualification = qualification.trim()
-      ? `${degreeLevel} - ${qualification.trim()}`
+    const fullQualification = qualification
+      ? `${qualification} (${degreeLevel})`
       : degreeLevel;
 
-    // Derive role designation based on selected skills
-    let derivedRole = 'Humanitarian Field Specialist';
+    let derivedRole = 'Humanitarian Aid Volunteer';
     if (selectedSkills.includes('Healthcare & Medical Support')) derivedRole = 'Medical Support Volunteer';
     else if (selectedSkills.includes('Clean Water & Civil Engineering')) derivedRole = 'Clean Water Infrastructure Lead';
     else if (selectedSkills.includes('Education, STEM & Tutoring')) derivedRole = 'Education & Youth Mentor';
@@ -116,7 +114,7 @@ export const VolunteerPage: React.FC = () => {
   const handleLookupStatus = (e: React.FormEvent) => {
     e.preventDefault();
     if (!lookupEmail.trim()) return;
-    const found = volunteers.find((v) => v.email.toLowerCase().trim() === lookupEmail.toLowerCase().trim());
+    const found = lookupVolunteerStatus(lookupEmail);
     setLookupResult(found || 'not_found');
   };
 
@@ -268,7 +266,7 @@ export const VolunteerPage: React.FC = () => {
               onClick={() => {
                 setLookupEmail(email);
                 setActiveTab('status');
-                const found = volunteers.find((v) => v.email.toLowerCase().trim() === email.toLowerCase().trim());
+                const found = lookupVolunteerStatus(email);
                 setLookupResult(found || 'not_found');
               }}
               className="btn-primary !py-2.5 !px-6 text-xs font-bold shadow-pink-glow"
@@ -491,7 +489,7 @@ export const VolunteerPage: React.FC = () => {
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
+                  onChange={handleResumeUpload}
                   className="hidden"
                 />
               </label>

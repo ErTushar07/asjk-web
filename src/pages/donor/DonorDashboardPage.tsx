@@ -18,9 +18,14 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
   const { donations, recurringDonations, receipts, settings } = useDatabase();
   const { formatUSD } = useCurrency();
 
-  const myDonations = donations.slice(0, 5);
-  const myRecurring = recurringDonations.slice(0, 3);
-  const totalDonatedUSD = donations
+  const donorEmail = (user?.email || '').toLowerCase().trim();
+  const userDonations = donations.filter((d) => d.donorEmail.toLowerCase().trim() === donorEmail);
+  const userRecurring = recurringDonations.filter((r) => r.donorEmail.toLowerCase().trim() === donorEmail);
+  const userReceipts = receipts.filter((rc) => rc.donorEmail.toLowerCase().trim() === donorEmail);
+
+  const myDonations = userDonations.slice(0, 5);
+  const myRecurring = userRecurring.slice(0, 3);
+  const totalDonatedUSD = userDonations
     .filter((d) => d.status === 'successful')
     .reduce((s, d) => s + d.amountUSD, 0);
 

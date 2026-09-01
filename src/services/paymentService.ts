@@ -55,7 +55,7 @@ export class PaymentService {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const amountUSD = this.calculateUSD(params.amount, params.currency);
 
-    let provider: 'stripe' | 'razorpay' | 'bank' | 'sandbox' = 'sandbox';
+    let provider: 'stripe' | 'razorpay' | 'bank' = 'stripe';
     if (params.method === 'stripe_card') provider = 'stripe';
     else if (params.method.startsWith('razorpay')) provider = 'razorpay';
     else if (params.method === 'bank_wire') provider = 'bank';

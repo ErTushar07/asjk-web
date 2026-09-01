@@ -23,7 +23,7 @@ interface TierOption {
 }
 
 export const MembershipPage: React.FC = () => {
-  const { addMembership, memberships, settings } = useDatabase();
+  const { addMembership, lookupMembership, settings } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
   const { t } = useLanguage();
 
@@ -191,14 +191,7 @@ export const MembershipPage: React.FC = () => {
     e.preventDefault();
     if (!lookupQuery.trim()) return;
 
-    const query = lookupQuery.toLowerCase().trim();
-    const found = memberships.find(
-      (m) =>
-        m.email.toLowerCase().trim() === query ||
-        m.membershipNumber.toLowerCase().trim() === query ||
-        m.fullName.toLowerCase().includes(query)
-    );
-
+    const found = lookupMembership(lookupQuery);
     setLookupResult(found || 'not_found');
   };
 

@@ -31,33 +31,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Passwords initialized with cryptographic salts:
 // Super Admin default password: "AdminPassword2026!#"
 // Finance Admin default password: "FinancePassword2026!#"
+// Project Manager default password: "ProjectPassword2026!#"
 // Donor default password: "DonorPassword2026!"
 const SEED_CREDENTIALS: Record<string, { hash: string; salt: string; role: UserRole; name: string; twoFactorEnabled: boolean }> = {
   'amin.ganai@asfjk.org': {
     salt: '7a91f3c8e42b1096d5a23f1e8c9b4a70',
-    // Precomputed PBKDF2-SHA256 for AdminPassword2026!#
-    hash: 'b1e8432a56cd9e847123fa90812bcae54367ef890123456789abcdef01234567',
+    hash: 'b09c39a8804e58e2892f52430d135fad6882fb530c149a6fa0ff84577eb63194',
     role: 'super_admin',
     name: 'Mohd Amin Ganai',
     twoFactorEnabled: true,
   },
   'michael.carter@asfjk.org': {
     salt: '8b92f4d9e53c2197e6b34f2f9d0c5b81',
-    hash: 'c2f9543b67de0f958234ab01923cdbf65478fa90123456789bcdef012345678a',
+    hash: '10bbbefa3eb332fc5483cb0631be578ddb3a8346844baef78f4d126f7b183808',
     role: 'finance_admin',
     name: 'Michael Carter',
     twoFactorEnabled: true,
   },
   'daniel.wilson@asfjk.org': {
     salt: '9c03f5eaf64d3208f7c45f30ae1d6c92',
-    hash: 'd3fa654c78ef1a069345bc12034decf76589ab0123456789cdef0123456789b',
+    hash: 'b7518d77537910e5c6a98216319078bd3c92387eab763c602b5eecad1ef85cbe',
     role: 'project_manager',
     name: 'Daniel Wilson',
     twoFactorEnabled: true,
   },
   'david.thompson@example.com': {
     salt: '6f80e2b7d31a0985c4912e0d7b8a396f',
-    hash: 'a0d7321945bc8d736012e98f701ab9d43256de7890123456789abcde0123456',
+    hash: '81a9310893458344556c029ef626c2c58571afa95fd9a5f096223cf46afd1051',
     role: 'donor',
     name: 'David Thompson',
     twoFactorEnabled: false,
@@ -78,7 +78,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     // Default strictly to unauthenticated guest state and clear any stale legacy session
     try {
-      localStorage.removeItem('asfjk_auth_user');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('asfjk_auth_user');
+      }
     } catch (e) {}
     return null;
   });
@@ -92,9 +94,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('asfjk_auth_user', JSON.stringify(user));
+      try {
+        localStorage.setItem('asfjk_auth_user', JSON.stringify(user));
+      } catch (e) {}
     } else {
-      localStorage.removeItem('asfjk_auth_user');
+      try {
+        localStorage.removeItem('asfjk_auth_user');
+      } catch (e) {}
     }
   }, [user]);
 
@@ -116,12 +122,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
 
-    // 2. Validate user identity
+    // 2. Validate user identity and verify cryptographic password hash
     const staffCreds = SEED_CREDENTIALS[cleanEmail];
     let matchedUser: User | undefined = INITIAL_USERS.find(u => u.email.toLowerCase() === cleanEmail);
 
-    if (!matchedUser && !staffCreds) {
-      // Dynamic donor login if password provided
+    if (staffCreds) {
+      if (!password) {
+        SecurityService.recordFailedAttempt(rateLimitKey);
+        return {
+          success: false,
+          error: 'Password is required.',
+          remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1)
+        };
+      }
+
+      const isPasswordValid = await SecurityService.verifyPassword(password, staffCreds.hash, staffCreds.salt);
+      if (!isPasswordValid) {
+        SecurityService.recordFailedAttempt(rateLimitKey);
+        return {
+          success: false,
+          error: 'Invalid email or password credentials.',
+          remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1)
+        };
+      }
+
+      if (!matchedUser) {
+        matchedUser = {
+          id: `usr_${cleanEmail.split('@')[0]}`,
+          name: staffCreds.name,
+          email: cleanEmail,
+          role: staffCreds.role,
+          preferredLanguage: 'en',
+          preferredCurrency: 'USD',
+          twoFactorEnabled: staffCreds.twoFactorEnabled,
+          createdAt: '2024-01-01T00:00:00Z',
+        };
+      }
+    } else {
+      // Dynamic donor validation if valid password provided
       if (password && password.length >= 8) {
         matchedUser = {
           id: `usr_${Date.now()}`,
@@ -133,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date().toISOString(),
         };
       } else {
-        const lockout = SecurityService.recordFailedAttempt(rateLimitKey);
+        SecurityService.recordFailedAttempt(rateLimitKey);
         return {
           success: false,
           error: 'Invalid email or password credentials.',
@@ -142,26 +180,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    if (!matchedUser) {
-      SecurityService.recordFailedAttempt(rateLimitKey);
-      return {
-        success: false,
-        error: 'Invalid email or password credentials.',
-        remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1)
-      };
-    }
-
     const authenticatedUser: User = matchedUser;
 
-    // 3. For administrative accounts, enforce strong password and mandatory 2FA
+    // 3. For administrative accounts, enforce mandatory 2FA TOTP verification
     const isAdminAccount = authenticatedUser.role !== 'donor';
 
-    if (isAdminAccount) {
-      if (!password) {
-        SecurityService.recordFailedAttempt(rateLimitKey);
-        return { success: false, error: 'Password is required for administrator portal access.' };
-      }
-
+    if (isAdminAccount && (staffCreds?.twoFactorEnabled || authenticatedUser.twoFactorEnabled)) {
       // Check 2FA requirement
       if (!twoFactorCode) {
         setPending2FAUser(authenticatedUser);

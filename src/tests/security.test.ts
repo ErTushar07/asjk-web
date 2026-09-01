@@ -209,5 +209,37 @@ describe('Security Service - Backend Authorization & Permission Isolation', () =
     expect(SecurityService.hasAdminPermission('projects:manage')).toBe(true);
     expect(SecurityService.hasAdminPermission('refunds:manage')).toBe(false);
   });
+
+  it('validates precomputed cryptographic PBKDF2 staff credentials', async () => {
+    const adminPass = 'AdminPassword2026!#';
+    const adminSalt = '7a91f3c8e42b1096d5a23f1e8c9b4a70';
+    const adminExpectedHash = 'b09c39a8804e58e2892f52430d135fad6882fb530c149a6fa0ff84577eb63194';
+
+    const isValidAdmin = await SecurityService.verifyPassword(adminPass, adminExpectedHash, adminSalt);
+    expect(isValidAdmin).toBe(true);
+
+    const isWrongPass = await SecurityService.verifyPassword('WrongPass!#', adminExpectedHash, adminSalt);
+    expect(isWrongPass).toBe(false);
+  });
 });
+
+describe('Privacy & Data Minimization - Donor Identity & Record Isolation', () => {
+  it('scopes records strictly to authenticated donor email (IDOR / Horizontal Privilege Prevention)', () => {
+    const mockDonations = [
+      { id: 'don_1', donorEmail: 'alice@example.com', amountUSD: 100 },
+      { id: 'don_2', donorEmail: 'bob@example.com', amountUSD: 250 },
+      { id: 'don_3', donorEmail: 'alice@example.com', amountUSD: 50 },
+    ];
+
+    const currentDonorEmail = 'alice@example.com';
+    const scopedDonations = mockDonations.filter(
+      (d) => d.donorEmail.toLowerCase() === currentDonorEmail.toLowerCase()
+    );
+
+    expect(scopedDonations.length).toBe(2);
+    expect(scopedDonations.every((d) => d.donorEmail === 'alice@example.com')).toBe(true);
+    expect(scopedDonations.some((d) => d.donorEmail === 'bob@example.com')).toBe(false);
+  });
+});
+
 

@@ -32,6 +32,8 @@ export class SecurityService {
 
   // Rate limiting storage: key -> { attempts: number, firstAttempt: number, lockedUntil?: number }
   private static rateLimitStore: Map<string, { attempts: number; firstAttempt: number; lockedUntil?: number }> = new Map();
+  // In-memory session fallback for Node / SSR / Test environments
+  private static memorySession: SessionTokenData | null = null;
 
   /**
    * Generates a cryptographically random salt (hex string)
@@ -182,9 +184,13 @@ export class SecurityService {
       twoFactorVerified
     };
 
+    this.memorySession = sessionData;
+
     try {
-      sessionStorage.setItem('asfjk_session_token', token);
-      sessionStorage.setItem('asfjk_session_data', JSON.stringify(sessionData));
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('asfjk_session_token', token);
+        sessionStorage.setItem('asfjk_session_data', JSON.stringify(sessionData));
+      }
     } catch (e) {
       // Storage fallback
     }
@@ -197,10 +203,21 @@ export class SecurityService {
    */
   public static getActiveSession(): SessionTokenData | null {
     try {
-      const saved = sessionStorage.getItem('asfjk_session_data');
-      if (!saved) return null;
+      let session: SessionTokenData | null = null;
 
-      const session: SessionTokenData = JSON.parse(saved);
+      if (typeof sessionStorage !== 'undefined') {
+        const saved = sessionStorage.getItem('asfjk_session_data');
+        if (saved) {
+          session = JSON.parse(saved);
+        }
+      }
+
+      if (!session) {
+        session = this.memorySession;
+      }
+
+      if (!session) return null;
+
       const now = Date.now();
 
       // Check expiration
@@ -211,7 +228,11 @@ export class SecurityService {
 
       // Rolling extension on activity (extend expiration)
       session.expiresAt = now + this.SESSION_LIFETIME_MS;
-      sessionStorage.setItem('asfjk_session_data', JSON.stringify(session));
+      this.memorySession = session;
+
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('asfjk_session_data', JSON.stringify(session));
+      }
 
       return session;
     } catch (e) {
@@ -224,10 +245,15 @@ export class SecurityService {
    * Clears active session securely
    */
   public static clearSession(): void {
+    this.memorySession = null;
     try {
-      sessionStorage.removeItem('asfjk_session_token');
-      sessionStorage.removeItem('asfjk_session_data');
-      localStorage.removeItem('asfjk_auth_user');
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('asfjk_session_token');
+        sessionStorage.removeItem('asfjk_session_data');
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('asfjk_auth_user');
+      }
     } catch (e) {}
   }
 

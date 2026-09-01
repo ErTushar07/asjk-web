@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { ReceiptService } from '../../services/receiptService';
 import { FileText, Download, ShieldCheck, Search, ArrowLeft } from 'lucide-react';
 
 export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const { receipts, settings } = useDatabase();
   const [search, setSearch] = useState('');
 
+  const donorEmail = (user?.email || '').toLowerCase().trim();
+
   const filtered = receipts.filter(
     (r) =>
-      r.receiptNumber.toLowerCase().includes(search.toLowerCase()) ||
-      r.projectName.toLowerCase().includes(search.toLowerCase()) ||
-      r.donorName.toLowerCase().includes(search.toLowerCase())
+      r.donorEmail.toLowerCase().trim() === donorEmail &&
+      (r.receiptNumber.toLowerCase().includes(search.toLowerCase()) ||
+       r.projectName.toLowerCase().includes(search.toLowerCase()) ||
+       r.donorName.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { 
@@ -7,8 +8,14 @@ import {
 } from 'lucide-react';
 
 export const MyRecurringPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const { recurringDonations, updateRecurringStatus, simulateRetryRecurringPayment } = useDatabase();
   const { formatUSD } = useCurrency();
+
+  const donorEmail = (user?.email || '').toLowerCase().trim();
+  const userRecurring = recurringDonations.filter(
+    (r) => r.donorEmail.toLowerCase().trim() === donorEmail
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -27,7 +34,7 @@ export const MyRecurringPage: React.FC<{ onNavigate: (route: string) => void }> 
         </p>
       </div>
 
-      {recurringDonations.length === 0 ? (
+      {userRecurring.length === 0 ? (
         <div className="bg-white p-12 rounded-3xl border border-content-border text-center space-y-4 shadow-brand-sm">
           <RefreshCw className="w-12 h-12 text-content-muted mx-auto" />
           <h3 className="text-lg font-bold text-content-primary">No Active Recurring Subscriptions</h3>
@@ -40,7 +47,7 @@ export const MyRecurringPage: React.FC<{ onNavigate: (route: string) => void }> 
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {recurringDonations.map((sub) => {
+          {userRecurring.map((sub) => {
             const isActive = sub.status === 'active';
             const isPaused = sub.status === 'paused';
             const isPastDue = sub.status === 'past_due' || sub.status === 'payment_failed';

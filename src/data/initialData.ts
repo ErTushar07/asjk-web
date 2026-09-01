@@ -1176,7 +1176,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
     stripePublishableKey: 'pk_test_sample_asfjk',
     razorpayEnabled: true,
     razorpayKeyId: 'rzp_test_sample_asfjk',
-    sandboxEnabled: true,
+    sandboxEnabled: false,
     bankTransferEnabled: true,
   },
   notificationThresholds: {

@@ -447,3 +447,25 @@ export interface TranslationItem {
   tr?: string;
   status: 'published' | 'machine_translated' | 'under_review';
 }
+
+export type LeadershipCategory = 'trustee' | 'executive' | 'team' | 'advisor' | 'volunteer_leader';
+
+export interface LeadershipMember {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  category: LeadershipCategory;
+  photoUrl?: string;
+  bio: string;
+  department?: string;
+  responsibilities?: string[];
+  education?: string;
+  professionalBackground?: string;
+  linkedin?: string;
+  email?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

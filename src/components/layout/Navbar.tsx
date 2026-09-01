@@ -25,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
   const navLinks = [
     { name: t('nav.home', 'Home'), route: '/' },
     { name: t('nav.about', 'About Us'), route: '/about' },
+    { name: t('nav.leadership', 'Leadership'), route: '/leadership' },
     { name: t('nav.our_work', 'Our Work'), route: '/our-work' },
     { name: t('nav.projects', 'Projects'), route: '/projects' },
     { name: t('nav.campaigns', 'Campaigns'), route: '/campaigns' },

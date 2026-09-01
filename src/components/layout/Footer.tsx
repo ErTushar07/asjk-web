@@ -99,6 +99,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <ul className="space-y-2.5 text-xs text-white/70">
               <li>
+                <button onClick={() => onNavigate('/leadership')} className="hover:text-white transition-colors flex items-center gap-1 font-semibold text-white">
+                  Board of Trustees & Leadership <ArrowUpRight className="w-3 h-3 text-brand-pink" />
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate('/transparency')} className="hover:text-white transition-colors flex items-center gap-1">
                   Annual Audited Reports <ArrowUpRight className="w-3 h-3 text-brand-pink" />
                 </button>

@@ -8,6 +8,7 @@ import { DonationModal } from './components/donation/DonationModal';
 // Public Pages
 import { HomePage } from './pages/public/HomePage';
 import { AboutPage } from './pages/public/AboutPage';
+import { LeadershipPage } from './pages/public/LeadershipPage';
 import { OurWorkPage } from './pages/public/OurWorkPage';
 import { ProjectsPage } from './pages/public/ProjectsPage';
 import { ProjectDetailsPage } from './pages/public/ProjectDetailsPage';
@@ -123,6 +124,11 @@ export const App: React.FC = () => {
 
     // Public Root & Catalogs
     if (currentRoute === '/about') return <AboutPage onNavigate={navigate} />;
+    if (currentRoute === '/leadership') return <LeadershipPage onNavigate={navigate} />;
+    if (currentRoute.startsWith('/leadership/')) {
+      const slug = currentRoute.replace('/leadership/', '');
+      return <LeadershipPage selectedSlug={slug} onNavigate={navigate} />;
+    }
     if (currentRoute === '/our-work') return <OurWorkPage onNavigate={navigate} onOpenDonateModal={() => handleOpenDonateModal()} />;
     if (currentRoute === '/projects') return <ProjectsPage onNavigate={navigate} onOpenDonateModal={(id) => handleOpenDonateModal(id)} />;
     if (currentRoute === '/campaigns') return <CampaignsPage onNavigate={navigate} onOpenDonateModal={(pId, cId) => handleOpenDonateModal(pId, cId)} />;

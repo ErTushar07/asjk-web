@@ -122,6 +122,16 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
             </div>
           ))}
         </div>
+
+        <div className="text-center pt-2">
+          <button
+            onClick={() => onNavigate('/leadership')}
+            className="btn-primary !py-3 !px-6 text-xs sm:text-sm font-black shadow-brand-md inline-flex items-center gap-2"
+          >
+            <span>View Full Board of Trustees & Governance Directory</span>
+            <Users className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Statutory Credentials & Official Seal */}

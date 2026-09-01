@@ -2,13 +2,15 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Project, Campaign, Donation, Payment, RecurringDonation, Receipt, Refund,
   Story, NewsArticle, ImpactMetric, VolunteerApplication, PartnershipRequest,
-  NgoMembership, SupportTicket, AuditLog, SystemSettings, DonationFrequency, PaymentMethod, PaymentStatus
+  NgoMembership, SupportTicket, AuditLog, SystemSettings, DonationFrequency, PaymentMethod, PaymentStatus,
+  LeadershipMember
 } from '../types';
 import {
   INITIAL_PROJECTS, INITIAL_CAMPAIGNS, INITIAL_DONATIONS, INITIAL_PAYMENTS,
   INITIAL_RECURRING_DONATIONS, INITIAL_RECEIPTS, INITIAL_REFUNDS, INITIAL_STORIES,
   INITIAL_NEWS, INITIAL_IMPACT_METRICS, INITIAL_VOLUNTEERS, INITIAL_PARTNERSHIPS,
-  INITIAL_MEMBERSHIPS, INITIAL_SUPPORT_TICKETS, INITIAL_AUDIT_LOGS, INITIAL_SYSTEM_SETTINGS
+  INITIAL_MEMBERSHIPS, INITIAL_SUPPORT_TICKETS, INITIAL_AUDIT_LOGS, INITIAL_SYSTEM_SETTINGS,
+  INITIAL_LEADERSHIP_MEMBERS
 } from '../data/initialData';
 import { PaymentService } from '../services/paymentService';
 import { ValidationService } from '../services/validationService';
@@ -52,6 +54,7 @@ interface DatabaseContextType {
   volunteers: VolunteerApplication[];
   partnerships: PartnershipRequest[];
   memberships: NgoMembership[];
+  leadership: LeadershipMember[];
   supportTickets: SupportTicket[];
   auditLogs: AuditLog[];
   settings: SystemSettings;
@@ -76,6 +79,12 @@ interface DatabaseContextType {
   updatePartnershipStatus: (id: string, status: any) => void;
   addMembership: (data: Omit<NgoMembership, 'id' | 'membershipNumber' | 'createdAt' | 'status' | 'validFrom' | 'validThru'> & { validFrom?: string; validThru?: string; status?: NgoMembership['status'] }) => NgoMembership;
   updateMembershipStatus: (id: string, status: NgoMembership['status']) => void;
+  createLeadershipMember: (member: Omit<LeadershipMember, 'id' | 'createdAt' | 'updatedAt'>) => LeadershipMember;
+  updateLeadershipMember: (id: string, updates: Partial<LeadershipMember>) => void;
+  deleteLeadershipMember: (id: string) => void;
+  toggleLeadershipStatus: (id: string) => void;
+  getPublicLeadership: () => LeadershipMember[];
+  getPublicLeadershipBySlug: (slug: string) => LeadershipMember | null;
   addSupportTicket: (tkt: Omit<SupportTicket, 'id' | 'ticketNumber' | 'createdAt' | 'status'>) => void;
   updateSupportTicketStatus: (id: string, status: 'open' | 'in_progress' | 'resolved' | 'closed', response?: string) => void;
   updateSettings: (newSettings: Partial<SystemSettings>) => void;
@@ -164,6 +173,11 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return saved ? JSON.parse(saved) : INITIAL_MEMBERSHIPS;
   });
 
+  const [leadership, setLeadership] = useState<LeadershipMember[]>(() => {
+    const saved = localStorage.getItem('asfjk_db_leadership');
+    return saved ? JSON.parse(saved) : INITIAL_LEADERSHIP_MEMBERS;
+  });
+
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(() => {
     const saved = localStorage.getItem('asfjk_db_tickets');
     return saved ? JSON.parse(saved) : INITIAL_SUPPORT_TICKETS;
@@ -238,6 +252,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     safeSetItem('asfjk_db_memberships', memberships);
   }, [memberships]);
+  useEffect(() => {
+    safeSetItem('asfjk_db_leadership', leadership);
+  }, [leadership]);
   useEffect(() => {
     safeSetItem('asfjk_db_settings', settings);
   }, [settings]);
@@ -904,6 +921,66 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'SETTINGS_UPDATED', 'setting', 'sys_core', `Updated foundation system settings`);
   };
 
+  const createLeadershipMember = (memberData: Omit<LeadershipMember, 'id' | 'createdAt' | 'updatedAt'>): LeadershipMember => {
+    checkAdminAuth();
+    const now = new Date().toISOString();
+    const cleanSlug = memberData.slug ? memberData.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-') : memberData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const newMember: LeadershipMember = {
+      ...memberData,
+      id: `lead_${Date.now()}`,
+      slug: cleanSlug,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setLeadership((prev) => [...prev, newMember]);
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'LEADERSHIP_CREATED', 'setting', newMember.id, `Created leadership profile "${newMember.name}" (${newMember.role})`);
+    return newMember;
+  };
+
+  const updateLeadershipMember = (id: string, updates: Partial<LeadershipMember>) => {
+    checkAdminAuth();
+    const now = new Date().toISOString();
+    setLeadership((prev) =>
+      prev.map((m) => {
+        if (m.id === id) {
+          const updated = { ...m, ...updates, updatedAt: now };
+          if (updates.name && !updates.slug) {
+            updated.slug = updates.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          }
+          return updated;
+        }
+        return m;
+      })
+    );
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'LEADERSHIP_UPDATED', 'setting', id, `Updated leadership profile ${id}`);
+  };
+
+  const deleteLeadershipMember = (id: string) => {
+    checkAdminAuth();
+    setLeadership((prev) => prev.filter((m) => m.id !== id));
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'LEADERSHIP_DELETED', 'setting', id, `Deleted leadership profile ${id}`);
+  };
+
+  const toggleLeadershipStatus = (id: string) => {
+    checkAdminAuth();
+    const now = new Date().toISOString();
+    setLeadership((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, isActive: !m.isActive, updatedAt: now } : m))
+    );
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'LEADERSHIP_STATUS_TOGGLED', 'setting', id, `Toggled published state for leadership profile ${id}`);
+  };
+
+  const getPublicLeadership = (): LeadershipMember[] => {
+    return leadership
+      .filter((m) => m.isActive)
+      .sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+  };
+
+  const getPublicLeadershipBySlug = (slug: string): LeadershipMember | null => {
+    const found = leadership.find((m) => m.slug === slug && m.isActive);
+    return found ? { ...found } : null;
+  };
+
   const resetToDemoData = () => {
     checkAdminAuth();
     setProjects(INITIAL_PROJECTS);
@@ -919,6 +996,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setVolunteers(INITIAL_VOLUNTEERS);
     setPartnerships(INITIAL_PARTNERSHIPS);
     setMemberships(INITIAL_MEMBERSHIPS);
+    setLeadership(INITIAL_LEADERSHIP_MEMBERS);
     setSupportTickets(INITIAL_SUPPORT_TICKETS);
     setAuditLogs(INITIAL_AUDIT_LOGS);
     setSettings(INITIAL_SYSTEM_SETTINGS);
@@ -978,6 +1056,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         volunteers,
         partnerships,
         memberships,
+        leadership,
         supportTickets,
         auditLogs,
         settings,
@@ -1000,6 +1079,12 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updatePartnershipStatus,
         addMembership,
         updateMembershipStatus,
+        createLeadershipMember,
+        updateLeadershipMember,
+        deleteLeadershipMember,
+        toggleLeadershipStatus,
+        getPublicLeadership,
+        getPublicLeadershipBySlug,
         addSupportTicket,
         updateSupportTicketStatus,
         updateSettings,

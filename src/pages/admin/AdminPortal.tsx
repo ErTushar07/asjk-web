@@ -9,7 +9,7 @@ import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import { MembershipCardService } from '../../services/membershipCardService';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
-import { NgoMembership } from '../../types';
+import { NgoMembership, LeadershipMember, LeadershipCategory } from '../../types';
 import { SecurityService } from '../../services/securityService';
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
@@ -17,7 +17,7 @@ import {
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
-  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown
+  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -43,11 +43,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
 
   const { 
     projects, campaigns, donations, payments, recurringDonations, 
-    receipts, refunds, stories, news, volunteers, partnerships, memberships,
+    receipts, refunds, stories, news, volunteers, partnerships, memberships, leadership,
     supportTickets, auditLogs, settings, createProject, updateProject, 
     deleteProject, createCampaign, updateCampaign, deleteCampaign,
     processRefund, updateRecurringStatus, simulateRetryRecurringPayment,
-    updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus, updateMembershipStatus 
+    updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus, updateMembershipStatus,
+    createLeadershipMember, updateLeadershipMember, deleteLeadershipMember, toggleLeadershipStatus
   } = useDatabase();
   const { formatUSD } = useCurrency();
   const { supportedLanguages } = useLanguage();
@@ -85,6 +86,40 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const [idCardModalVolunteer, setIdCardModalVolunteer] = useState<any | null>(null);
   const [selectedMembershipModal, setSelectedMembershipModal] = useState<NgoMembership | null>(null);
 
+  // Leadership Management State
+  const [showLeaderModal, setShowLeaderModal] = useState(false);
+  const [editingLeader, setEditingLeader] = useState<LeadershipMember | null>(null);
+  const [leaderCategoryFilter, setLeaderCategoryFilter] = useState<LeadershipCategory | 'all'>('all');
+  const [leaderForm, setLeaderForm] = useState<{
+    name: string;
+    role: string;
+    category: LeadershipCategory;
+    bio: string;
+    department: string;
+    education: string;
+    professionalBackground: string;
+    email: string;
+    linkedin: string;
+    responsibilities: string;
+    photoUrl: string;
+    displayOrder: number;
+    isActive: boolean;
+  }>({
+    name: '',
+    role: '',
+    category: 'trustee',
+    bio: '',
+    department: '',
+    education: '',
+    professionalBackground: '',
+    email: '',
+    linkedin: '',
+    responsibilities: '',
+    photoUrl: '',
+    displayOrder: 1,
+    isActive: true,
+  });
+
   // Calculate Financial Aggregates (Source of Truth)
   const successfulDonations = donations.filter((d) => d.status === 'successful');
   const totalDonationsUSD = successfulDonations.reduce((s, d) => s + d.amountUSD, 0);
@@ -105,6 +140,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     { id: 'reports', label: 'Financial Reports & Exports', icon: Download },
     { id: 'volunteers', label: 'Volunteer Applications', icon: HeartHandshake },
     { id: 'memberships', label: 'NGO Memberships', icon: Crown },
+    { id: 'leadership', label: 'Leadership & Trustees', icon: Award },
     { id: 'partners', label: 'Partnership Requests', icon: Shield },
     { id: 'support', label: 'Support Tickets', icon: HelpCircle },
     { id: 'languages', label: 'Languages & Translations', icon: Languages },
@@ -192,6 +228,99 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     updateSupportTicketStatus(responseModalTicket.id, 'resolved', ticketReplyText);
     setResponseModalTicket(null);
     setTicketReplyText('');
+  };
+
+  const handleOpenNewLeader = () => {
+    setEditingLeader(null);
+    setLeaderForm({
+      name: '',
+      role: '',
+      category: 'trustee',
+      bio: '',
+      department: '',
+      education: '',
+      professionalBackground: '',
+      email: '',
+      linkedin: '',
+      responsibilities: '',
+      photoUrl: '',
+      displayOrder: (leadership.length + 1),
+      isActive: true,
+    });
+    setShowLeaderModal(true);
+  };
+
+  const handleOpenEditLeader = (member: LeadershipMember) => {
+    setEditingLeader(member);
+    setLeaderForm({
+      name: member.name,
+      role: member.role,
+      category: member.category,
+      bio: member.bio,
+      department: member.department || '',
+      education: member.education || '',
+      professionalBackground: member.professionalBackground || '',
+      email: member.email || '',
+      linkedin: member.linkedin || '',
+      responsibilities: member.responsibilities ? member.responsibilities.join(', ') : '',
+      photoUrl: member.photoUrl || '',
+      displayOrder: member.displayOrder || 1,
+      isActive: member.isActive,
+    });
+    setShowLeaderModal(true);
+  };
+
+  const handleSaveLeaderSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leaderForm.name.trim() || !leaderForm.role.trim()) return;
+
+    const respArray = leaderForm.responsibilities
+      ? leaderForm.responsibilities.split(',').map((r) => r.trim()).filter(Boolean)
+      : [];
+
+    if (editingLeader) {
+      updateLeadershipMember(editingLeader.id, {
+        name: leaderForm.name,
+        role: leaderForm.role,
+        category: leaderForm.category,
+        bio: leaderForm.bio,
+        department: leaderForm.department,
+        education: leaderForm.education,
+        professionalBackground: leaderForm.professionalBackground,
+        email: leaderForm.email,
+        linkedin: leaderForm.linkedin,
+        responsibilities: respArray,
+        photoUrl: leaderForm.photoUrl,
+        displayOrder: Number(leaderForm.displayOrder) || 1,
+        isActive: leaderForm.isActive,
+      });
+    } else {
+      createLeadershipMember({
+        slug: leaderForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        name: leaderForm.name,
+        role: leaderForm.role,
+        category: leaderForm.category,
+        bio: leaderForm.bio,
+        department: leaderForm.department,
+        education: leaderForm.education,
+        professionalBackground: leaderForm.professionalBackground,
+        email: leaderForm.email,
+        linkedin: leaderForm.linkedin,
+        responsibilities: respArray,
+        photoUrl: leaderForm.photoUrl,
+        displayOrder: Number(leaderForm.displayOrder) || 1,
+        isActive: leaderForm.isActive,
+      });
+    }
+
+    setShowLeaderModal(false);
+    setEditingLeader(null);
+  };
+
+  const handleDeleteLeader = (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to permanently remove "${name}" from the leadership directory?`)) {
+      deleteLeadershipMember(id);
+    }
   };
 
   // Group unique donors for Donors Directory
@@ -1173,6 +1302,215 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
+        {/* 11C. LEADERSHIP & BOARD OF TRUSTEES TAB */}
+        {activeTab === 'leadership' && (
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-content-primary flex items-center gap-2">
+                  <Award className="w-5 h-5 text-brand-pink" />
+                  Board of Trustees & Leadership Directory ({leadership.length})
+                </h3>
+                <p className="text-xs text-content-secondary">
+                  Manage foundation trustees, executive officers, departmental heads, technical advisors, and regional volunteer coordinators.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => ReportService.exportToCSV(leadership, 'ASFJK_Leadership_Directory')}
+                  className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" /> Export CSV
+                </button>
+                <button
+                  onClick={handleOpenNewLeader}
+                  className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5 shadow-pink-glow"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Leader / Trustee
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Metrics Header */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="bg-purple-50 border border-purple-200 rounded-2xl p-3">
+                <span className="text-[10px] font-bold text-purple-800 uppercase block">Trustees</span>
+                <span className="text-lg font-black text-brand-purple font-mono">
+                  {leadership.filter(l => l.category === 'trustee').length}
+                </span>
+              </div>
+              <div className="bg-pink-50 border border-pink-200 rounded-2xl p-3">
+                <span className="text-[10px] font-bold text-pink-800 uppercase block">Executive</span>
+                <span className="text-lg font-black text-brand-pink font-mono">
+                  {leadership.filter(l => l.category === 'executive').length}
+                </span>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3">
+                <span className="text-[10px] font-bold text-blue-800 uppercase block">Core Team</span>
+                <span className="text-lg font-black text-brand-blue font-mono">
+                  {leadership.filter(l => l.category === 'team').length}
+                </span>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3">
+                <span className="text-[10px] font-bold text-amber-800 uppercase block">Advisory Board</span>
+                <span className="text-lg font-black text-amber-700 font-mono">
+                  {leadership.filter(l => l.category === 'advisor').length}
+                </span>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3">
+                <span className="text-[10px] font-bold text-emerald-800 uppercase block">Volunteer Leads</span>
+                <span className="text-lg font-black text-emerald-700 font-mono">
+                  {leadership.filter(l => l.category === 'volunteer_leader').length}
+                </span>
+              </div>
+            </div>
+
+            {/* Category Filter Pills & Search */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { id: 'all', label: `All (${leadership.length})` },
+                  { id: 'trustee', label: 'Trustees' },
+                  { id: 'executive', label: 'Executives' },
+                  { id: 'team', label: 'Core Team' },
+                  { id: 'advisor', label: 'Advisors' },
+                  { id: 'volunteer_leader', label: 'Volunteers' },
+                ].map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setLeaderCategoryFilter(c.id as any)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                      leaderCategoryFilter === c.id
+                        ? 'bg-brand-purple text-white'
+                        : 'bg-surface-soft text-content-secondary hover:bg-surface-card hover:text-content-primary border border-content-border'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-content-muted" />
+                <input
+                  type="text"
+                  placeholder="Search name, role, dept..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-1.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Leadership Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                    <th className="py-3 px-4">Member Profile</th>
+                    <th className="py-3 px-4">Role & Department</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Order</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-content-border">
+                  {leadership
+                    .filter((m) => {
+                      const matchesCat = leaderCategoryFilter === 'all' || m.category === leaderCategoryFilter;
+                      const matchesSearch = !searchTerm || 
+                        m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        m.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (m.department && m.department.toLowerCase().includes(searchTerm.toLowerCase()));
+                      return matchesCat && matchesSearch;
+                    })
+                    .sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99))
+                    .map((member) => (
+                      <tr key={member.id} className="hover:bg-surface-soft transition-colors">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-card border border-content-border flex items-center justify-center flex-shrink-0 text-brand-purple font-black text-xs">
+                              {member.photoUrl ? (
+                                <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover object-top" />
+                              ) : (
+                                member.name.split(' ').map((n) => n[0]).join('').slice(0, 2)
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-bold text-content-primary">{member.name}</div>
+                              <div className="text-[11px] font-mono text-content-secondary">slug: /{member.slug}</div>
+                              {member.email && (
+                                <div className="text-[10px] text-content-muted">{member.email}</div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-brand-pink">{member.role}</div>
+                          <div className="text-[11px] text-content-secondary">{member.department || 'General Administration'}</div>
+                          {member.education && (
+                            <div className="text-[10px] text-content-muted truncate max-w-xs">{member.education}</div>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-block ${
+                            member.category === 'trustee' ? 'bg-purple-100 text-purple-900 border border-purple-200' :
+                            member.category === 'executive' ? 'bg-pink-100 text-pink-900 border border-pink-200' :
+                            member.category === 'team' ? 'bg-blue-100 text-blue-900 border border-blue-200' :
+                            member.category === 'advisor' ? 'bg-amber-100 text-amber-900 border border-amber-200' :
+                            'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                          }`}>
+                            {member.category.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono font-bold text-brand-purple">
+                          #{member.displayOrder}
+                        </td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => toggleLeadershipStatus(member.id)}
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors inline-flex items-center gap-1 ${
+                              member.isActive
+                                ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                            title="Click to toggle public status"
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${member.isActive ? 'bg-emerald-600' : 'bg-slate-400'}`} />
+                            {member.isActive ? 'Active' : 'Draft'}
+                          </button>
+                        </td>
+                        <td className="py-3 px-4 text-right space-x-1.5">
+                          <button
+                            onClick={() => onNavigate(`/leadership/${member.slug}`)}
+                            className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"
+                            title="View Public Page"
+                          >
+                            <Eye className="w-3 h-3" /> View
+                          </button>
+                          <button
+                            onClick={() => handleOpenEditLeader(member)}
+                            className="btn-outline !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1 text-brand-purple hover:bg-brand-purple/10"
+                          >
+                            <Edit3 className="w-3 h-3 text-brand-pink" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLeader(member.id, member.name)}
+                            className="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1 rounded-lg border border-rose-200 transition-colors inline-flex items-center justify-center"
+                            title="Delete Leader Profile"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* 12. PARTNERSHIP REQUESTS TAB */}
         {activeTab === 'partners' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
@@ -1953,6 +2291,213 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
             </div>
 
             <MembershipCardPreview member={selectedMembershipModal} settings={settings} />
+          </div>
+        </div>
+      )}
+
+      {/* Leadership Member Add / Edit Modal */}
+      {showLeaderModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-content-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-brand-purple">
+                  <Award className="w-5 h-5 text-brand-pink" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-content-primary">
+                    {editingLeader ? 'Edit Leadership & Trustee Profile' : 'Add New Leader / Trustee Profile'}
+                  </h3>
+                  <p className="text-[11px] text-content-secondary">
+                    Provide organizational bio, credentials, governance role, and public visibility.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLeaderModal(false)}
+                className="p-1.5 rounded-full text-content-muted hover:text-content-primary hover:bg-surface-soft transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLeaderSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dr. Farooq Ahmad Bhat"
+                    value={leaderForm.name}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Role / Designation *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Managing Director & CEO"
+                    value={leaderForm.role}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, role: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Governance Category *</label>
+                  <select
+                    value={leaderForm.category}
+                    onChange={(e: any) => setLeaderForm({ ...leaderForm, category: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-medium"
+                  >
+                    <option value="trustee">Board of Trustees</option>
+                    <option value="executive">Executive Leadership</option>
+                    <option value="team">Core Team</option>
+                    <option value="advisor">Advisory Board</option>
+                    <option value="volunteer_leader">Volunteer Leadership</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Department / Division</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Clean Water & Civil Engineering"
+                    value={leaderForm.department}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, department: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Display Order</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={leaderForm.displayOrder}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, displayOrder: parseInt(e.target.value) || 1 })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Official Email</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. trustees@asfjk.org"
+                    value={leaderForm.email}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, email: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">LinkedIn Profile URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://linkedin.com/in/..."
+                    value={leaderForm.linkedin}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, linkedin: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Photo URL</label>
+                <input
+                  type="text"
+                  placeholder="https://images.unsplash.com/... or /images/..."
+                  value={leaderForm.photoUrl}
+                  onChange={(e) => setLeaderForm({ ...leaderForm, photoUrl: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Academic / Medical Qualifications</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Ph.D. in Hydrogeology / M.B.B.S., MD"
+                    value={leaderForm.education}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, education: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Professional Experience Summary</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 20+ years in international non-profit humanitarian aid"
+                    value={leaderForm.professionalBackground}
+                    onChange={(e) => setLeaderForm({ ...leaderForm, professionalBackground: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Key Responsibilities (comma-separated)</label>
+                <input
+                  type="text"
+                  placeholder="Trustee Governance, Statutory Compliance, Clean Water Surveys"
+                  value={leaderForm.responsibilities}
+                  onChange={(e) => setLeaderForm({ ...leaderForm, responsibilities: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Biography & Impact Profile *</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Detailed background, accomplishments, community service focus in Jammu & Kashmir..."
+                  value={leaderForm.bio}
+                  onChange={(e) => setLeaderForm({ ...leaderForm, bio: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="leaderIsActive"
+                  checked={leaderForm.isActive}
+                  onChange={(e) => setLeaderForm({ ...leaderForm, isActive: e.target.checked })}
+                  className="w-4 h-4 text-brand-purple rounded border-content-border focus:ring-brand-purple"
+                />
+                <label htmlFor="leaderIsActive" className="text-xs font-semibold text-content-primary cursor-pointer">
+                  Publish to Public Website & Governance Directory
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-content-border">
+                <button
+                  type="button"
+                  onClick={() => setShowLeaderModal(false)}
+                  className="btn-outline !py-2 !px-4 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary !py-2 !px-6 text-xs font-bold shadow-pink-glow"
+                >
+                  {editingLeader ? 'Save Profile Changes' : 'Create Profile'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

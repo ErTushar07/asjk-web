@@ -345,32 +345,30 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
                 </div>
               </div>
 
-              {/* Signatory & Rubber Stamp */}
-              <div className="pt-2 border-t border-amber-400/40 flex items-center justify-between">
+              {/* Signatory & Official Rubber Stamp */}
+              <div className="pt-2 border-t border-amber-400/40 flex items-center justify-between relative">
+                {/* Left Handwritten Signature */}
                 <div className="text-left space-y-0.5">
-                  <p className="font-serif italic text-base text-slate-800 font-bold leading-none">
-                    Mohd Amin Ganai
-                  </p>
+                  <img 
+                    src="/images/signature.png" 
+                    alt="Mohd Amin Ganai Signature" 
+                    className="h-9 w-auto object-contain mix-blend-multiply opacity-95 -mb-1"
+                  />
                   <p style={{ color: themeBg }} className="text-[10px] font-black uppercase tracking-tight leading-none pt-0.5">
                     Mohd Amin Ganai
                   </p>
                   <p className="text-[8px] font-semibold text-slate-500 leading-none">
-                    Founder & Chairman / Director General
+                    Founder & President
                   </p>
                 </div>
 
-                <div className="w-14 h-14 rounded-full border-2 border-[#1E3A8A] text-[#1E3A8A] p-0.5 flex flex-col items-center justify-center text-center rotate-[-8deg] shadow-sm">
-                  <div className="w-full h-full rounded-full border border-[#1E3A8A] flex flex-col items-center justify-center">
-                    <span className="text-[5.5px] font-black uppercase tracking-tighter leading-none">
-                      AL SHUJAIAT
-                    </span>
-                    <span className="text-[9px] font-black tracking-widest leading-none my-0.5 text-rose-700">
-                      ASFJK
-                    </span>
-                    <span className="text-[5px] font-black uppercase tracking-tighter leading-none">
-                      JAMMU & KASHMIR
-                    </span>
-                  </div>
+                {/* Right Official Seal Stamp */}
+                <div className="w-14 h-14 flex items-center justify-center relative">
+                  <img 
+                    src="/images/seal.png" 
+                    alt="Al Shujaiat Foundation Official Seal" 
+                    className="w-full h-full object-contain mix-blend-multiply opacity-95 rotate-[-6deg] drop-shadow-sm" 
+                  />
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { Receipt, SystemSettings } from '../types';
 import { ASFJK_LOGO_BASE64 } from './logoAsset';
+import { ASFJK_SEAL_BASE64, ASFJK_SIGNATURE_BASE64 } from './stampAsset';
 
 export class ReceiptService {
   /**
@@ -192,23 +193,34 @@ export class ReceiptService {
     );
     doc.text(splitTaxText, 20, complianceY + 5);
 
-    // Signatures & Stamp
-    const stampY = complianceY + 25;
+    // Signatures & Official Stamp
+    const stampY = complianceY + 28;
+
+    // Real Signature
+    try {
+      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 20, stampY - 14, 26, 13);
+    } catch (e) {}
+
+    // Real Seal
+    try {
+      doc.addImage(ASFJK_SEAL_BASE64, 'PNG', 142, stampY - 18, 22, 22);
+    } catch (e) {}
+
     doc.setDrawColor(200, 200, 210);
     doc.line(20, stampY, 75, stampY);
     doc.line(135, stampY, 190, stampY);
 
-    doc.setFontSize(8);
+    doc.setFontSize(8.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-    doc.text('Executive Director', 20, stampY + 5);
-    doc.text('Verified Digital Stamp / Seal', 135, stampY + 5);
+    doc.text('Mohd Amin Ganai', 20, stampY + 5);
+    doc.text('Official Seal & Registration', 135, stampY + 5);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(grayText[0], grayText[1], grayText[2]);
-    doc.text('Mohd Amin Ganai · ASFJK', 20, stampY + 9);
-    doc.text(`Generated: ${new Date().toISOString()}`, 135, stampY + 9);
+    doc.text('President & Founder · ASFJK', 20, stampY + 9);
+    doc.text(`NGO-DARPAN: JK/2018/0190361`, 135, stampY + 9);
 
     // Security Verification Hash
     doc.setFillColor(243, 245, 250);

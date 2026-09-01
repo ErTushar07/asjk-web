@@ -129,6 +129,46 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
             </div>
           ))}
         </div>
+
+        {/* Presidential Attestation with Authentic Seal & Signature */}
+        <div className="mt-8 pt-6 border-t border-content-border bg-surface-soft p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1.5 text-left flex-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink block">
+              STATUTORY ATTESTATION & AUDIT VERIFICATION
+            </span>
+            <h4 className="text-sm font-extrabold text-content-primary">
+              Executive Attestation of Financial Integrity
+            </h4>
+            <p className="text-xs text-content-secondary leading-relaxed max-w-xl">
+              "We confirm that all audited accounts and statutory tax filings published above represent true, certified statements of our Jammu & Kashmir relief operations."
+            </p>
+            <div className="pt-2">
+              <p className="text-xs font-bold text-brand-purple">Mohd Amin Ganai</p>
+              <p className="text-[11px] text-content-muted">Founder & President · Al Shujaiat Foundation</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
+            {/* Real Signature */}
+            <div className="text-center">
+              <img 
+                src="/images/signature.png" 
+                alt="President Signature" 
+                className="h-12 w-auto object-contain mix-blend-multiply opacity-95"
+              />
+              <span className="text-[9px] font-mono text-content-muted block">Authorized Signature</span>
+            </div>
+
+            {/* Real Seal */}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+              <img 
+                src="/images/seal.png" 
+                alt="Official Seal" 
+                className="w-full h-full object-contain mix-blend-multiply opacity-95 rotate-[-6deg] drop-shadow-sm hover:rotate-0 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

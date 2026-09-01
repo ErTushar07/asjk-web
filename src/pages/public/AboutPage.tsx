@@ -124,11 +124,24 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
         </div>
       </div>
 
-      {/* Statutory Credentials */}
-      <div className="bg-surface-soft p-8 rounded-3xl border border-content-border space-y-4">
-        <h3 className="font-extrabold text-base text-brand-purple flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-brand-pink" /> {t('about.statutory_title', 'Legal & Statutory Registrations')}
-        </h3>
+      {/* Statutory Credentials & Official Seal */}
+      <div className="bg-surface-soft p-6 sm:p-8 rounded-3xl border border-content-border space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-content-border pb-4">
+          <div>
+            <h3 className="font-extrabold text-base text-brand-purple flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-brand-pink" /> {t('about.statutory_title', 'Legal & Statutory Registrations')}
+            </h3>
+            <p className="text-xs text-content-secondary mt-0.5">
+              Accredited under Section 80G, 12A, NGO-DARPAN, and Global Transparency Standards
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full uppercase">
+              STATUS: ACTIVE & VERIFIED
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs text-content-secondary font-mono">
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">NGO-DARPAN</span>
@@ -149,6 +162,46 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
           <div className="bg-white p-3.5 rounded-xl border border-content-border">
             <span className="text-[10px] text-content-muted block uppercase">Section 12A</span>
             <span className="font-bold text-content-primary text-[10px] break-all">DEL-AR26932-27022018/8830</span>
+          </div>
+        </div>
+
+        {/* Official Presidential Seal & Signatory Endorsement */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-content-border flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="space-y-1.5 text-left flex-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink block">
+              PRESIDENTIAL ATTESTATION & CHARTER
+            </span>
+            <h4 className="text-sm font-extrabold text-content-primary">
+              Al Shujaiat Foundation · Jammu & Kashmir
+            </h4>
+            <p className="text-xs text-content-secondary leading-relaxed max-w-xl">
+              "We hereby solemnly affirm our dedication to the underprivileged families, orphans, and students of Jammu & Kashmir. Every donation and volunteer hour is accounted for with 100% statutory transparency."
+            </p>
+            <div className="pt-2">
+              <p className="text-xs font-bold text-brand-purple">Mohd Amin Ganai</p>
+              <p className="text-[11px] text-content-muted">Founder & President · Al Shujaiat Foundation</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
+            {/* Real Handwritten Signature */}
+            <div className="text-center">
+              <img 
+                src="/images/signature.png" 
+                alt="Founder Signature" 
+                className="h-12 w-auto object-contain mix-blend-multiply opacity-95"
+              />
+              <span className="text-[9px] font-mono text-content-muted block">Authorized Signatory</span>
+            </div>
+
+            {/* Real Official Seal */}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+              <img 
+                src="/images/seal.png" 
+                alt="Official Foundation Seal" 
+                className="w-full h-full object-contain mix-blend-multiply opacity-95 rotate-[-5deg] drop-shadow-sm hover:rotate-0 transition-transform duration-300"
+              />
+            </div>
           </div>
         </div>
       </div>

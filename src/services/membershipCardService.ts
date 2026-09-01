@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { NgoMembership, SystemSettings } from '../types';
 import { ASFJK_LOGO_BASE64 } from './logoAsset';
+import { ASFJK_SEAL_BASE64, ASFJK_SIGNATURE_BASE64 } from './stampAsset';
 
 export class MembershipCardService {
   /**
@@ -235,22 +236,24 @@ export class MembershipCardService {
     doc.setLineWidth(0.2);
     doc.line(5, 64.5, 49, 64.5);
 
+    // Real Signature
+    try {
+      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 5, 65, 12, 6);
+    } catch (e) {}
+
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(4);
+    doc.setFontSize(3.8);
     doc.setTextColor(15, 23, 42);
-    doc.text('Mohd Amin Ganai', 5, 68);
-    doc.setFontSize(3);
+    doc.text('Mohd Amin Ganai', 5, 71.8);
+    doc.setFontSize(2.8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
-    doc.text('Founder & Chairman', 5, 70.5);
+    doc.text('Founder & President', 5, 74.2);
 
-    // Stamp Circle
-    doc.setDrawColor(30, 58, 138);
-    doc.setLineWidth(0.2);
-    doc.circle(42, 69, 4, 'D');
-    doc.setFontSize(2);
-    doc.setTextColor(30, 58, 138);
-    doc.text('ASFJK', 42, 69.5, { align: 'center' });
+    // Real Seal
+    try {
+      doc.addImage(ASFJK_SEAL_BASE64, 'PNG', 37, 64.8, 9.5, 9.5);
+    } catch (e) {}
 
     // Footer Bar
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);

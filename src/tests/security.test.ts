@@ -104,8 +104,8 @@ describe('Validation Service - File Upload Security & Magic Byte Signature Inspe
   });
 
   it('enforces maximum file size limits', () => {
-    // 3MB buffer for avatar (max is 2MB)
-    const oversizedBuffer = new Uint8Array(3 * 1024 * 1024);
+    // 12MB buffer for avatar (max is 10MB)
+    const oversizedBuffer = new Uint8Array(12 * 1024 * 1024);
     oversizedBuffer[0] = 0x89;
     oversizedBuffer[1] = 0x50;
     oversizedBuffer[2] = 0x4E;

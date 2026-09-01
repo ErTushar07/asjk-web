@@ -7,6 +7,7 @@ import {
   HeartHandshake, CheckCircle2, Shield, ArrowRight, UploadCloud, 
   FileText, X, Paperclip, Award, IdCard, Search, Clock, AlertCircle 
 } from 'lucide-react';
+import { optimizePhotoForCard } from '../../utils/imageOptimizer';
 
 export const VolunteerPage: React.FC = () => {
   const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
@@ -52,14 +53,18 @@ export const VolunteerPage: React.FC = () => {
     }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const optimized = await optimizePhotoForCard(file);
+        setPhotoUrl(optimized);
+      } catch (err) {
+        console.warn('Photo optimization fallback:', err);
+        const reader = new FileReader();
+        reader.onload = () => setPhotoUrl(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

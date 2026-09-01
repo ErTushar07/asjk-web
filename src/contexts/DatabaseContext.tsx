@@ -201,36 +201,45 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   });
 
+  // Safe LocalStorage persistence helper
+  const safeSetItem = (key: string, data: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (err) {
+      console.warn(`LocalStorage write error for ${key} (storage quota exceeded):`, err);
+    }
+  };
+
   // Sync to local storage
   useEffect(() => {
-    localStorage.setItem('asfjk_db_projects', JSON.stringify(projects));
+    safeSetItem('asfjk_db_projects', projects);
   }, [projects]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_campaigns', JSON.stringify(campaigns));
+    safeSetItem('asfjk_db_campaigns', campaigns);
   }, [campaigns]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_donations', JSON.stringify(donations));
+    safeSetItem('asfjk_db_donations', donations);
   }, [donations]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_payments', JSON.stringify(payments));
+    safeSetItem('asfjk_db_payments', payments);
   }, [payments]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_recurring', JSON.stringify(recurringDonations));
+    safeSetItem('asfjk_db_recurring', recurringDonations);
   }, [recurringDonations]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_receipts', JSON.stringify(receipts));
+    safeSetItem('asfjk_db_receipts', receipts);
   }, [receipts]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_refunds', JSON.stringify(refunds));
+    safeSetItem('asfjk_db_refunds', refunds);
   }, [refunds]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_audit', JSON.stringify(auditLogs));
+    safeSetItem('asfjk_db_audit', auditLogs);
   }, [auditLogs]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_memberships', JSON.stringify(memberships));
+    safeSetItem('asfjk_db_memberships', memberships);
   }, [memberships]);
   useEffect(() => {
-    localStorage.setItem('asfjk_db_settings', JSON.stringify(settings));
+    safeSetItem('asfjk_db_settings', settings);
   }, [settings]);
 
   // Log Audit Helper

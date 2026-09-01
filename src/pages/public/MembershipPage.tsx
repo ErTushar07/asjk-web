@@ -22,6 +22,8 @@ interface TierOption {
   popular?: boolean;
 }
 
+import { optimizePhotoForCard } from '../../utils/imageOptimizer';
+
 export const MembershipPage: React.FC = () => {
   const { addMembership, lookupMembership, settings } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
@@ -48,14 +50,18 @@ export const MembershipPage: React.FC = () => {
   const [lookupQuery, setLookupQuery] = useState('');
   const [lookupResult, setLookupResult] = useState<NgoMembership | null | 'not_found'>(null);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const optimized = await optimizePhotoForCard(file);
+        setPhotoUrl(optimized);
+      } catch (err) {
+        console.warn('Image optimization fallback:', err);
+        const reader = new FileReader();
+        reader.onload = () => setPhotoUrl(reader.result as string);
+        reader.readAsDataURL(file);
+      }
     }
   };
 

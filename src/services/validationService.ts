@@ -24,9 +24,9 @@ export interface FileValidationResult {
 }
 
 export class ValidationService {
-  // Max file sizes
-  public static readonly MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
-  public static readonly MAX_DOCUMENT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+  // Max file sizes (support camera uploads up to 10MB)
+  public static readonly MAX_AVATAR_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+  public static readonly MAX_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
   // Allowed MIME types
   public static readonly ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];

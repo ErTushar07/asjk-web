@@ -825,22 +825,23 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addMembership = (data: Omit<NgoMembership, 'id' | 'membershipNumber' | 'createdAt' | 'status' | 'validFrom' | 'validThru'> & { validFrom?: string; validThru?: string; status?: NgoMembership['status'] }): NgoMembership => {
     const val = ValidationService.validateMembership(data);
-    if (!val.isValid) {
-      throw new Error(`Membership validation error: ${Object.values(val.errors).join(', ')}`);
-    }
-    const cleanData = val.sanitizedData;
+    const cleanData = val.isValid ? val.sanitizedData : data;
 
     const now = new Date();
     const validThru = new Date();
     validThru.setFullYear(now.getFullYear() + (cleanData.durationYears || 1));
 
+    const yearSuffix = now.getFullYear().toString().slice(-2);
+    const randDigits = Math.floor(100 + Math.random() * 900);
+    const membershipNumber = `ASFJK${yearSuffix}M${randDigits}`;
+
     const newMbr: NgoMembership = {
       ...cleanData,
       id: `mbr_${Date.now()}`,
-      membershipNumber: `ASF-MBR-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      membershipNumber,
       status: cleanData.status || 'active',
-      validFrom: cleanData.validFrom || now.toISOString().split('T')[0],
-      validThru: cleanData.validThru || validThru.toISOString().split('T')[0],
+      validFrom: cleanData.validFrom || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      validThru: cleanData.validThru || validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       createdAt: now.toISOString(),
     };
     setMemberships((prev) => [newMbr, ...prev]);

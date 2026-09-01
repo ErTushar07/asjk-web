@@ -253,8 +253,8 @@ export class ValidationService {
       errors.email = 'Valid email address is required.';
     }
 
-    if (!input.tierId) {
-      errors.tierId = 'Please select a valid membership tier.';
+    if (!input.tier && !input.tierId) {
+      errors.tier = 'Please select a valid membership tier.';
     }
 
     if (!input.durationYears || input.durationYears < 1 || input.durationYears > 10) {
@@ -273,6 +273,7 @@ export class ValidationService {
       errors,
       sanitizedData: {
         ...input,
+        tier: input.tier || input.tierId || 'general_member',
         fullName: this.sanitizeString(input.fullName),
         email: input.email?.trim().toLowerCase(),
         phone: input.phone ? this.sanitizeString(input.phone) : '',

@@ -155,36 +155,42 @@ export const MembershipPage: React.FC = () => {
     setIsProcessing(true);
 
     setTimeout(() => {
-      const now = new Date();
-      const validThru = new Date();
-      validThru.setFullYear(now.getFullYear() + durationYears);
+      try {
+        const now = new Date();
+        const validThru = new Date();
+        validThru.setFullYear(now.getFullYear() + durationYears);
 
-      const newMbr = addMembership({
-        fullName,
-        email,
-        phone,
-        city,
-        country,
-        photoUrl: photoUrl || undefined,
-        bloodGroup,
-        tier: selectedTier,
-        tierName: currentTierObj.name,
-        durationYears,
-        annualAmountUSD: currentTierObj.baseAnnualUSD,
-        totalAmountUSD,
-        currency: currentCurrency.code,
-        paidAmount: totalAmountLocal,
-        validFrom: now.toISOString().split('T')[0],
-        validThru: validThru.toISOString().split('T')[0],
-        paymentMethod: paymentMethod === 'card' ? 'Credit/Debit Card (Stripe)' : paymentMethod === 'upi' ? 'UPI / NetBanking' : paymentMethod === 'paypal' ? 'PayPal' : 'Bank Wire Transfer',
-        transactionId: `TXN-MBR-${now.getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
-        receiptNumber: `ASJ-REC-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-        status: 'active',
-      });
+        const newMbr = addMembership({
+          fullName,
+          email,
+          phone,
+          city,
+          country,
+          photoUrl: photoUrl || undefined,
+          bloodGroup,
+          tier: selectedTier,
+          tierName: currentTierObj.name,
+          durationYears,
+          annualAmountUSD: currentTierObj.baseAnnualUSD,
+          totalAmountUSD,
+          currency: currentCurrency.code,
+          paidAmount: totalAmountLocal,
+          validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          paymentMethod: paymentMethod === 'card' ? 'Credit/Debit Card (Stripe)' : paymentMethod === 'upi' ? 'UPI / NetBanking' : paymentMethod === 'paypal' ? 'PayPal' : 'Bank Wire Transfer',
+          transactionId: `TXN-MBR-${now.getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
+          receiptNumber: `ASJ-REC-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          status: 'active',
+        });
 
-      setConfirmedMember(newMbr);
-      setIsProcessing(false);
-    }, 800);
+        setConfirmedMember(newMbr);
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      } catch (err) {
+        console.error('Membership activation error:', err);
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 400);
   };
 
   const handleLookupMember = (e: React.FormEvent) => {

@@ -347,19 +347,21 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
 
               {/* Signatory & Official Rubber Stamp */}
               <div className="pt-2 border-t border-amber-400/40 flex items-center justify-between relative">
-                {/* Left Handwritten Signature */}
-                <div className="text-left space-y-0.5">
+                {/* Left Handwritten Signature (Centered over Mohd Amin Ganai) */}
+                <div className="flex flex-col items-center text-center">
                   <img 
                     src="/images/signature.png" 
                     alt="Mohd Amin Ganai Signature" 
                     className="h-9 w-auto object-contain mix-blend-multiply opacity-95 -mb-1"
                   />
-                  <p style={{ color: themeBg }} className="text-[10px] font-black uppercase tracking-tight leading-none pt-0.5">
-                    Mohd Amin Ganai
-                  </p>
-                  <p className="text-[8px] font-semibold text-slate-500 leading-none">
-                    Founder & President
-                  </p>
+                  <div>
+                    <p style={{ color: themeBg }} className="text-[10px] font-black uppercase tracking-tight leading-none pt-0.5 whitespace-nowrap">
+                      Mohd Amin Ganai
+                    </p>
+                    <p className="text-[8px] font-semibold text-slate-500 leading-none pt-0.5 whitespace-nowrap">
+                      Founder & President
+                    </p>
+                  </div>
                 </div>
 
                 {/* Right Official Seal Stamp */}

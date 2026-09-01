@@ -238,17 +238,17 @@ export class MembershipCardService {
 
     // Real Signature
     try {
-      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 5, 65, 12, 6);
+      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 7, 65, 12, 6);
     } catch (e) {}
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(3.8);
     doc.setTextColor(15, 23, 42);
-    doc.text('Mohd Amin Ganai', 5, 71.8);
+    doc.text('Mohd Amin Ganai', 13, 71.8, { align: 'center' });
     doc.setFontSize(2.8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
-    doc.text('Founder & President', 5, 74.2);
+    doc.text('Founder & President', 13, 74.2, { align: 'center' });
 
     // Real Seal
     try {

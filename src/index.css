@@ -131,3 +131,46 @@
 .animate-ticker:hover {
   animation-play-state: paused;
 }
+
+/* Print Optimization Stylesheet */
+@media print {
+  nav,
+  footer,
+  aside,
+  button,
+  .no-print,
+  [role="navigation"],
+  [aria-label="Mobile Navigation"] {
+    display: none !important;
+  }
+
+  body,
+  html,
+  #root,
+  main {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  .shadow-brand-sm,
+  .shadow-brand-md,
+  .shadow-brand-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #cccccc !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -1,37 +1,65 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { MapPin, Mail, Phone, Clock, CheckCircle2, Send } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
+import { MapPin, Mail, Phone, Clock, CheckCircle2, Send, AlertCircle } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const { addSupportTicket, settings } = useDatabase();
   const { t } = useLanguage();
+  const toast = useToast();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
   const [category, setCategory] = useState<any>('general_inquiry');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  // Field Touched / Dirty tracking for inline validation
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    message: false,
+  });
+
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+  const errors = {
+    name: touched.name && name.trim().length < 2 ? 'Please enter your full name (at least 2 characters).' : '',
+    email: touched.email && (!email.trim() || !emailRegex.test(email.trim())) ? 'Please provide a valid email address for our reply.' : '',
+    message: touched.message && message.trim().length < 10 ? 'Message must be at least 10 characters long.' : '',
+  };
+
+  const isFormValid = name.trim().length >= 2 && emailRegex.test(email.trim()) && message.trim().length >= 10;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !message) return;
+    if (!isFormValid) {
+      setTouched({ name: true, email: true, message: true });
+      return;
+    }
+
+    const detailedMessage = phone.trim() 
+      ? `${message.trim()}\n\n[Contact Phone/WhatsApp: ${phone.trim()}]`
+      : message.trim();
 
     addSupportTicket({
-      name,
-      email,
-      subject: subject || 'General Query',
+      name: name.trim(),
+      email: email.trim(),
+      subject: subject.trim() || 'General Query',
       category,
       priority: 'medium',
-      message,
+      message: detailedMessage,
     });
 
+    toast.success('Your inquiry has been logged. Our donor desk will respond within 24 hours.', 'Inquiry Submitted');
     setSubmitted(true);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fadeIn">
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
           {t('contact.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
@@ -40,7 +68,10 @@ export const ContactPage: React.FC = () => {
           {t('contact.title', 'Contact Headquarters & Donor Support Desk')}
         </h1>
         <p className="text-content-secondary text-sm leading-relaxed">
-          {t('contact.subtitle', 'Have questions regarding project allocations, Section 80G receipts, recurring subscriptions, or field visits? Reach out directly.')}
+          {t(
+            'contact.subtitle',
+            'Have questions regarding project allocations, Section 80G receipts, recurring subscriptions, or field visits? Reach out directly.'
+          )}
         </p>
       </div>
 
@@ -48,152 +79,221 @@ export const ContactPage: React.FC = () => {
         {/* Left: Contact Info */}
         <div className="lg:col-span-5 bg-brand-purple text-white p-8 sm:p-10 rounded-3xl space-y-8 shadow-brand-md flex flex-col justify-between">
           <div className="space-y-6">
-            <h3 className="text-xl font-extrabold tracking-tight">{t('contact.offices_helplines', 'Foundation Offices & Helplines')}</h3>
+            <h3 className="text-xl font-extrabold tracking-tight">
+              {t('contact.offices_helplines', 'Foundation Offices & Helplines')}
+            </h3>
             <div className="space-y-4 text-xs text-white/85">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-brand-pink flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">{t('contact.registered_office', 'Registered Office:')}</span>
-                  <p>{settings.registeredAddress}</p>
+                  <span className="font-bold text-white block mb-0.5">
+                    {t('contact.registered_office', 'Registered Office:')}
+                  </span>
+                  <p>{settings.registeredAddress || 'Main Town, Baramulla, Jammu & Kashmir 193101, India'}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">Operating / Field Office:</span>
-                  <p>{settings.operatingAddress}</p>
+                  <span className="font-bold text-white block mb-0.5">
+                    {t('contact.liaison_office', 'Regional Liaison Office:')}
+                  </span>
+                  <p>Al Shujaiat Foundation, Rajbagh / Boulevard Road, Srinagar, J&K 190008, India</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" />
+              <div className="flex items-center gap-3 pt-2">
+                <Phone className="w-5 h-5 text-brand-pink flex-shrink-0" />
                 <div>
-                  <span className="font-bold text-white block mb-0.5">General & Donor Inquiries:</span>
-                  <p className="font-mono">{settings.email}</p>
+                  <span className="font-bold text-white block mb-0.5">{t('contact.phone_desk', 'Phone & WhatsApp:')}</span>
+                  <a href={`tel:${settings.phone}`} className="hover:text-brand-pink transition-colors font-mono">
+                    {settings.phone || '+91 94193 01319'}
+                  </a>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <div className="space-y-1.5">
-                  <span className="font-bold text-white block mb-0.5">Helplines & WhatsApp:</span>
-                  <div className="space-y-1 font-mono text-xs">
-                    <div>
-                      <a href={`tel:${settings.phone.replace(/\s+/g, '')}`} className="hover:text-emerald-300 transition-colors inline-block">
-                        {settings.phone}
-                      </a>
-                    </div>
-                    <div>
-                      <a href={`tel:${settings.emergencyPhone.replace(/\s+/g, '')}`} className="hover:text-emerald-300 transition-colors inline-block">
-                        {settings.emergencyPhone}
-                      </a>
-                    </div>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-brand-blue flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-white block mb-0.5">{t('contact.email_desk', 'Support & General Inquiries:')}</span>
+                  <a href={`mailto:${settings.email}`} className="hover:text-brand-blue transition-colors font-mono">
+                    {settings.email || 'info@asfjk.org'}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <div>
+                  <span className="font-bold text-white block mb-0.5">{t('contact.working_hours', 'Operating Hours:')}</span>
+                  <p>Mon – Sat: 9:00 AM – 6:00 PM IST (Disaster helpline active 24/7)</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/10 border border-white/10 space-y-1.5 text-xs text-white/90">
-            <span className="font-bold text-brand-blue block">Direct Desk Hours</span>
-            <p className="text-[11px] text-white/75">
-              Monday – Saturday: 9:00 AM – 6:00 PM IST (GMT+5:30)
-            </p>
+          <div className="bg-white/10 p-4 rounded-2xl border border-white/10 text-[11px] text-white/80">
+            <span className="font-bold text-white block mb-1">Tax Exemption Verification Desk</span>
+            <p>For custom CSR-1 filings, international wire transfer receipts, or statutory audit records, please direct queries to <span className="text-brand-pink font-bold">finance@asfjk.org</span>.</p>
           </div>
         </div>
 
-        {/* Right: Support Ticket Form */}
+        {/* Right: Contact Form */}
         <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl border border-content-border shadow-brand-sm">
           {submitted ? (
-            <div className="text-center py-10 space-y-4">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-              <h3 className="text-xl font-bold text-content-primary">Message Dispatched Successfully</h3>
-              <p className="text-xs text-content-secondary max-w-sm mx-auto">
-                Your support inquiry has been submitted to our Donor Desk. A support representative will respond within 24 hours.
+            <div className="text-center py-12 space-y-4 animate-fadeIn">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-black text-content-primary">Inquiry Successfully Received</h3>
+              <p className="text-xs text-content-secondary max-w-md mx-auto leading-relaxed">
+                Thank you for reaching out, <span className="font-bold text-brand-purple">{name}</span>. A confirmation has been registered on our donor support desk. Our team will review your query and reply to <span className="font-mono font-bold text-content-primary">{email}</span> within 24 hours.
               </p>
               <button
-                onClick={() => setSubmitted(false)}
-                className="btn-primary !py-2 !px-4 text-xs font-bold mt-2"
+                onClick={() => {
+                  setSubmitted(false);
+                  setName('');
+                  setEmail('');
+                  setPhone('');
+                  setSubject('');
+                  setMessage('');
+                  setTouched({ name: false, email: false, message: false });
+                }}
+                className="btn-outline !py-2.5 !px-6 text-xs font-bold"
               >
                 Send Another Message
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <h3 className="text-lg font-extrabold text-content-primary">
-                Send an Inquiry or Support Request
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+              <h3 className="text-lg font-black text-content-primary">
+                {t('contact.form_title', 'Send a Direct Message to Our Team')}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-content-primary mb-1">Your Full Name *</label>
+                {/* Full Name */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">
+                    Your Full Name <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. David Thompson"
+                    placeholder="e.g. Dr. Aijaz Ahmad"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    onBlur={() => setTouched((p) => ({ ...p, name: true }))}
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none transition-colors ${
+                      errors.name ? 'border-rose-400 bg-rose-50/30' : 'border-content-border focus:border-brand-purple'
+                    }`}
                   />
+                  {errors.name && (
+                    <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> {errors.name}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-content-primary mb-1">Email Address *</label>
+
+                {/* Email */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">
+                    Email Address <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="email"
                     required
-                    placeholder="e.g. david.thompson@example.com"
+                    placeholder="aijaz@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    onBlur={() => setTouched((p) => ({ ...p, email: true }))}
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none transition-colors ${
+                      errors.email ? 'border-rose-400 bg-rose-50/30' : 'border-content-border focus:border-brand-purple'
+                    }`}
                   />
+                  {errors.email && (
+                    <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> {errors.email}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-content-primary mb-1">Category</label>
+                {/* Phone */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">
+                    Phone / WhatsApp (Optional)
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+91 94193 01319"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                {/* Category */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">Inquiry Category</label>
                   <select
                     value={category}
-                    onChange={(e: any) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
                   >
                     <option value="general_inquiry">General Inquiry</option>
-                    <option value="receipt_request">Tax Receipt Request (80G)</option>
-                    <option value="recurring_support">Recurring Subscription Support</option>
-                    <option value="field_visit">Field Visit / Verification</option>
+                    <option value="donation_tax_receipt">Section 80G Tax Receipt & Audit</option>
+                    <option value="project_partnership">CSR / NGO Partnership</option>
+                    <option value="field_visit">Field Project Visit Request</option>
+                    <option value="volunteer_inquiry">Volunteer Network Query</option>
+                    <option value="payment_issue">Subscription / Payment Support</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-content-primary mb-1">Subject</label>
-                  <input
-                    type="text"
-                    placeholder="Brief description of your inquiry"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Message *</label>
+              {/* Subject */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">Subject</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Request for CSR Partnership Documentation"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              {/* Message */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  Message / Details <span className="text-rose-500">*</span>
+                </label>
                 <textarea
-                  rows={4}
                   required
-                  placeholder="How can we assist you today?"
+                  rows={4}
+                  placeholder="Describe your inquiry or request in detail (min 10 characters)..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  onBlur={() => setTouched((p) => ({ ...p, message: true }))}
+                  className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none transition-colors ${
+                    errors.message ? 'border-rose-400 bg-rose-50/30' : 'border-content-border focus:border-brand-purple'
+                  }`}
                 />
+                {errors.message && (
+                  <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {errors.message}
+                  </p>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2"
+                disabled={!isFormValid}
+                className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-sm"
               >
                 <Send className="w-4 h-4" />
-                <span>Submit Ticket</span>
+                <span>Submit Inquiry</span>
               </button>
             </form>
           )}

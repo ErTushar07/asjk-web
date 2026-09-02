@@ -29,7 +29,7 @@ export const StoriesPage: React.FC<{ onNavigate: (route: string) => void }> = ({
           >
             <div>
               <div className="relative h-32 sm:h-64 w-full">
-                <img src={s.coverImage} alt={s.title} className="w-full h-full object-cover" />
+                <img src={s.coverImage} alt={s.title} loading="lazy" width="600" height="350" className="w-full h-full object-cover" />
                 <div className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-brand-purple/90 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-white text-[10px] sm:text-xs font-semibold flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-brand-pink" />
                   <span className="truncate max-w-[100px] sm:max-w-none">{s.location}</span>

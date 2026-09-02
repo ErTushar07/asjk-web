@@ -29,7 +29,7 @@ export const NewsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ on
           >
             <div>
               <div className="relative h-32 sm:h-60 w-full">
-                <img src={item.coverImage} alt={item.title} className="w-full h-full object-cover" />
+                <img src={item.coverImage} alt={item.title} loading="lazy" width="600" height="350" className="w-full h-full object-cover" />
                 <div className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-brand-pink text-white text-[9px] sm:text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-pink-glow flex items-center gap-1">
                   <Tag className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {t(item.category, item.category)}
                 </div>

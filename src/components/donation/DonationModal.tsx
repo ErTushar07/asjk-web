@@ -146,11 +146,17 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-content-border relative animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="donation-modal-title"
+        className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-content-border relative animate-fadeIn"
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close donation modal"
           className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-surface-soft hover:bg-surface-card flex items-center justify-center text-content-secondary hover:text-content-primary transition-colors"
         >
           <X className="w-5 h-5" />
@@ -163,7 +169,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-blue border border-white/15 mb-2">
               <ShieldCheck className="w-3.5 h-3.5 text-brand-pink" /> {t('donate.tax_deductible', '100% Tax Deductible (80G / 501c3)')}
             </span>
-            <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+            <h3 id="donation-modal-title" className="text-xl sm:text-2xl font-extrabold tracking-tight">
               {t('donate.title', 'Make a Life-Changing Contribution')}
             </h3>
             <p className="text-white/80 text-xs sm:text-sm mt-1">

@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useToast } from '../../contexts/ToastContext';
 import { ReceiptService } from '../../services/receiptService';
 import { ReportService } from '../../services/reportService';
 import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
@@ -52,6 +53,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   } = useDatabase();
   const { formatUSD } = useCurrency();
   const { supportedLanguages } = useLanguage();
+  const toast = useToast();
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
@@ -1263,19 +1265,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                           <td className="py-3 px-4 text-right space-x-1.5">
                             <button
                               onClick={() => setSelectedVolunteer(v)}
+                              aria-label={`View dossier for ${v.fullName}`}
                               className="btn-primary !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1"
                             >
                               <Eye className="w-3 h-3" /> Dossier
                             </button>
                             <button
                               onClick={() => setIdCardModalVolunteer(v)}
+                              aria-label={`View ID card for ${v.fullName}`}
                               className="btn-outline !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1 text-brand-purple hover:bg-brand-purple/10"
                             >
                               <IdCard className="w-3 h-3 text-brand-pink" /> ID Card
                             </button>
                             {v.status !== 'approved' && (
                               <button
-                                onClick={() => updateVolunteerStatus(v.id, 'approved')}
+                                onClick={() => {
+                                  updateVolunteerStatus(v.id, 'approved');
+                                  toast.success(`Approved volunteer credentials for ${v.fullName}`, 'Volunteer Approved');
+                                }}
+                                aria-label={`Approve volunteer application of ${v.fullName}`}
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors"
                               >
                                 Approve
@@ -1283,7 +1291,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                             )}
                             {v.status !== 'rejected' && (
                               <button
-                                onClick={() => updateVolunteerStatus(v.id, 'rejected')}
+                                onClick={() => {
+                                  updateVolunteerStatus(v.id, 'rejected');
+                                  toast.info(`Marked application of ${v.fullName} as rejected`, 'Volunteer Status');
+                                }}
+                                aria-label={`Reject volunteer application of ${v.fullName}`}
                                 className="bg-rose-100 hover:bg-rose-200 text-rose-700 px-2 py-1 rounded-lg text-[10px] font-bold transition-colors"
                               >
                                 Reject

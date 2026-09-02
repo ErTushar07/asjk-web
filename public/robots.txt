@@ -1,21 +1,11 @@
+# Al Shujaiat Foundation robots.txt
 User-agent: *
-Disallow: /admin
-Disallow: /admin/*
-Disallow: /dashboard
-Disallow: /receipts
-Disallow: /donations
-Disallow: /recurring-donations
-Disallow: /profile
-Disallow: /settings
-Disallow: /security
-
 Allow: /
 Allow: /about
+Allow: /leadership
 Allow: /our-work
 Allow: /projects
-Allow: /projects/*
 Allow: /campaigns
-Allow: /campaigns/*
 Allow: /impact
 Allow: /transparency
 Allow: /stories
@@ -31,3 +21,10 @@ Allow: /terms
 Allow: /refund-policy
 Allow: /donation-policy
 Allow: /cookie-policy
+
+# Administrative Portal Disallow
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://www.asfjk.org/sitemap.xml

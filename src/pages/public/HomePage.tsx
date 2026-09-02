@@ -90,6 +90,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
                   <img
                     src="https://images.unsplash.com/photo-1541888946425-d0fbb186c5f3?auto=format&fit=crop&w=800&q=80"
                     alt="Clean Water in Kashmir"
+                    loading="lazy"
+                    width="600"
+                    height="350"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=800&q=80';
                     }}
@@ -336,6 +339,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
                 <img
                   src={s.coverImage}
                   alt={s.title}
+                  loading="lazy"
+                  width="600"
+                  height="350"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-white text-[9px] sm:text-xs font-semibold flex items-center gap-1">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
+import { useToast } from '../../contexts/ToastContext';
 import { VolunteerApplication } from '../../types';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import {
@@ -37,6 +38,7 @@ export const PRIMARY_VOLUNTEER_ROLES = [
 export const VolunteerPage: React.FC = () => {
   const { t } = useLanguage();
   const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
+  const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<'apply' | 'status'>('apply');
   const [lookupEmail, setLookupEmail] = useState('');
@@ -135,6 +137,7 @@ export const VolunteerPage: React.FC = () => {
 
       setCreatedVolunteer(newApp);
       setSubmitted(true);
+      toast.success('Your volunteer application has been submitted for board review.', 'Application Registered');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error('Failed to submit volunteer application:', err);
@@ -528,7 +531,7 @@ export const VolunteerPage: React.FC = () => {
                   <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-purple/30 bg-surface-soft hover:bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors">
                     <Camera className="w-4 h-4 text-brand-pink" />
                     <span>Upload Photo</span>
-                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                    <input type="file" accept="image/*" aria-label="Upload Passport ID Photo" onChange={handlePhotoUpload} className="hidden" />
                   </label>
                   {photoUrl && (
                     <div className="flex items-center gap-2">
@@ -545,7 +548,7 @@ export const VolunteerPage: React.FC = () => {
                   <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-blue/30 bg-surface-soft hover:bg-brand-blue/10 text-brand-blue text-xs font-bold transition-colors">
                     <Upload className="w-4 h-4 text-brand-blue" />
                     <span>Attach CV</span>
-                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="hidden" />
+                    <input type="file" accept=".pdf,.doc,.docx" aria-label="Attach CV or Resume Document" onChange={handleResumeUpload} className="hidden" />
                   </label>
                   {resumeFile && (
                     <div className="flex items-center gap-1.5 text-[11px] text-content-primary truncate font-mono">

@@ -4,7 +4,8 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Heart, Globe, DollarSign, ChevronDown, 
-  User as UserIcon, Shield, FileText, Activity, Layers, LogIn 
+  User as UserIcon, Shield, FileText, Activity, Layers, LogIn,
+  Check, LayoutDashboard, RefreshCw
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -149,6 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                   setCurrDropdownOpen(false);
                   setUserDropdownOpen(false);
                 }}
+                aria-label={`Select Language, currently ${currentLanguage.nativeName}`}
                 className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-content-border hover:border-brand-purple text-content-primary hover:text-brand-purple transition-colors flex items-center gap-1 text-xs font-semibold flex-shrink-0"
                 title="Select Language"
               >
@@ -169,6 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                         setLanguage(lang.code);
                         setLangDropdownOpen(false);
                       }}
+                      aria-label={`Switch language to ${lang.nativeName}`}
                       className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors ${
                         currentLanguage.code === lang.code
                           ? 'bg-surface-highlight text-brand-purple font-bold'
@@ -179,7 +182,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                         <span>{lang.flag}</span>
                         <span>{lang.nativeName}</span>
                       </span>
-                      <span className="text-[10px] text-content-muted uppercase font-mono">{lang.code}</span>
+                      {currentLanguage.code === lang.code && (
+                        <Check className="w-3.5 h-3.5 text-brand-purple" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -194,6 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                   setLangDropdownOpen(false);
                   setUserDropdownOpen(false);
                 }}
+                aria-label={`Select Currency, currently ${currentCurrency.code}`}
                 className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-content-border hover:border-brand-purple text-content-primary hover:text-brand-purple transition-colors flex items-center gap-1 text-xs font-bold font-mono flex-shrink-0"
                 title="Select Currency"
               >
@@ -214,6 +220,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                         setCurrency(curr.code);
                         setCurrDropdownOpen(false);
                       }}
+                      aria-label={`Switch currency to ${curr.name} (${curr.code})`}
                       className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors ${
                         currentCurrency.code === curr.code
                           ? 'bg-surface-highlight text-brand-purple font-bold'
@@ -232,6 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
             {!isAuthenticated ? (
               <button
                 onClick={() => onNavigate('/login')}
+                aria-label="Donor Sign In"
                 className="p-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-content-border hover:border-brand-purple text-content-primary hover:text-brand-purple transition-colors flex items-center gap-1.5 text-xs font-bold flex-shrink-0"
                 title="Donor Sign In"
               >
@@ -246,6 +254,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                     setLangDropdownOpen(false);
                     setCurrDropdownOpen(false);
                   }}
+                  aria-label="Open User Account Menu"
                   className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-surface-soft hover:bg-surface-card border border-content-border text-content-primary transition-colors flex items-center gap-1 text-xs font-semibold flex-shrink-0"
                   title="My Account"
                 >
@@ -258,9 +267,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
 
                 {userDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
-                    <div className="px-4 py-2 border-b border-content-border">
-                      <p className="text-xs font-bold text-content-primary">{user?.name}</p>
-                      <p className="text-[10px] text-content-muted truncate">{user?.email}</p>
+                    <div className="px-4 py-3 border-b border-content-border bg-surface-soft rounded-t-2xl">
+                      <p className="text-xs font-bold text-content-primary truncate">{user?.name}</p>
+                      <p className="text-[11px] text-content-secondary truncate font-mono">{user?.email}</p>
                     </div>
 
                     <div className="py-1">
@@ -271,8 +280,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                         }}
                         className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
                       >
-                        <Heart className="w-3.5 h-3.5 text-brand-pink" />
+                        <LayoutDashboard className="w-3.5 h-3.5 text-brand-purple" />
                         <span>Donor Dashboard</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onNavigate('/donations');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                      >
+                        <Heart className="w-3.5 h-3.5 text-brand-pink" />
+                        <span>My Contributions</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onNavigate('/recurring-donations');
+                          setUserDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-brand-purple" />
+                        <span>Recurring Subscriptions</span>
                       </button>
 
                       <button
@@ -317,6 +348,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
             {/* Donate Now Button */}
             <button
               onClick={onOpenDonateModal}
+              aria-label="Open donation window to contribute"
               className="btn-secondary !py-1.5 sm:!py-2 !px-2.5 sm:!px-4 text-xs sm:text-sm flex items-center gap-1 sm:gap-2 shadow-pink-glow flex-shrink-0"
             >
               <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" />

@@ -1,47 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useLanguage } from './contexts/LanguageContext';
 import { useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DonationModal } from './components/donation/DonationModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
-// Public Pages
-import { HomePage } from './pages/public/HomePage';
-import { AboutPage } from './pages/public/AboutPage';
-import { LeadershipPage } from './pages/public/LeadershipPage';
-import { OurWorkPage } from './pages/public/OurWorkPage';
-import { ProjectsPage } from './pages/public/ProjectsPage';
-import { ProjectDetailsPage } from './pages/public/ProjectDetailsPage';
-import { CampaignsPage } from './pages/public/CampaignsPage';
-import { CampaignDetailsPage } from './pages/public/CampaignDetailsPage';
-import { ImpactPage } from './pages/public/ImpactPage';
-import { TransparencyPage } from './pages/public/TransparencyPage';
-import { StoriesPage } from './pages/public/StoriesPage';
-import { NewsPage } from './pages/public/NewsPage';
-import { VolunteerPage } from './pages/public/VolunteerPage';
-import { MembershipPage } from './pages/public/MembershipPage';
-import { PartnersPage } from './pages/public/PartnersPage';
-import { DonatePage } from './pages/public/DonatePage';
-import { ContactPage } from './pages/public/ContactPage';
-import { FAQPage } from './pages/public/FAQPage';
-import { LegalPage } from './pages/public/LegalPages';
-import { NotFoundPage } from './pages/public/NotFoundPage';
+// 1. Code Splitting: Lazy-load all public pages
+const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
+const AboutPage = lazy(() => import('./pages/public/AboutPage').then((m) => ({ default: m.AboutPage })));
+const LeadershipPage = lazy(() => import('./pages/public/LeadershipPage').then((m) => ({ default: m.LeadershipPage })));
+const OurWorkPage = lazy(() => import('./pages/public/OurWorkPage').then((m) => ({ default: m.OurWorkPage })));
+const ProjectsPage = lazy(() => import('./pages/public/ProjectsPage').then((m) => ({ default: m.ProjectsPage })));
+const ProjectDetailsPage = lazy(() => import('./pages/public/ProjectDetailsPage').then((m) => ({ default: m.ProjectDetailsPage })));
+const CampaignsPage = lazy(() => import('./pages/public/CampaignsPage').then((m) => ({ default: m.CampaignsPage })));
+const CampaignDetailsPage = lazy(() => import('./pages/public/CampaignDetailsPage').then((m) => ({ default: m.CampaignDetailsPage })));
+const ImpactPage = lazy(() => import('./pages/public/ImpactPage').then((m) => ({ default: m.ImpactPage })));
+const TransparencyPage = lazy(() => import('./pages/public/TransparencyPage').then((m) => ({ default: m.TransparencyPage })));
+const StoriesPage = lazy(() => import('./pages/public/StoriesPage').then((m) => ({ default: m.StoriesPage })));
+const NewsPage = lazy(() => import('./pages/public/NewsPage').then((m) => ({ default: m.NewsPage })));
+const VolunteerPage = lazy(() => import('./pages/public/VolunteerPage').then((m) => ({ default: m.VolunteerPage })));
+const MembershipPage = lazy(() => import('./pages/public/MembershipPage').then((m) => ({ default: m.MembershipPage })));
+const PartnersPage = lazy(() => import('./pages/public/PartnersPage').then((m) => ({ default: m.PartnersPage })));
+const DonatePage = lazy(() => import('./pages/public/DonatePage').then((m) => ({ default: m.DonatePage })));
+const ContactPage = lazy(() => import('./pages/public/ContactPage').then((m) => ({ default: m.ContactPage })));
+const FAQPage = lazy(() => import('./pages/public/FAQPage').then((m) => ({ default: m.FAQPage })));
+const LegalPage = lazy(() => import('./pages/public/LegalPages').then((m) => ({ default: m.LegalPage })));
+const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
-// Donor Pages
-import { AuthPage } from './pages/donor/AuthPages';
-import { DonorDashboardPage } from './pages/donor/DonorDashboardPage';
-import { MyDonationsPage } from './pages/donor/MyDonationsPage';
-import { MyRecurringPage } from './pages/donor/MyRecurringPage';
-import { MyReceiptsPage } from './pages/donor/MyReceiptsPage';
-import { DonorProfilePage } from './pages/donor/DonorProfilePage';
+// Lazy-load donor pages
+const AuthPage = lazy(() => import('./pages/donor/AuthPages').then((m) => ({ default: m.AuthPage })));
+const DonorDashboardPage = lazy(() => import('./pages/donor/DonorDashboardPage').then((m) => ({ default: m.DonorDashboardPage })));
+const MyDonationsPage = lazy(() => import('./pages/donor/MyDonationsPage').then((m) => ({ default: m.MyDonationsPage })));
+const MyRecurringPage = lazy(() => import('./pages/donor/MyRecurringPage').then((m) => ({ default: m.MyRecurringPage })));
+const MyReceiptsPage = lazy(() => import('./pages/donor/MyReceiptsPage').then((m) => ({ default: m.MyReceiptsPage })));
+const DonorProfilePage = lazy(() => import('./pages/donor/DonorProfilePage').then((m) => ({ default: m.DonorProfilePage })));
 
-// Admin Portal
-import { AdminPortal } from './pages/admin/AdminPortal';
-import { AdminAuthGate } from './pages/admin/AdminAuthGate';
+// Lazy-load admin portal
+const AdminPortal = lazy(() => import('./pages/admin/AdminPortal').then((m) => ({ default: m.AdminPortal })));
+const AdminAuthGate = lazy(() => import('./pages/admin/AdminAuthGate').then((m) => ({ default: m.AdminAuthGate })));
+
+// Smooth Skeleton Fallback Component for Suspense
+const PageSkeleton: React.FC = () => (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-pulse">
+    <div className="h-8 bg-surface-soft rounded-2xl w-48 mx-auto" />
+    <div className="h-12 bg-surface-soft rounded-3xl w-3/4 max-w-xl mx-auto" />
+    <div className="h-4 bg-surface-soft rounded-xl w-1/2 max-w-md mx-auto" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+      <div className="h-64 bg-surface-soft rounded-3xl border border-content-border/40" />
+      <div className="h-64 bg-surface-soft rounded-3xl border border-content-border/40" />
+      <div className="h-64 bg-surface-soft rounded-3xl border border-content-border/40" />
+    </div>
+  </div>
+);
 
 export const App: React.FC = () => {
-  const { currentLanguage, isRTL } = useLanguage();
-  const { user, isAdmin, twoFactorVerified, role } = useAuth();
+  const { isRTL } = useLanguage();
+  const { user, isAdmin, twoFactorVerified } = useAuth();
 
   // Simple, robust client router that supports back/forward navigation and direct links
   const [currentRoute, setCurrentRoute] = useState<string>(() => {
@@ -77,11 +93,11 @@ export const App: React.FC = () => {
   const renderCurrentPage = () => {
     // Admin Routes - Stealth protection: Completely hidden as 404 to the public
     if (currentRoute.startsWith('/admin')) {
-      const isStaffKeyPresent = typeof window !== 'undefined' && (
-        window.location.search.includes('staff=asfjk') || 
-        window.location.search.includes('access=staff') || 
-        window.sessionStorage.getItem('asfjk_staff_gate_unlocked') === 'true'
-      );
+      const isStaffKeyPresent =
+        typeof window !== 'undefined' &&
+        (window.location.search.includes('staff=asfjk') ||
+          window.location.search.includes('access=staff') ||
+          window.sessionStorage.getItem('asfjk_staff_gate_unlocked') === 'true');
 
       if (user && isAdmin && twoFactorVerified) {
         const parts = currentRoute.split('/');
@@ -104,7 +120,8 @@ export const App: React.FC = () => {
     if (currentRoute === '/login') return <AuthPage mode="login" onNavigate={navigate} />;
     if (currentRoute === '/register') return <AuthPage mode="register" onNavigate={navigate} />;
     if (currentRoute === '/forgot-password') return <AuthPage mode="forgot-password" onNavigate={navigate} />;
-    if (currentRoute === '/dashboard') return <DonorDashboardPage onNavigate={navigate} onOpenDonateModal={() => handleOpenDonateModal()} />;
+    if (currentRoute === '/dashboard')
+      return <DonorDashboardPage onNavigate={navigate} onOpenDonateModal={() => handleOpenDonateModal()} />;
     if (currentRoute === '/donations') return <MyDonationsPage onNavigate={navigate} />;
     if (currentRoute === '/recurring-donations') return <MyRecurringPage onNavigate={navigate} />;
     if (currentRoute === '/receipts') return <MyReceiptsPage onNavigate={navigate} />;
@@ -149,6 +166,7 @@ export const App: React.FC = () => {
     if (currentRoute === '/refund-policy') return <LegalPage type="refund-policy" />;
     if (currentRoute === '/donation-policy') return <LegalPage type="donation-policy" />;
     if (currentRoute === '/cookie-policy') return <LegalPage type="cookie-policy" />;
+
     // Root Home
     if (currentRoute === '/' || currentRoute === '') {
       return <HomePage onNavigate={navigate} onOpenDonateModal={handleOpenDonateModal} />;
@@ -170,11 +188,24 @@ export const App: React.FC = () => {
         />
       )}
 
-      <main className="flex-1 w-full max-w-full overflow-x-hidden">
-        {renderCurrentPage()}
+      <main className="flex-1 w-full max-w-full overflow-x-hidden pb-16 md:pb-0">
+        <ErrorBoundary>
+          <Suspense fallback={<PageSkeleton />}>
+            {renderCurrentPage()}
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
-      {!isAdminRoute && <Footer onNavigate={navigate} />}
+      {!isAdminRoute && (
+        <>
+          <Footer onNavigate={navigate} />
+          <MobileBottomNav
+            currentRoute={currentRoute}
+            onNavigate={navigate}
+            onOpenDonateModal={() => handleOpenDonateModal()}
+          />
+        </>
+      )}
 
       {/* Global Modal Instance */}
       <DonationModal

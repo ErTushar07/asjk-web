@@ -199,6 +199,9 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
               <img 
                 src="/images/signature.png" 
                 alt="Founder Signature" 
+                loading="lazy"
+                width="120"
+                height="48"
                 className="h-12 w-auto object-contain mix-blend-multiply opacity-95"
               />
               <span className="text-[9px] font-mono text-content-muted block">Authorized Signatory</span>
@@ -209,6 +212,9 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
               <img 
                 src="/images/seal.png" 
                 alt="Official Foundation Seal" 
+                loading="lazy"
+                width="80"
+                height="80"
                 className="w-full h-full object-contain mix-blend-multiply opacity-95 rotate-[-5deg] drop-shadow-sm hover:rotate-0 transition-transform duration-300"
               />
             </div>

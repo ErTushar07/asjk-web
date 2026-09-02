@@ -58,8 +58,10 @@ export const LeadershipCard: React.FC<LeadershipCardProps> = ({
                 <img 
                   src={member.photoUrl} 
                   alt={member.name} 
-                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
+                  width="80"
+                  height="80"
+                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
               ) : (
                 <div className="w-full h-full bg-brand-purple/10 flex items-center justify-center text-brand-purple font-black text-lg sm:text-xl">

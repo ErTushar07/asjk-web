@@ -26,7 +26,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
   return (
     <div className="space-y-20 pb-16">
       {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-surface-soft via-white to-white pt-12 pb-20 border-b border-content-border/60">
+      <section className="relative overflow-hidden bg-gradient-to-b from-surface-soft via-white to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-12 pb-20 border-b border-content-border/60">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 left-10 w-80 h-80 bg-brand-pink/10 rounded-full blur-3xl pointer-events-none" />
         
@@ -34,7 +34,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content Column */}
             <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-highlight border border-brand-blue/30 text-brand-purple text-xs font-bold tracking-wide shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-highlight dark:bg-purple-950/60 border border-brand-blue/30 dark:border-purple-800 text-brand-purple dark:text-purple-300 text-xs font-bold tracking-wide shadow-sm">
                 <Sparkles className="w-4 h-4 text-brand-pink" />
                 <span>{t('hero.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}</span>
               </div>

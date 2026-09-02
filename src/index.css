@@ -137,22 +137,33 @@
    ========================================================================== */
 
 .dark body {
-  background-color: #0B0F19;
-  color: #F8FAFC;
+  background-color: #0B0F19 !important;
+  color: #F8FAFC !important;
 }
 
 .dark #root {
-  background-color: #0B0F19;
+  background-color: #0B0F19 !important;
 }
 
 .dark header {
-  background-color: rgba(15, 23, 42, 0.95) !important;
+  background-color: rgba(15, 23, 42, 0.98) !important;
   border-color: #334155 !important;
 }
 
 .dark nav[aria-label="Mobile Navigation"] {
-  background-color: rgba(15, 23, 42, 0.95) !important;
+  background-color: rgba(15, 23, 42, 0.98) !important;
   border-color: #334155 !important;
+}
+
+/* Background Gradients: Override white and light gradients to dark slate */
+.dark section,
+.dark div {
+  --tw-gradient-from: #0B0F19 var(--tw-gradient-from-position);
+  --tw-gradient-to: #0F172A var(--tw-gradient-to-position);
+}
+
+.dark .bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, #0B0F19 0%, #0F172A 50%, #0B0F19 100%) !important;
 }
 
 .dark .bg-white {
@@ -166,31 +177,65 @@
   background-color: #1E293B !important;
 }
 
-.dark .bg-surface-highlight {
-  background-color: rgba(57, 49, 134, 0.25) !important;
+.dark .bg-surface-soft\/70 {
+  background-color: rgba(15, 23, 42, 0.9) !important;
 }
 
+.dark .bg-surface-highlight {
+  background-color: rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Text Colors: High-contrast luminosity */
 .dark .text-content-primary {
   color: #F8FAFC !important;
 }
 
 .dark .text-content-secondary {
-  color: #94A3B8 !important;
+  color: #CBD5E1 !important;
 }
 
 .dark .text-content-muted {
-  color: #64748B !important;
+  color: #94A3B8 !important;
+}
+
+/* Brand Purple Text Contrast in Dark Mode */
+.dark .text-brand-purple {
+  color: #C084FC !important; /* Bright violet for clear legibility on dark backgrounds */
+}
+
+.dark .text-brand-purple-dark {
+  color: #E9D5FF !important;
 }
 
 .dark .border-content-border {
   border-color: #334155 !important;
 }
 
+.dark .border-content-border\/60 {
+  border-color: rgba(51, 65, 85, 0.6) !important;
+}
+
 .dark .glass-card {
-  background-color: rgba(15, 23, 42, 0.85) !important;
+  background-color: rgba(15, 23, 42, 0.9) !important;
   border-color: rgba(51, 65, 85, 0.8) !important;
 }
 
+/* Navigation Links in Header Sub-bar */
+.dark .border-t.border-content-border\/60 nav button {
+  color: #CBD5E1 !important;
+}
+
+.dark .border-t.border-content-border\/60 nav button:hover {
+  color: #FFFFFF !important;
+  background-color: #1E293B !important;
+}
+
+.dark .border-t.border-content-border\/60 nav button.text-brand-purple {
+  color: #E40981 !important;
+  background-color: rgba(228, 9, 129, 0.18) !important;
+}
+
+/* Form Controls */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .dark select,
 .dark textarea {
@@ -202,7 +247,7 @@
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
 .dark select:focus,
 .dark textarea:focus {
-  border-color: #7C3AED !important;
+  border-color: #A855F7 !important;
   outline: none;
 }
 
@@ -212,13 +257,13 @@
 }
 
 .dark .btn-outline {
-  color: #F8FAFC;
-  border-color: rgba(124, 58, 237, 0.5);
+  color: #F8FAFC !important;
+  border-color: rgba(192, 132, 252, 0.6) !important;
 }
 
 .dark .btn-outline:hover {
-  background-color: rgba(124, 58, 237, 0.2);
-  border-color: #7C3AED;
+  background-color: rgba(192, 132, 252, 0.15) !important;
+  border-color: #C084FC !important;
 }
 
 .dark table thead tr.bg-surface-soft {
@@ -229,6 +274,7 @@
   background-color: rgba(30, 41, 59, 0.7) !important;
 }
 
+/* Scrollbars */
 .dark ::-webkit-scrollbar-track {
   background: #0B0F19;
 }

@@ -14,6 +14,7 @@ export interface CreatePaymentParams {
   targetName: string;
   idempotencyKey: string;
   turnstileToken?: string;
+  razorpayKeyId?: string;
 }
 
 export interface PaymentProcessResult {
@@ -51,11 +52,34 @@ export class PaymentService {
   }
 
   /**
+   * Dynamically loads the official Razorpay Checkout SDK if not already loaded on window
+   */
+  public static async loadRazorpayScript(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    if ((window as any).Razorpay) return true;
+
+    return new Promise((resolve) => {
+      const existing = document.querySelector('script[src*="checkout.razorpay.com"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(true));
+        existing.addEventListener('error', () => resolve(false));
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  }
+
+  /**
    * Core Payment Processing: Server-validated Razorpay flow with Edge Function & fallback
    */
   public static async processPayment(params: CreatePaymentParams): Promise<PaymentProcessResult> {
     const amountUSD = this.calculateUSD(params.amount, params.currency);
-    const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder';
+    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder';
 
     // 1. Production Full-Stack Flow via Supabase Edge Function
     if (isSupabaseConfigured && params.method.startsWith('razorpay')) {
@@ -80,8 +104,9 @@ export class PaymentService {
           throw new Error(orderError?.message || orderData?.error || 'Order creation failed');
         }
 
-        // B. If Razorpay SDK is loaded on window, open official Checkout modal
-        if (typeof window !== 'undefined' && (window as any).Razorpay && !razorpayKeyId.includes('placeholder')) {
+        // B. Ensure Razorpay SDK is loaded on window, then open official Checkout modal
+        const isLoaded = await this.loadRazorpayScript();
+        if (typeof window !== 'undefined' && (window as any).Razorpay && isLoaded && !razorpayKeyId.includes('placeholder')) {
           const rzpResult = await new Promise<any>((resolve, reject) => {
             const options = {
               key: razorpayKeyId,

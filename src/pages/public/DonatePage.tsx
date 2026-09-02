@@ -7,7 +7,8 @@ import { usePageMeta } from '../../hooks/usePageMeta';
 import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
-  CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight 
+  CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
+  Copy, Check, AlertCircle
 } from 'lucide-react';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -34,13 +35,29 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe_card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [successResult, setSuccessResult] = useState<any | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
 
   const effectiveAmountUSD = customAmountUSD ? parseFloat(customAmountUSD) || 0 : selectedPresetUSD;
   const effectiveLocalAmount = convertUSDToCurrency(effectiveAmountUSD);
 
   const handleDonateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (effectiveAmountUSD <= 0 || !email) return;
+    setErrorMessage(null);
+    if (effectiveAmountUSD <= 0) {
+      setErrorMessage('Please enter a valid donation amount.');
+      return;
+    }
+    if (!email) {
+      setErrorMessage('Please provide a valid email address for your official Section 80G tax receipt.');
+      return;
+    }
 
     setIsProcessing(true);
     try {
@@ -71,8 +88,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       });
 
       setSuccessResult(result);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setErrorMessage(err.message || 'Payment authorization failed. Please try another payment option or bank wire.');
     } finally {
       setIsProcessing(false);
     }
@@ -415,7 +433,91 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 <span className="text-xs font-semibold text-content-primary">Direct Bank Wire / NEFT</span>
               </label>
             </div>
+
+            {/* Official Bank Account Details Box when Bank Wire is selected */}
+            {paymentMethod === 'bank_wire' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-3.5 animate-fadeIn">
+                <div className="flex items-center justify-between border-b border-content-border pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Building className="w-4 h-4 text-brand-purple" />
+                    <span className="text-xs font-extrabold text-content-primary">Official Statutory Bank Account</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                    80G Tax Exempt
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-[10px] text-content-muted block font-semibold">Beneficiary Name</span>
+                    <span className="font-bold text-content-primary">Al Shujaiat Foundation Jammu & Kashmir</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-content-muted block font-semibold">Account Type</span>
+                    <span className="font-bold text-content-primary">Current Account (Charitable Trust)</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-content-muted block font-semibold">Bank & Branch</span>
+                    <span className="font-bold text-content-primary">The Jammu & Kashmir Bank Ltd, Tral Pulwama</span>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-content-muted font-semibold">Account Number</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard('0134010100008892', 'acc')}
+                        className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                      >
+                        {copiedKey === 'acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedKey === 'acc' ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-sm text-brand-purple">0134010100008892</span>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-content-muted font-semibold">IFSC Code</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard('JAKA0LURGAM', 'ifsc')}
+                        className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                      >
+                        {copiedKey === 'ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedKey === 'ifsc' ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-sm text-brand-purple">JAKA0LURGAM</span>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-content-muted font-semibold">Direct UPI VPA</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard('asfjk@jksbi', 'upi')}
+                        className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                      >
+                        {copiedKey === 'upi' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedKey === 'upi' ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-sm text-brand-pink">asfjk@jksbi</span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-content-secondary pt-1 border-t border-content-border leading-relaxed">
+                  💡 <strong>Instructions:</strong> Complete your NEFT/RTGS/IMPS transfer and submit the form below. Your official Section 80G tax receipt will be issued immediately with your verification reference.
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Error Message Alert */}
+          {errorMessage && (
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5 animate-fadeIn">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-600" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
 
           <button
             type="submit"

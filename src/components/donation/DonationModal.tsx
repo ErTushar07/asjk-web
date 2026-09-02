@@ -6,7 +6,8 @@ import { DonationFrequency, PaymentMethod, Project, Campaign, Receipt } from '..
 import { ReceiptService } from '../../services/receiptService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
-  CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock
+  CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
+  Copy, AlertCircle
 } from 'lucide-react';
 
 interface DonationModalProps {
@@ -52,6 +53,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [successReceipt, setSuccessReceipt] = useState<Receipt | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
 
   // Synchronize target selection on open
   useEffect(() => {
@@ -536,6 +544,64 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     </div>
                   </label>
                 </div>
+
+                {/* Bank Account Details Box when Bank Wire selected in Modal */}
+                {paymentMethod === 'bank_wire' && (
+                  <div className="mt-3 p-3.5 sm:p-4 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-2.5 animate-fadeIn">
+                    <div className="flex items-center justify-between border-b border-content-border pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <Building className="w-4 h-4 text-brand-purple" />
+                        <span className="text-xs font-bold text-content-primary">Official Statutory Bank Account</span>
+                      </div>
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        80G Tax Exempt
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <span className="text-[10px] text-content-muted block">Beneficiary Name</span>
+                        <span className="font-bold text-content-primary">Al Shujaiat Foundation Jammu & Kashmir</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-content-muted block">Bank & Branch</span>
+                        <span className="font-bold text-content-primary">The Jammu & Kashmir Bank Ltd, Tral</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-content-muted">Account Number</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard('0134010100008892', 'modal_acc')}
+                            className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                          >
+                            {copiedKey === 'modal_acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            {copiedKey === 'modal_acc' ? 'Copied' : 'Copy'}
+                          </button>
+                        </div>
+                        <span className="font-mono font-bold text-xs text-brand-purple">0134010100008892</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-content-muted">IFSC Code</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard('JAKA0LURGAM', 'modal_ifsc')}
+                            className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                          >
+                            {copiedKey === 'modal_ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            {copiedKey === 'modal_ifsc' ? 'Copied' : 'Copy'}
+                          </button>
+                        </div>
+                        <span className="font-mono font-bold text-xs text-brand-purple">JAKA0LURGAM</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-content-secondary border-t border-content-border pt-1 leading-snug">
+                      💡 Transfer via IMPS/NEFT/UPI. Submit below to generate your official Section 80G tax receipt immediately.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}

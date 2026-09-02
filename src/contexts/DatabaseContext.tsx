@@ -344,6 +344,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       targetId: cleanInput.targetId,
       targetName: cleanInput.targetName,
       idempotencyKey: `idem_${Date.now()}`,
+      razorpayKeyId: settings.paymentGateways?.razorpayKeyId,
     });
 
     const now = new Date().toISOString();

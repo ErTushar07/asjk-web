@@ -3,6 +3,7 @@ import { User, UserRole } from '../types';
 import { INITIAL_USERS } from '../data/initialData';
 import { SecurityService } from '../services/securityService';
 import { TOTPService } from '../services/totpService';
+import { EmailService } from '../services/emailService';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 interface LoginResult {
@@ -464,25 +465,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Edge Function transactional email dispatch
+    // Dispatch real email via EmailService
     try {
-      if (isSupabaseConfigured) {
-        await supabase.functions.invoke('send-email', {
-          body: {
-            to: cleanEmail,
-            subject: 'Verify Your Donor Account — Al Shujaiat Foundation',
-            template: 'otp_verification',
-            data: { otpCode },
-          },
-        });
-      }
+      await EmailService.sendEmail({
+        to: cleanEmail,
+        subject: 'Verify Your Donor Account — Al Shujaiat Foundation',
+        template: 'otp_verification',
+        data: { name: params.name, otpCode },
+      });
     } catch (e) {}
 
     // NOTICE: We DO NOT set user session here! Account is NOT generated until verification succeeds.
     return {
       success: true,
       requiresOTP: true,
-      message: `A single-use 6-digit verification code has been dispatched to ${cleanEmail}. Please enter the code to activate your donor account.`,
+      message: `A single-use 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox (and spam folder) to activate your donor account.`,
     };
   };
 
@@ -509,9 +506,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setLastGeneratedOTP(newOtp);
 
+    // Dispatch fresh email
+    try {
+      await EmailService.sendEmail({
+        to: cleanEmail,
+        subject: 'New Verification Code — Al Shujaiat Foundation',
+        template: 'otp_verification',
+        data: { name: pending.name, otpCode: newOtp },
+      });
+    } catch (e) {}
+
     return {
       success: true,
-      message: `A new verification code has been sent to ${cleanEmail}.`,
+      message: `A fresh verification code has been dispatched to ${cleanEmail}.`,
     };
   };
 

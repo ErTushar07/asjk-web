@@ -188,14 +188,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
         {authSuccessMsg && (
           <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-start gap-2.5 animate-fadeIn">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p>{authSuccessMsg}</p>
-              {pendingOTPCode && (
-                <p className="mt-1 text-[11px] font-mono text-emerald-900 bg-emerald-100/70 px-2 py-1 rounded-lg border border-emerald-300">
-                  Verification Code: <strong>{pendingOTPCode}</strong>
-                </p>
-              )}
-            </div>
+            <p>{authSuccessMsg}</p>
           </div>
         )}
 

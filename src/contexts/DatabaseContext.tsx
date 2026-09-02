@@ -250,6 +250,12 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     safeSetItem('asfjk_db_audit', auditLogs);
   }, [auditLogs]);
   useEffect(() => {
+    safeSetItem('asfjk_db_volunteers', volunteers);
+  }, [volunteers]);
+  useEffect(() => {
+    safeSetItem('asfjk_db_partnerships', partnerships);
+  }, [partnerships]);
+  useEffect(() => {
     safeSetItem('asfjk_db_memberships', memberships);
   }, [memberships]);
   useEffect(() => {

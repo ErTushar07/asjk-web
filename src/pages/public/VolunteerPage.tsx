@@ -1,48 +1,62 @@
 import React, { useState } from 'react';
-import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useDatabase } from '../../contexts/DatabaseContext';
 import { VolunteerApplication } from '../../types';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
-import { 
-  HeartHandshake, CheckCircle2, Shield, ArrowRight, UploadCloud, 
-  FileText, X, Paperclip, Award, IdCard, Search, Clock, AlertCircle 
+import {
+  Heart,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Camera,
+  Search,
+  IdCard,
+  Briefcase,
+  GraduationCap,
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Check,
+  Clock,
+  Lock,
 } from 'lucide-react';
-import { optimizePhotoForCard } from '../../utils/imageOptimizer';
 
 export const VolunteerPage: React.FC = () => {
-  const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
   const { t } = useLanguage();
+  const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
 
+  const [activeTab, setActiveTab] = useState<'apply' | 'status'>('apply');
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupResult, setLookupResult] = useState<VolunteerApplication | 'not_found' | null>(null);
+
+  // Form State
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('United States');
+  const [city, setCity] = useState('Srinagar');
+  const [country, setCountry] = useState('India');
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [qualification, setQualification] = useState('');
-  const [degreeLevel, setDegreeLevel] = useState("Bachelor's Degree");
+  const [degreeLevel, setDegreeLevel] = useState('Bachelor of Technology (B.Tech / B.E.)');
   const [bloodGroup, setBloodGroup] = useState('O+');
-  const [photoUrl, setPhotoUrl] = useState<string>('');
-  const [resumeFile, setResumeFile] = useState<{ name: string; size: string; dataUrl?: string } | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'weekdays' | 'weekends' | 'full_time' | 'flexible'>('weekends');
-  const [experienceYears, setExperienceYears] = useState(2);
+  const [experienceYears, setExperienceYears] = useState<number>(3);
   const [statement, setStatement] = useState('');
+  const [resumeFile, setResumeFile] = useState<{ name: string; size: string; dataUrl?: string } | null>(null);
+
   const [submitted, setSubmitted] = useState(false);
-
-  // Status Lookup & Approved ID Card Retrieval
-  const [lookupEmail, setLookupEmail] = useState('');
-  const [lookupResult, setLookupResult] = useState<VolunteerApplication | null | 'not_found'>(null);
-  const [activeTab, setActiveTab] = useState<'apply' | 'status'>('apply');
-
   const [createdVolunteer, setCreatedVolunteer] = useState<VolunteerApplication | null>(null);
 
   const availableSkills = [
-    'Clean Water & Civil Engineering',
     'Emergency Relief & Field Logistics',
-    'Education, STEM & Tutoring',
     'Healthcare & Medical Support',
+    'Clean Water & Civil Engineering',
+    'Education, STEM & Tutoring',
     'Media, Photography & Storytelling',
-    'Community Mobilization & Coordination',
+    'Community Outreach & Translation',
+    'Accounting, Audit & Governance',
   ];
 
   const handleSkillToggle = (skill: string) => {
@@ -53,18 +67,12 @@ export const VolunteerPage: React.FC = () => {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      try {
-        const optimized = await optimizePhotoForCard(file);
-        setPhotoUrl(optimized);
-      } catch (err) {
-        console.warn('Photo optimization fallback:', err);
-        const reader = new FileReader();
-        reader.onload = () => setPhotoUrl(reader.result as string);
-        reader.readAsDataURL(file);
-      }
+      const reader = new FileReader();
+      reader.onload = () => setPhotoUrl(reader.result as string);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -98,6 +106,7 @@ export const VolunteerPage: React.FC = () => {
     else if (selectedSkills.includes('Emergency Relief & Field Logistics')) derivedRole = 'Emergency Relief & Logistics';
 
     try {
+      // Set status strictly to 'submitted' awaiting administrator evaluation
       const newApp = addVolunteerApplication({
         fullName: fullName.trim(),
         email: email.trim(),
@@ -114,7 +123,7 @@ export const VolunteerPage: React.FC = () => {
         availability,
         experienceYears,
         statement: statement || 'Dedicated volunteer ready to serve the community.',
-        status: 'approved',
+        status: 'submitted', // Awaiting Admin Review & Approval
       });
 
       setCreatedVolunteer(newApp);
@@ -204,347 +213,375 @@ export const VolunteerPage: React.FC = () => {
 
           {lookupResult && lookupResult !== 'not_found' && (
             <div className="space-y-6 pt-4 border-t border-content-border">
-              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-emerald-900 uppercase">
-                      APPLICATION VERIFIED & VOLUNTEER ID ACTIVE
-                    </h4>
-                    <p className="text-[11px] text-emerald-700">
-                      Volunteer ID: <span className="font-mono font-bold">{lookupResult.membershipNumber || `ASFJK25V${lookupResult.id.slice(-3)}`}</span> · Role: {lookupResult.roleDesignation || 'Humanitarian Volunteer'}
+              {lookupResult.status === 'approved' ? (
+                <>
+                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-xs font-bold text-emerald-900 uppercase">
+                          APPLICATION APPROVED & VOLUNTEER ID ACTIVE
+                        </h4>
+                        <p className="text-[11px] text-emerald-700">
+                          Volunteer ID: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Role: {lookupResult.roleDesignation || 'Humanitarian Volunteer'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-full uppercase">
+                      APPROVED
+                    </span>
+                  </div>
+
+                  <VolunteerIdCardPreview volunteer={lookupResult} settings={settings} />
+                </>
+              ) : lookupResult.status === 'rejected' ? (
+                <div className="bg-rose-50 border border-rose-200 p-5 rounded-2xl flex items-start gap-3 text-rose-900">
+                  <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold uppercase">Application Not Approved</h4>
+                    <p className="text-xs text-rose-700 leading-relaxed">
+                      Thank you for your interest in the Al Shujaiat Foundation. At this time, your application has not been approved for active deployment. For inquiries, please contact <span className="font-bold">volunteer@asfjk.org</span>.
                     </p>
                   </div>
                 </div>
-                <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-full uppercase">
-                  VERIFIED
-                </span>
-              </div>
+              ) : (
+                /* PENDING / UNDER REVIEW STATE */
+                <div className="bg-amber-50 border border-amber-200 p-6 rounded-3xl space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                        <Clock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wide">
+                          Application Under Administrative Review
+                        </h4>
+                        <p className="text-[11px] text-amber-800">
+                          Application Ref: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Candidate: {lookupResult.fullName}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-amber-200 text-amber-900 font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                      Pending Admin Review
+                    </span>
+                  </div>
 
-              <VolunteerIdCardPreview volunteer={lookupResult} settings={settings} />
+                  <p className="text-xs text-amber-900/90 leading-relaxed">
+                    Your volunteer application and credentials have been received. An authorized Volunteer Coordinator from the Foundation Board is currently evaluating your profile. Your official Digital Volunteer Identity Card will be unlocked as soon as administrative approval is granted.
+                  </p>
+
+                  <div className="bg-white/80 p-3.5 rounded-2xl border border-amber-200 flex items-center justify-between text-xs text-amber-900">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-amber-600" />
+                      <span>Volunteer ID Badge: <strong>Locked until approved</strong></span>
+                    </div>
+                    <span className="text-[11px] font-bold text-amber-700">Average review: 24–48 Hours</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
       ) : submitted ? (
-        /* APPLICATION SUBMITTED & VOLUNTEER ID CARD GENERATED */
-        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-lg space-y-8 animate-fadeIn max-w-3xl mx-auto">
+        /* APPLICATION SUBMITTED — UNDER ADMIN REVIEW */
+        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-lg space-y-6 animate-fadeIn max-w-2xl mx-auto">
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle2 className="w-8 h-8" />
+            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+              <Clock className="w-8 h-8" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-              REGISTRATION COMPLETE · OFFICIAL ID CARD ISSUED
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+              APPLICATION SUBMITTED · AWAITING ADMIN REVIEW
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-content-primary">
-              Welcome to the Al Shujaiat Volunteer Brigade!
+              Application Received & Queued for Review
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary max-w-lg mx-auto leading-relaxed">
-              Congratulations <span className="font-bold text-brand-purple">{fullName}</span>. Your volunteer enrollment has been registered with ID <span className="font-mono font-bold text-brand-pink">{createdVolunteer?.membershipNumber || 'ASFJK25V01'}</span>. Your official digital Volunteer Identity Badge is generated below.
+              Thank you, <span className="font-bold text-brand-purple">{fullName}</span>. Your volunteer application has been submitted to the Al Shujaiat Foundation Board under reference <span className="font-mono font-bold text-brand-pink">{createdVolunteer?.membershipNumber}</span>.
             </p>
           </div>
 
-          {/* Volunteer ID Card Preview Component */}
-          <div className="bg-surface-soft p-6 sm:p-8 rounded-3xl border border-content-border space-y-6">
-            <div className="flex items-center justify-between border-b border-content-border pb-3">
-              <div className="flex items-center gap-2 text-brand-purple font-bold text-xs uppercase tracking-wider">
-                <IdCard className="w-4 h-4 text-brand-pink" />
-                <span>Official Digital Volunteer ID Credential</span>
-              </div>
-              <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-bold">
-                ID: {createdVolunteer?.membershipNumber || 'ASFJK25V01'}
+          {/* Application Summary Card */}
+          <div className="bg-surface-soft p-5 sm:p-6 rounded-2xl border border-content-border space-y-3 text-xs">
+            <div className="flex justify-between items-center pb-2 border-b border-content-border">
+              <span className="text-content-secondary">Assigned Role:</span>
+              <span className="font-bold text-content-primary">{createdVolunteer?.roleDesignation}</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-content-border">
+              <span className="text-content-secondary">Primary Sector:</span>
+              <span className="font-bold text-content-primary">{createdVolunteer?.skills?.[0] || 'Community Aid'}</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-content-border">
+              <span className="text-content-secondary">Location:</span>
+              <span className="font-bold text-content-primary">{createdVolunteer?.city}, {createdVolunteer?.country}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-content-secondary">Status:</span>
+              <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+                Pending Administrative Review
               </span>
             </div>
-
-            {createdVolunteer ? (
-              <VolunteerIdCardPreview volunteer={createdVolunteer} settings={settings} />
-            ) : (
-              <VolunteerIdCardPreview
-                volunteer={{
-                  id: `vol_${Date.now()}`,
-                  membershipNumber: 'ASFJK25V01',
-                  fullName: fullName || 'Authorized Volunteer',
-                  email: email || 'volunteer@asfjk.org',
-                  phone: phone || '+91 94193 01319',
-                  city: city || 'Jammu & Kashmir',
-                  country: country || 'India',
-                  qualification: qualification || "Bachelor's Degree",
-                  roleDesignation: 'Humanitarian Aid Volunteer',
-                  bloodGroup: bloodGroup || 'O+',
-                  skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
-                  availability: availability || 'weekends',
-                  experienceYears: experienceYears || 2,
-                  statement: statement || '',
-                  status: 'approved',
-                  validFrom: '01 May 2025',
-                  validThru: '30 Apr 2026',
-                  submittedAt: new Date().toISOString()
-                }}
-                settings={settings}
-              />
-            )}
           </div>
 
-          <div className="flex justify-center gap-3 pt-2">
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-2xl text-xs text-blue-900 leading-relaxed flex items-start gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">What happens next?</p>
+              <p className="text-blue-800 text-[11px] mt-0.5">
+                Our Volunteer Coordinator will inspect your qualifications and uploaded resume. Once verified and approved by the administrator, your official Volunteer Identity Card with QR verification will be activated.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
             <button
               onClick={() => {
                 setSubmitted(false);
-                setCreatedVolunteer(null);
-                setResumeFile(null);
-                setQualification('');
-                setFullName('');
-                setEmail('');
-                setPhone('');
+                setActiveTab('status');
+                if (createdVolunteer?.email) {
+                  setLookupEmail(createdVolunteer.email);
+                  setLookupResult(createdVolunteer);
+                }
               }}
-              className="btn-outline !py-2.5 !px-6 text-xs font-bold"
+              className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2"
             >
-              Submit Another Application
+              <Search className="w-4 h-4" />
+              <span>Track Application Status</span>
             </button>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Full Name *</label>
+        /* APPLICATION FORM */
+        <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-md space-y-8 animate-fadeIn">
+          <div className="border-b border-content-border pb-4">
+            <h2 className="text-lg font-bold text-content-primary flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-brand-pink" />
+              {t('volunteer.form_header', 'Volunteer Enrollment Application')}
+            </h2>
+            <p className="text-xs text-content-secondary mt-1">
+              {t('volunteer.form_sub', 'Please provide accurate identification details. All applications are reviewed by authorized coordinators before identity card issuance.')}
+            </p>
+          </div>
+
+          {/* Personal Info Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.full_name', 'Full Legal Name')} <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Oliver Bennett"
+                placeholder="e.g. Dr. Ishfaq Ahmad Ganai"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Email Address *</label>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.email', 'Email Address')} <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="email"
                 required
-                placeholder="e.g. oliver.bennett@example.com"
+                placeholder="ishfaq.ganai@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.phone', 'Phone Number (WhatsApp Active)')} <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="tel"
-                placeholder="+44 7700 900123"
+                required
+                placeholder="+91 94193 01319"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">City</label>
-              <input
-                type="text"
-                placeholder="London / Boston / Srinagar"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Country</label>
-              <input
-                type="text"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-content-primary mb-1">Blood Group (ID Badge)</label>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.blood_group', 'Blood Group (For Emergency First-Responders)')}
+              </label>
               <select
                 value={bloodGroup}
                 onChange={(e) => setBloodGroup(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
               >
-                <option value="O+">O Positive (O+)</option>
-                <option value="O-">O Negative (O-)</option>
-                <option value="A+">A Positive (A+)</option>
-                <option value="A-">A Negative (A-)</option>
-                <option value="B+">B Positive (B+)</option>
-                <option value="B-">B Negative (B-)</option>
-                <option value="AB+">AB Positive (AB+)</option>
-                <option value="AB-">AB Negative (AB-)</option>
+                <option value="A+">A+ (Positive)</option>
+                <option value="A-">A- (Negative)</option>
+                <option value="B+">B+ (Positive)</option>
+                <option value="B-">B- (Negative)</option>
+                <option value="AB+">AB+ (Positive)</option>
+                <option value="AB-">AB- (Negative)</option>
+                <option value="O+">O+ (Positive)</option>
+                <option value="O-">O- (Negative)</option>
               </select>
             </div>
-          </div>
 
-          {/* Volunteer Photo Upload for ID Card */}
-          <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
-                <IdCard className="w-4 h-4 text-brand-pink" /> Passport Size Photograph (for Official ID Card Badge) *
-              </h4>
-              <span className="text-[10px] text-content-muted">JPG, PNG up to 5MB</span>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.city', 'City / District / Tehsil')} <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Srinagar / Pulwama / Anantnag"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+              />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-content-border">
-              {/* Circular Preview */}
-              <div className="relative w-20 h-20 rounded-full p-0.5 bg-gradient-to-tr from-amber-500 to-amber-300 shadow-md flex-shrink-0 flex items-center justify-center">
-                <div className="w-full h-full rounded-full overflow-hidden border border-white bg-slate-100 flex items-center justify-center">
-                  {photoUrl ? (
-                    <img src={photoUrl} alt="Photo Preview" className="w-full h-full object-cover object-top" />
-                  ) : (
-                    <span className="text-[10px] font-bold text-slate-400 text-center px-1">No Photo</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex-1 w-full text-center sm:text-left space-y-1">
-                <p className="text-xs font-bold text-content-primary">
-                  {photoUrl ? 'Photo Uploaded Successfully' : 'Upload your formal portrait photo'}
-                </p>
-                <p className="text-[11px] text-content-secondary">
-                  This photo will be framed inside your official Volunteer Identity Card badge upon administrative vetting.
-                </p>
-                <div className="pt-1 flex items-center gap-2 justify-center sm:justify-start">
-                  <label className="btn-outline !py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5">
-                    <UploadCloud className="w-3.5 h-3.5 text-brand-purple" />
-                    <span>{photoUrl ? 'Change Photo' : 'Choose Photo File'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  {photoUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setPhotoUrl('')}
-                      className="text-xs text-rose-600 hover:underline font-semibold"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-content-secondary uppercase">
+                {t('volunteer.country', 'Country of Residence')}
+              </label>
+              <input
+                type="text"
+                placeholder="India"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+              />
             </div>
           </div>
 
-          {/* Educational Qualification Section */}
-          <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
-            <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-brand-pink" /> Educational & Professional Qualification *
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-semibold text-content-secondary mb-1">Highest Degree Level</label>
+          {/* Academic & Photo Section */}
+          <div className="space-y-4 pt-4 border-t border-content-border">
+            <h3 className="text-xs font-bold text-content-secondary uppercase flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-brand-purple" />
+              {t('volunteer.academic_sec', 'Academic Background & ID Photo')}
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">Highest Qualification Level</label>
                 <select
                   value={degreeLevel}
                   onChange={(e) => setDegreeLevel(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
+                  className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
                 >
-                  <option value="Bachelor's Degree">Bachelor's Degree (B.A / B.Sc / B.Tech / B.E)</option>
-                  <option value="Master's Degree">Master's Degree (M.A / M.Sc / M.Tech / MBA / MSW)</option>
-                  <option value="Medical / Healthcare">Medical / Healthcare Degree (MBBS / MD / B.Sc Nursing / BDS)</option>
-                  <option value="Doctorate / PhD">Doctorate / Ph.D / Post-Doctoral</option>
-                  <option value="Diploma / Vocational">Diploma / Technical Vocational Certification</option>
-                  <option value="Higher Secondary / High School">Higher Secondary / High School</option>
+                  <option value="Bachelor of Medicine / Surgery (MBBS / MD)">Bachelor of Medicine / Surgery (MBBS / MD)</option>
+                  <option value="Bachelor of Technology (B.Tech / B.E.)">Bachelor of Technology (B.Tech / B.E.)</option>
+                  <option value="Master of Science (M.Sc / M.Tech)">Master of Science (M.Sc / M.Tech)</option>
+                  <option value="Bachelor of Arts / Science (B.A. / B.Sc / B.Com)">Bachelor of Arts / Science (B.A. / B.Sc / B.Com)</option>
+                  <option value="Master of Business Administration (MBA / MSW)">Master of Business Administration (MBA / MSW)</option>
+                  <option value="Higher Secondary (12th Grade)">Higher Secondary (12th Grade)</option>
+                  <option value="Doctor of Philosophy (Ph.D)">Doctor of Philosophy (Ph.D)</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-content-secondary mb-1">Field of Study / Specialization *</label>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">Specialization / University</label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. Civil Engineering, Nursing, Social Work, Education"
+                  placeholder="e.g. Civil Engineering (NIT Srinagar)"
                   value={qualification}
                   onChange={(e) => setQualification(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
+                  className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Resume Upload Section */}
-          <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
-                <Paperclip className="w-4 h-4 text-brand-pink" /> Attach Resume / Curriculum Vitae (CV) *
-              </h4>
-              <span className="text-[10px] text-content-muted">PDF, DOC, DOCX up to 10MB</span>
-            </div>
-
-            {resumeFile ? (
-              <div className="bg-white p-3.5 rounded-xl border border-emerald-300 flex items-center justify-between gap-3 shadow-sm">
-                <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div className="truncate">
-                    <p className="text-xs font-bold text-content-primary truncate">{resumeFile.name}</p>
-                    <span className="text-[10px] text-emerald-600 font-semibold">{resumeFile.size} · Uploaded Ready</span>
-                  </div>
+            {/* Photo & Resume Uploads */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">Passport ID Photograph (Face Clear)</label>
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-purple/30 bg-surface-soft hover:bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors">
+                    <Camera className="w-4 h-4 text-brand-pink" />
+                    <span>Upload Photo</span>
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                  </label>
+                  {photoUrl && (
+                    <div className="flex items-center gap-2">
+                      <img src={photoUrl} alt="Preview" className="w-9 h-9 rounded-xl object-cover border border-brand-purple" />
+                      <span className="text-[11px] text-emerald-600 font-bold">Photo Attached</span>
+                    </div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setResumeFile(null)}
-                  className="p-1.5 text-content-muted hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
-            ) : (
-              <label className="border-2 border-dashed border-content-border hover:border-brand-purple/60 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer bg-white hover:bg-surface-highlight transition-all group">
-                <UploadCloud className="w-8 h-8 text-content-muted group-hover:text-brand-purple group-hover:scale-110 transition-all" />
-                <div className="text-center">
-                  <span className="text-xs font-bold text-brand-purple block">Click to upload your resume</span>
-                  <span className="text-[11px] text-content-muted">or drag and drop your PDF / Word document</span>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-content-secondary uppercase">Curriculum Vitae / Resume (PDF)</label>
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-blue/30 bg-surface-soft hover:bg-brand-blue/10 text-brand-blue text-xs font-bold transition-colors">
+                    <Upload className="w-4 h-4 text-brand-blue" />
+                    <span>Attach CV</span>
+                    <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="hidden" />
+                  </label>
+                  {resumeFile && (
+                    <div className="flex items-center gap-1.5 text-[11px] text-content-primary truncate font-mono">
+                      <FileText className="w-3.5 h-3.5 text-brand-blue flex-shrink-0" />
+                      <span className="truncate">{resumeFile.name}</span>
+                    </div>
+                  )}
                 </div>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleResumeUpload}
-                  className="hidden"
-                />
-              </label>
-            )}
+              </div>
+            </div>
           </div>
 
           {/* Skills Checklist */}
-          <div>
-            <label className="block text-xs font-semibold text-content-primary mb-2">Areas of Interest & Skills</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {availableSkills.map((sk) => (
-                <label key={sk} className="flex items-center gap-2 p-2.5 rounded-xl border border-content-border bg-surface-soft hover:bg-surface-card cursor-pointer text-xs">
-                  <input
-                    type="checkbox"
-                    checked={selectedSkills.includes(sk)}
-                    onChange={() => handleSkillToggle(sk)}
-                    className="rounded text-brand-purple focus:ring-brand-purple"
-                  />
-                  <span>{sk}</span>
-                </label>
-              ))}
+          <div className="space-y-3 pt-4 border-t border-content-border">
+            <label className="text-xs font-bold text-content-secondary uppercase block">
+              {t('volunteer.skills_label', 'Select Your Areas of Deployment & Skills')} <span className="text-rose-500">*</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {availableSkills.map((skill) => {
+                const isSelected = selectedSkills.includes(skill);
+                return (
+                  <button
+                    key={skill}
+                    type="button"
+                    onClick={() => handleSkillToggle(skill)}
+                    className={`flex items-center gap-3 p-3 rounded-2xl border text-left text-xs transition-all ${
+                      isSelected
+                        ? 'border-brand-purple bg-brand-purple/5 text-brand-purple font-bold shadow-sm'
+                        : 'border-content-border hover:border-slate-300 text-content-secondary'
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-md flex items-center justify-center border transition-all ${
+                        isSelected ? 'bg-brand-purple border-brand-purple text-white' : 'border-slate-300 bg-white'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3 h-3" />}
+                    </div>
+                    <span>{skill}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-content-primary mb-1">Why would you like to volunteer with us?</label>
+          {/* Statement */}
+          <div className="space-y-1.5 pt-4 border-t border-content-border">
+            <label className="text-xs font-bold text-content-secondary uppercase">
+              {t('volunteer.statement_label', 'Statement of Motivation')}
+            </label>
             <textarea
               rows={3}
-              placeholder="Tell us about your background, motivations, or field experience..."
+              placeholder="Why do you wish to join the Al Shujaiat Foundation Volunteer Network?"
               value={statement}
               onChange={(e) => setStatement(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+              className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
             />
           </div>
 
           <button
             type="submit"
-            className="btn-secondary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-pink-glow"
+            className="btn-primary w-full !py-3.5 text-xs font-bold flex items-center justify-center gap-2 shadow-brand-md"
           >
-            <HeartHandshake className="w-4 h-4" />
-            <span>{t('volunteer.submit_btn', 'Submit Volunteer Application')}</span>
+            <span>{t('volunteer.submit_btn', 'Submit Volunteer Application for Admin Review')}</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </form>
       )}

@@ -791,7 +791,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ...cleanApp,
       id: `vol_${Date.now()}`,
       membershipNumber,
-      status: app.status || 'approved',
+      status: app.status || 'submitted',
       validFrom: app.validFrom || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       validThru: app.validThru || validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       submittedAt: now.toISOString(),

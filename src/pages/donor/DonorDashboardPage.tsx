@@ -75,7 +75,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
             <Heart className="w-5 h-5 text-brand-pink fill-brand-pink" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-content-primary block">
-            {donations.length}
+            {userDonations.length}
           </span>
           <span className="text-[11px] text-content-muted">Direct allocations completed</span>
         </div>
@@ -86,7 +86,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
             <RefreshCw className="w-5 h-5 text-brand-blue" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-brand-blue block">
-            {recurringDonations.filter((r) => r.status === 'active').length}
+            {userRecurring.filter((r) => r.status === 'active').length}
           </span>
           <span className="text-[11px] text-content-muted">Monthly & Annual plans</span>
         </div>
@@ -97,7 +97,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
             <FileText className="w-5 h-5 text-amber-500" />
           </div>
           <span className="text-2xl sm:text-3xl font-black text-content-primary block">
-            {receipts.length}
+            {userReceipts.length}
           </span>
           <span className="text-[11px] text-brand-purple font-semibold">Section 80G / 501(c)(3) Certified</span>
         </div>

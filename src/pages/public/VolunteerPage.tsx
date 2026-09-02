@@ -22,6 +22,18 @@ import {
   Lock,
 } from 'lucide-react';
 
+export const PRIMARY_VOLUNTEER_ROLES = [
+  'Emergency Relief & Field Logistics',
+  'Healthcare & Medical Support Specialist',
+  'Clean Water & Civil Engineering Lead',
+  'Education, STEM & Youth Mentor',
+  'Media, Photography & Storytelling',
+  'Community Outreach & Field Coordinator',
+  'Disaster First Responder & Rescue Specialist',
+  'Accounting, Audit & Logistics Officer',
+  'Humanitarian Field Volunteer',
+];
+
 export const VolunteerPage: React.FC = () => {
   const { t } = useLanguage();
   const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
@@ -36,6 +48,7 @@ export const VolunteerPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('Srinagar');
   const [country, setCountry] = useState('India');
+  const [primaryRole, setPrimaryRole] = useState(PRIMARY_VOLUNTEER_ROLES[0]);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [qualification, setQualification] = useState('');
   const [degreeLevel, setDegreeLevel] = useState('Bachelor of Technology (B.Tech / B.E.)');
@@ -99,14 +112,8 @@ export const VolunteerPage: React.FC = () => {
       ? `${qualification} (${degreeLevel})`
       : degreeLevel;
 
-    let derivedRole = 'Humanitarian Aid Volunteer';
-    if (selectedSkills.includes('Healthcare & Medical Support')) derivedRole = 'Medical Support Volunteer';
-    else if (selectedSkills.includes('Clean Water & Civil Engineering')) derivedRole = 'Clean Water Infrastructure Lead';
-    else if (selectedSkills.includes('Education, STEM & Tutoring')) derivedRole = 'Education & Youth Mentor';
-    else if (selectedSkills.includes('Emergency Relief & Field Logistics')) derivedRole = 'Emergency Relief & Logistics';
-
     try {
-      // Set status strictly to 'submitted' awaiting administrator evaluation
+      // Primary role is set verbatim as chosen by the candidate and printed directly onto the ID badge
       const newApp = addVolunteerApplication({
         fullName: fullName.trim(),
         email: email.trim(),
@@ -115,11 +122,11 @@ export const VolunteerPage: React.FC = () => {
         country: country || 'India',
         photoUrl: photoUrl || undefined,
         qualification: fullQualification,
-        roleDesignation: derivedRole,
+        roleDesignation: primaryRole.trim(), // Explicit applicant selected role
         bloodGroup: bloodGroup || 'O+',
         resumeFileName: resumeFile?.name || `${fullName.replace(/\s+/g, '_')}_Resume.pdf`,
         resumeDataUrl: resumeFile?.dataUrl,
-        skills: selectedSkills.length ? selectedSkills : ['General Community Support'],
+        skills: selectedSkills.length ? selectedSkills : [primaryRole],
         availability,
         experienceYears,
         statement: statement || 'Dedicated volunteer ready to serve the community.',
@@ -257,7 +264,7 @@ export const VolunteerPage: React.FC = () => {
                           Application Under Administrative Review
                         </h4>
                         <p className="text-[11px] text-amber-800">
-                          Application Ref: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Candidate: {lookupResult.fullName}
+                          Application Ref: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Candidate: {lookupResult.fullName} · Role: {lookupResult.roleDesignation}
                         </p>
                       </div>
                     </div>
@@ -303,12 +310,12 @@ export const VolunteerPage: React.FC = () => {
           {/* Application Summary Card */}
           <div className="bg-surface-soft p-5 sm:p-6 rounded-2xl border border-content-border space-y-3 text-xs">
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
-              <span className="text-content-secondary">Assigned Role:</span>
-              <span className="font-bold text-content-primary">{createdVolunteer?.roleDesignation}</span>
+              <span className="text-content-secondary">Primary Designation on Badge:</span>
+              <span className="font-bold text-brand-purple">{createdVolunteer?.roleDesignation}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
-              <span className="text-content-secondary">Primary Sector:</span>
-              <span className="font-bold text-content-primary">{createdVolunteer?.skills?.[0] || 'Community Aid'}</span>
+              <span className="text-content-secondary">Qualification:</span>
+              <span className="font-bold text-content-primary">{createdVolunteer?.qualification}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
               <span className="text-content-secondary">Location:</span>
@@ -327,7 +334,7 @@ export const VolunteerPage: React.FC = () => {
             <div>
               <p className="font-bold">What happens next?</p>
               <p className="text-blue-800 text-[11px] mt-0.5">
-                Our Volunteer Coordinator will inspect your qualifications and uploaded resume. Once verified and approved by the administrator, your official Volunteer Identity Card with QR verification will be activated.
+                Our Volunteer Coordinator will inspect your qualifications and uploaded resume. Once verified and approved by the administrator, your official Volunteer Identity Card with your designation <strong className="text-brand-purple">"{createdVolunteer?.roleDesignation}"</strong> will be activated.
               </p>
             </div>
           </div>
@@ -358,7 +365,29 @@ export const VolunteerPage: React.FC = () => {
               {t('volunteer.form_header', 'Volunteer Enrollment Application')}
             </h2>
             <p className="text-xs text-content-secondary mt-1">
-              {t('volunteer.form_sub', 'Please provide accurate identification details. All applications are reviewed by authorized coordinators before identity card issuance.')}
+              {t('volunteer.form_sub', 'Please select your exact primary role. This will be the official designation printed on your Volunteer Identity Badge.')}
+            </p>
+          </div>
+
+          {/* Primary Role Selector (High Priority) */}
+          <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border-2 border-brand-purple/20 space-y-2">
+            <label className="text-xs font-extrabold text-brand-purple uppercase flex items-center gap-1.5">
+              <Briefcase className="w-4 h-4 text-brand-pink" />
+              Primary Volunteer Role & Designation (Printed on ID Badge) <span className="text-rose-500">*</span>
+            </label>
+            <select
+              value={primaryRole}
+              onChange={(e) => setPrimaryRole(e.target.value)}
+              className="w-full px-4 py-3 text-xs font-bold rounded-xl border border-brand-purple/40 bg-white text-content-primary focus:border-brand-purple outline-none shadow-sm"
+            >
+              {PRIMARY_VOLUNTEER_ROLES.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-content-secondary">
+              This designation will be verified by the admin board and printed directly on your official Volunteer Identity Card.
             </p>
           </div>
 
@@ -529,10 +558,10 @@ export const VolunteerPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Skills Checklist */}
+          {/* Additional Skills Checklist */}
           <div className="space-y-3 pt-4 border-t border-content-border">
             <label className="text-xs font-bold text-content-secondary uppercase block">
-              {t('volunteer.skills_label', 'Select Your Areas of Deployment & Skills')} <span className="text-rose-500">*</span>
+              {t('volunteer.skills_label', 'Additional Skills & Areas of Assistance')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {availableSkills.map((skill) => {

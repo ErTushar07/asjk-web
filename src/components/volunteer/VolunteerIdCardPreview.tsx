@@ -365,35 +365,46 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
       </div>
 
       {/* Control Actions Bar (Responsive Grid for Mobile & Desktop) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-        <button
-          type="button"
-          onClick={() => setShowBackSide(!showBackSide)}
-          className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 w-full"
-        >
-          <RotateCw className="w-4 h-4 text-amber-600" />
-          <span>Flip ({showBackSide ? 'Front' : 'Back'})</span>
-        </button>
+      {volunteer.status === 'approved' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setShowBackSide(!showBackSide)}
+            className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 w-full"
+          >
+            <RotateCw className="w-4 h-4 text-amber-600" />
+            <span>Flip ({showBackSide ? 'Front' : 'Back'})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 w-full"
-        >
-          <Printer className="w-4 h-4" />
-          <span>Print Badge</span>
-        </button>
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 w-full"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Badge</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={handleDownloadPDF}
-          style={{ backgroundColor: themeBg }}
-          className="btn-primary !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-pink-glow border-none text-white w-full sm:col-span-1"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download PDF</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={handleDownloadPDF}
+            style={{ backgroundColor: themeBg }}
+            className="btn-primary !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-pink-glow border-none text-white w-full sm:col-span-1"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download PDF</span>
+          </button>
+        </div>
+      ) : (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center space-y-1.5">
+          <p className="text-xs font-bold text-amber-900 uppercase flex items-center justify-center gap-1.5">
+            <Shield className="w-4 h-4 text-amber-600" /> ID Card Locked — Awaiting Administrative Approval
+          </p>
+          <p className="text-[11px] text-amber-700">
+            PDF download and badge printing are disabled until an authorized administrator verifies your application.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

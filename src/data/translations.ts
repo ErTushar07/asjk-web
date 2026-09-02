@@ -39,6 +39,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     // Nav
     'nav.home': 'Home',
     'nav.about': 'About Us',
+    'nav.leadership': 'Leadership',
     'nav.our_work': 'Our Work',
     'nav.projects': 'Projects',
     'nav.campaigns': 'Campaigns',
@@ -54,10 +55,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'FAQ',
     'nav.more': 'More',
     'nav.login': 'Sign In',
+    'nav.signin': 'Sign In',
     'nav.register': 'Register',
     'nav.donor_portal': 'Donor Portal',
     'nav.admin_portal': 'Admin Portal',
     'nav.logout': 'Sign Out',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
     
     // Hero & Home
     'hero.badge': 'Al Shujaiat Foundation · Jammu & Kashmir',
@@ -329,6 +333,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     // Nav
     'nav.home': 'मुख्य पृष्ठ',
     'nav.about': 'हमारे बारे में',
+    'nav.leadership': 'नेतृत्व',
     'nav.our_work': 'हमारा कार्य',
     'nav.projects': 'परियोजनाएं',
     'nav.campaigns': 'अभियान',
@@ -344,10 +349,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'अक्सर पूछे जाने वाले प्रश्न',
     'nav.more': 'अधिक',
     'nav.login': 'लॉग इन',
+    'nav.signin': 'लॉग इन',
     'nav.register': 'पंजीकरण',
     'nav.donor_portal': 'दाता पोर्टल',
     'nav.admin_portal': 'प्रशासन डैशबोर्ड',
     'nav.logout': 'लॉग आउट',
+    'theme.light': 'लाइट',
+    'theme.dark': 'डार्क',
 
     // Hero & Home
     'hero.badge': 'अल शुजायत फाउंडेशन · जम्मू और कश्मीर',
@@ -619,6 +627,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     // Nav
     'nav.home': 'صفحۂ اول',
     'nav.about': 'ہمارے متعلق',
+    'nav.leadership': 'قیادت',
     'nav.our_work': 'ہمارا کام',
     'nav.projects': 'منصوبہ جات',
     'nav.campaigns': 'مہمات',
@@ -634,10 +643,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'عمومی سوالات',
     'nav.more': 'مزید',
     'nav.login': 'لاگ ان',
+    'nav.signin': 'سائن ان',
     'nav.register': 'رجسٹریشن',
     'nav.donor_portal': 'عطیہ دہندہ پورٹل',
     'nav.admin_portal': 'انتظامی ڈیش بورڈ',
     'nav.logout': 'لاگ آؤٹ',
+    'theme.light': 'روشن',
+    'theme.dark': 'تاریک',
 
     // Hero & Home
     'hero.badge': 'الشجاعت فاؤنڈیشن · جموں و کشمیر',
@@ -909,6 +921,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     // Nav
     'nav.home': 'الرئيسية',
     'nav.about': 'من نحن',
+    'nav.leadership': 'القيادة',
     'nav.our_work': 'أعمالنا',
     'nav.projects': 'المشاريع',
     'nav.campaigns': 'الحملات',
@@ -924,10 +937,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'الأسئلة الشائعة',
     'nav.more': 'المزيد',
     'nav.login': 'تسجيل الدخول',
+    'nav.signin': 'تسجيل الدخول',
     'nav.register': 'إنشاء حساب',
     'nav.donor_portal': 'بوابة المتبرعين',
     'nav.admin_portal': 'لوحة الإدارة',
     'nav.logout': 'تسجيل الخروج',
+    'theme.light': 'فاتح',
+    'theme.dark': 'داكن',
 
     // Hero & Home
     'hero.badge': 'مؤسسة الشجاعت · جامو وكشمير',
@@ -1196,6 +1212,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 
     'nav.home': 'Accueil',
     'nav.about': 'À propos',
+    'nav.leadership': 'Direction',
     'nav.our_work': 'Nos Actions',
     'nav.projects': 'Projets',
     'nav.campaigns': 'Campagnes',
@@ -1211,10 +1228,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'FAQ',
     'nav.more': 'Plus',
     'nav.login': 'Connexion',
+    'nav.signin': 'Connexion',
     'nav.register': 'Inscription',
     'nav.donor_portal': 'Espace Donateur',
     'nav.admin_portal': 'Tableau de bord Admin',
     'nav.logout': 'Déconnexion',
+    'theme.light': 'Clair',
+    'theme.dark': 'Sombre',
 
     'hero.badge': 'Fondation Al Shujaiat · Jammu & Kashmir',
     'hero.title': 'Autonomiser les communautés, transformer des vies au Jammu-et-Cachemire',
@@ -1435,6 +1455,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 
     'nav.home': 'Inicio',
     'nav.about': 'Sobre nosotros',
+    'nav.leadership': 'Liderazgo',
     'nav.our_work': 'Nuestro trabajo',
     'nav.projects': 'Proyectos',
     'nav.campaigns': 'Campañas',
@@ -1450,10 +1471,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'Preguntas frecuentes',
     'nav.more': 'Más',
     'nav.login': 'Iniciar sesión',
+    'nav.signin': 'Iniciar sesión',
     'nav.register': 'Registrarse',
     'nav.donor_portal': 'Portal de Donantes',
     'nav.admin_portal': 'Panel de Administración',
     'nav.logout': 'Cerrar sesión',
+    'theme.light': 'Claro',
+    'theme.dark': 'Oscuro',
 
     'hero.badge': 'Fundación Al Shujaiat · Jammu y Cachemira',
     'hero.title': 'Empoderando comunidades y transformando vidas en Jammu y Cachemira',
@@ -1675,6 +1699,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 
     'nav.home': 'Startseite',
     'nav.about': 'Über uns',
+    'nav.leadership': 'Leitung',
     'nav.our_work': 'Unsere Arbeit',
     'nav.projects': 'Projekte',
     'nav.campaigns': 'Kampagnen',
@@ -1690,10 +1715,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'FAQ',
     'nav.more': 'Mehr',
     'nav.login': 'Anmelden',
+    'nav.signin': 'Anmelden',
     'nav.register': 'Registrieren',
     'nav.donor_portal': 'Spenderportal',
     'nav.admin_portal': 'Admin-Dashboard',
     'nav.logout': 'Abmelden',
+    'theme.light': 'Hell',
+    'theme.dark': 'Dunkel',
 
     'hero.badge': 'Al Shujaiat Stiftung · Jammu & Kaschmir',
     'hero.title': 'Gemeinschaften stärken, Leben verändern in Jammu & Kaschmir',
@@ -1915,6 +1943,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 
     'nav.home': 'Ana Sayfa',
     'nav.about': 'Hakkımızda',
+    'nav.leadership': 'Liderlik',
     'nav.our_work': 'Faaliyetlerimiz',
     'nav.projects': 'Projeler',
     'nav.campaigns': 'Kampanyalar',
@@ -1930,10 +1959,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'nav.faq': 'SSS',
     'nav.more': 'Daha Fazla',
     'nav.login': 'Giriş Yap',
+    'nav.signin': 'Giriş Yap',
     'nav.register': 'Kayıt Ol',
     'nav.donor_portal': 'Bağışçı Portalı',
     'nav.admin_portal': 'Yönetici Paneli',
     'nav.logout': 'Çıkış Yap',
+    'theme.light': 'Açık',
+    'theme.dark': 'Koyu',
 
     'hero.badge': 'Al Shujaiat Vakfı · Cammu ve Keşmir',
     'hero.title': 'Cammu ve Keşmir’de Toplulukları Güçlendiriyor, Hayatları Değiştiriyoruz',

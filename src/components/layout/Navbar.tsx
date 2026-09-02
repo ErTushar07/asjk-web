@@ -249,7 +249,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               ) : (
                 <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-500/30 group-hover:rotate-45 transition-transform" />
               )}
-              <span className="hidden lg:inline text-[11px] font-semibold">{isDark ? 'Dark' : 'Light'}</span>
+              <span className="hidden lg:inline text-[11px] font-semibold">{isDark ? t('theme.dark', 'Dark') : t('theme.light', 'Light')}</span>
             </button>
 
             {/* User Account / Donor Portal */}
@@ -261,7 +261,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                 title="Donor Sign In"
               >
                 <LogIn className="w-3.5 h-3.5 text-brand-purple" />
-                <span className="hidden md:inline">{t('nav.signin', 'Sign In')}</span>
+                <span className="hidden md:inline">{t('nav.signin', t('nav.login', 'Sign In'))}</span>
               </button>
             ) : (
               <div className="relative">

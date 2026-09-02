@@ -220,7 +220,27 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (err) {
-      console.warn(`LocalStorage write error for ${key} (storage quota exceeded):`, err);
+      console.warn(`LocalStorage write error for ${key} (storage quota exceeded), attempting compact write:`, err);
+      try {
+        if (Array.isArray(data)) {
+          const compact = data.map((item: any) => {
+            if (item && typeof item === 'object') {
+              const copy = { ...item };
+              if (copy.resumeDataUrl && copy.resumeDataUrl.length > 50000) {
+                delete copy.resumeDataUrl;
+              }
+              if (copy.photoUrl && copy.photoUrl.length > 100000) {
+                copy.photoUrl = undefined;
+              }
+              return copy;
+            }
+            return item;
+          });
+          localStorage.setItem(key, JSON.stringify(compact));
+        }
+      } catch (innerErr) {
+        console.error(`Final localStorage write failure for ${key}:`, innerErr);
+      }
     }
   };
 
@@ -802,7 +822,11 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       validThru: app.validThru || validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       submittedAt: now.toISOString(),
     };
-    setVolunteers((prev) => [newApp, ...prev]);
+    setVolunteers((prev) => {
+      const updated = [newApp, ...prev.filter((p) => p.id !== newApp.id)];
+      safeSetItem('asfjk_db_volunteers', updated);
+      return updated;
+    });
     recordAudit('sys_public', cleanApp.fullName, 'public', 'VOLUNTEER_APPLIED', 'user', newApp.id, `Volunteer application registered: ${cleanApp.fullName} (${cleanApp.city || 'India'})`);
     return newApp;
   };
@@ -813,14 +837,14 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const validThru = new Date();
     validThru.setFullYear(now.getFullYear() + 1);
 
-    setVolunteers((prev) =>
-      prev.map((v) => {
+    setVolunteers((prev) => {
+      const updated = prev.map((v) => {
         if (v.id === id) {
           const isApproving = status === 'approved';
           return {
             ...v,
             status,
-            membershipNumber: v.membershipNumber || (isApproving ? `ASF-VOL-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}` : undefined),
+            membershipNumber: v.membershipNumber || (isApproving ? `ASFJK26V${Math.floor(100 + Math.random() * 900)}` : undefined),
             roleDesignation: v.roleDesignation || 'Humanitarian Field Specialist',
             bloodGroup: v.bloodGroup || 'O+',
             validFrom: v.validFrom || (isApproving ? now.toISOString().split('T')[0] : undefined),
@@ -828,8 +852,10 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           };
         }
         return v;
-      })
-    );
+      });
+      safeSetItem('asfjk_db_volunteers', updated);
+      return updated;
+    });
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'VOLUNTEER_STATUS_UPDATED', 'user', id, `Updated volunteer status to ${status}`);
   };
 

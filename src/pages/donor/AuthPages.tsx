@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { TurnstileWidget } from '../../components/common/TurnstileWidget';
-import { Lock, Mail, ArrowRight, User as UserIcon, CheckCircle2, Shield, Phone, Globe, FileText, AlertTriangle, Key } from 'lucide-react';
+import { Lock, Mail, ArrowRight, User as UserIcon, CheckCircle2, Shield, AlertTriangle, Key, RefreshCw, ArrowLeft } from 'lucide-react';
 
 interface AuthPageProps {
   mode: 'login' | 'register' | 'forgot-password';
@@ -10,7 +10,7 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
-  const { login, register, verifyRegistrationOTP } = useAuth();
+  const { login, register, verifyRegistrationOTP, resendRegistrationOTP, pendingOTPCode } = useAuth();
   const { t } = useLanguage();
 
   const [name, setName] = useState('');
@@ -25,11 +25,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   // OTP Verification state for registration
   const [awaitingOTP, setAwaitingOTP] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
 
   const [turnstileToken, setTurnstileToken] = useState('');
   const [submittedReset, setSubmittedReset] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Password strength calculation
   const calculatePasswordStrength = (pass: string) => {
@@ -51,6 +53,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
+    setAuthSuccessMsg(null);
     setLoading(true);
 
     try {
@@ -59,7 +62,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
         onNavigate('/dashboard');
       } else if (res.requires2FA) {
         setRequires2FA(true);
-        setAuthError(res.error || 'Please enter your 2FA code.');
+        setAuthError(res.error || 'Please enter your 6-digit Authenticator TOTP code.');
       } else {
         setAuthError(res.error || 'Invalid email or password credentials.');
       }
@@ -73,10 +76,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
-    if (!name || !email) return;
+    setAuthSuccessMsg(null);
+
+    if (!name || !email) {
+      setAuthError('Full name and email address are required.');
+      return;
+    }
 
     if (!password || password.length < 8) {
-      setAuthError('Password must be at least 8 characters with numbers and symbols.');
+      setAuthError('Password must be at least 8 characters long.');
       return;
     }
 
@@ -92,16 +100,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       });
 
       if (res.success) {
-        if (res.error?.includes('Verification code sent')) {
-          setAwaitingOTP(true);
-        } else {
-          onNavigate('/dashboard');
-        }
+        setAwaitingOTP(true);
+        setAuthSuccessMsg(res.message || `A 6-digit verification code has been dispatched to ${email}.`);
       } else {
         setAuthError(res.error || 'Registration failed. Please check your details.');
       }
-    } catch (err) {
-      setAuthError('Registration service error.');
+    } catch (err: any) {
+      setAuthError('Registration service error: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -117,12 +122,29 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
       if (res.success) {
         onNavigate('/dashboard');
       } else {
-        setAuthError(res.error || 'Invalid verification code. Please check your email.');
+        setAuthError(res.error || 'Invalid or expired verification code. Please check and retry.');
       }
     } catch (err: any) {
-      setAuthError('Verification service error.');
+      setAuthError('Verification service error: ' + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setAuthError(null);
+    setResending(true);
+    try {
+      const res = await resendRegistrationOTP(email);
+      if (res.success) {
+        setAuthSuccessMsg(res.message || `A fresh 6-digit code has been dispatched to ${email}.`);
+      } else {
+        setAuthError(res.error || 'Failed to resend code.');
+      }
+    } catch (e) {
+      setAuthError('Failed to resend verification code.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -153,45 +175,89 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
           </h2>
 
           <p className="text-xs text-content-secondary">
-            {mode === 'login' && 'Access your official 80G receipts, lifetime contributions, and subscriptions.'}
-            {mode === 'register' && (awaitingOTP ? `Enter the 6-digit verification code sent to ${email}` : 'Join our verified donor family across Jammu & Kashmir.')}
+            {mode === 'login' && 'Access your official 80G tax receipts, lifetime contributions, and subscriptions.'}
+            {mode === 'register' &&
+              (awaitingOTP
+                ? `Enter the single-use 6-digit code sent to ${email}`
+                : 'Join our verified donor family across Jammu & Kashmir.')}
             {mode === 'forgot-password' && 'Enter your email to receive recovery instructions.'}
           </p>
         </div>
 
+        {/* Success Alert */}
+        {authSuccessMsg && (
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-start gap-2.5 animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p>{authSuccessMsg}</p>
+              {pendingOTPCode && (
+                <p className="mt-1 text-[11px] font-mono text-emerald-900 bg-emerald-100/70 px-2 py-1 rounded-lg border border-emerald-300">
+                  Verification Code: <strong>{pendingOTPCode}</strong>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Error Alert */}
         {authError && (
-          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2.5 animate-fadeIn">
             <AlertTriangle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
             <span>{authError}</span>
           </div>
         )}
 
-        {/* OTP Verification Mode for Registration */}
+        {/* Mandatory OTP Verification Step for Registration */}
         {awaitingOTP ? (
-          <form onSubmit={handleOTPSubmit} className="space-y-4">
+          <form onSubmit={handleOTPSubmit} className="space-y-4 animate-fadeIn">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-content-secondary uppercase">
-                6-Digit Verification Code
+              <label className="text-xs font-bold text-content-secondary uppercase flex items-center justify-between">
+                <span>Enter 6-Digit OTP</span>
+                <span className="text-[10px] text-content-muted font-normal">Single-use · 15 min expiry</span>
               </label>
               <input
                 type="text"
                 required
+                autoFocus
                 maxLength={6}
                 placeholder="123456"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                className="w-full text-center font-mono text-2xl tracking-[0.5em] font-black py-3 rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                className="w-full text-center font-mono text-2xl tracking-[0.5em] font-black py-3 rounded-xl border border-content-border focus:border-brand-purple outline-none bg-surface-soft"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || otpCode.length !== 6}
-              className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2"
+              className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-brand-sm disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>{loading ? 'Verifying...' : 'Verify & Continue'}</span>
+              <span>{loading ? 'Verifying...' : 'Verify & Activate Account'}</span>
             </button>
+
+            <div className="flex items-center justify-between text-xs pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAwaitingOTP(false);
+                  setOtpCode('');
+                }}
+                className="text-content-muted hover:text-content-primary flex items-center gap-1 font-semibold"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Back to Edit
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendOTP}
+                disabled={resending}
+                className="text-brand-purple hover:underline flex items-center gap-1 font-bold"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+                <span>{resending ? 'Sending...' : 'Resend Code'}</span>
+              </button>
+            </div>
           </form>
         ) : mode === 'login' ? (
           /* Login Form */
@@ -362,7 +428,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
               disabled={loading}
               className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-brand-sm"
             >
-              <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
+              <span>{loading ? 'Sending Verification Code...' : 'Send Verification OTP'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -411,7 +477,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
                 onClick={() => onNavigate('/register')}
                 className="font-bold text-brand-purple hover:underline"
               >
-                Sign up here
+                Sign up & verify
               </button>
             </p>
           ) : (

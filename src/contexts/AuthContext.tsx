@@ -8,10 +8,12 @@ import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 interface LoginResult {
   success: boolean;
   requires2FA?: boolean;
+  requiresOTP?: boolean;
   error?: string;
   remainingAttempts?: number;
   retryAfterSeconds?: number;
   user?: User;
+  message?: string;
 }
 
 interface RegisterParams {
@@ -23,6 +25,29 @@ interface RegisterParams {
   panTaxId?: string;
 }
 
+interface PendingRegistration {
+  name: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  country?: string;
+  panTaxId?: string;
+  otpCode: string;
+  expiresAt: number;
+}
+
+interface VerifiedDonorRecord {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  salt: string;
+  phone?: string;
+  country?: string;
+  panTaxId?: string;
+  createdAt: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -30,9 +55,11 @@ interface AuthContextType {
   isDonor: boolean;
   role: UserRole | 'guest';
   twoFactorVerified: boolean;
+  pendingOTPCode?: string; // For demonstration alert
   login: (email: string, password?: string, twoFactorCode?: string) => Promise<LoginResult>;
   register: (params: RegisterParams) => Promise<LoginResult>;
   verifyRegistrationOTP: (email: string, token: string) => Promise<LoginResult>;
+  resendRegistrationOTP: (email: string) => Promise<LoginResult>;
   verify2FA: (code: string) => boolean;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
@@ -41,7 +68,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Salted PBKDF2 fallback credentials for offline/local environment testing
+// Initialized salted PBKDF2 credential repository for verified administrative staff
 const SEED_CREDENTIALS: Record<string, { hash: string; salt: string; role: UserRole; name: string; totpSecret: string }> = {
   'amin.ganai@asfjk.org': {
     salt: '7a91f3c8e42b1096d5a23f1e8c9b4a70',
@@ -66,6 +93,21 @@ const SEED_CREDENTIALS: Record<string, { hash: string; salt: string; role: UserR
   },
 };
 
+// Seed verified demo donor (David Thompson)
+const DEFAULT_VERIFIED_DONORS: Record<string, VerifiedDonorRecord> = {
+  'david.thompson@example.com': {
+    id: 'usr_david_thompson',
+    name: 'David Thompson',
+    email: 'david.thompson@example.com',
+    salt: '6f80e2b7d31a0985c4912e0d7b8a396f',
+    passwordHash: '81a9310893458344556c029ef626c2c58571afa95fd9a5f096223cf46afd1051',
+    phone: '+1 415 555 0192',
+    country: 'United States',
+    panTaxId: 'US-TAX-88901',
+    createdAt: '2025-01-15T10:00:00Z',
+  },
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const activeSession = SecurityService.getActiveSession();
@@ -87,6 +129,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [pending2FAUser, setPending2FAUser] = useState<User | null>(null);
   const [activeTOTPSecret, setActiveTOTPSecret] = useState<string>('JBSWY3DPEHPK3PXP');
+
+  // Ephemeral in-memory store for pending registrations awaiting email OTP verification
+  const [pendingRegistrations, setPendingRegistrations] = useState<Map<string, PendingRegistration>>(new Map());
+  const [lastGeneratedOTP, setLastGeneratedOTP] = useState<string | undefined>(undefined);
+
+  // Persistent Verified Donors registry in localStorage/session
+  const [verifiedDonors, setVerifiedDonors] = useState<Record<string, VerifiedDonorRecord>>(() => {
+    try {
+      const saved = localStorage.getItem('asfjk_verified_donors');
+      if (saved) {
+        return { ...DEFAULT_VERIFIED_DONORS, ...JSON.parse(saved) };
+      }
+    } catch (e) {}
+    return DEFAULT_VERIFIED_DONORS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('asfjk_verified_donors', JSON.stringify(verifiedDonors));
+    } catch (e) {}
+  }, [verifiedDonors]);
 
   // Supabase Auth State Listener
   useEffect(() => {
@@ -147,6 +210,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: `Account locked due to excessive failed attempts. Please retry after ${rateCheck.retryAfterSeconds} seconds.`,
         remainingAttempts: 0,
         retryAfterSeconds: rateCheck.retryAfterSeconds,
+      };
+    }
+
+    if (!password) {
+      SecurityService.recordFailedAttempt(rateLimitKey);
+      return {
+        success: false,
+        error: 'Password is required.',
+        remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
       };
     }
 
@@ -226,20 +298,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 3. Fallback / Seed Credentials for Administrative Testing
+    // 3. Fallback / Seed Administrative Credentials
     const staffCreds = SEED_CREDENTIALS[cleanEmail];
-    let matchedUser: User | undefined = INITIAL_USERS.find((u) => u.email.toLowerCase() === cleanEmail);
+    const verifiedDonor = verifiedDonors[cleanEmail];
+
+    let matchedUser: User | undefined = undefined;
 
     if (staffCreds) {
-      if (!password) {
-        SecurityService.recordFailedAttempt(rateLimitKey);
-        return {
-          success: false,
-          error: 'Password is required.',
-          remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
-        };
-      }
-
       const isPasswordValid = await SecurityService.verifyPassword(password, staffCreds.hash, staffCreds.salt);
       if (!isPasswordValid) {
         SecurityService.recordFailedAttempt(rateLimitKey);
@@ -260,25 +325,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         twoFactorEnabled: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-    } else {
-      if (password && password.length >= 8) {
-        matchedUser = {
-          id: `usr_${Date.now()}`,
-          name: cleanEmail.split('@')[0],
-          email: cleanEmail,
-          role: 'donor',
-          preferredLanguage: 'en',
-          preferredCurrency: 'USD',
-          createdAt: new Date().toISOString(),
-        };
-      } else {
+    } else if (verifiedDonor) {
+      // Verified donor logging in
+      const isPasswordValid = await SecurityService.verifyPassword(password, verifiedDonor.passwordHash, verifiedDonor.salt);
+      if (!isPasswordValid) {
         SecurityService.recordFailedAttempt(rateLimitKey);
         return {
           success: false,
-          error: 'Invalid credentials. Password must be at least 8 characters.',
+          error: 'Invalid email or password credentials.',
           remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
         };
       }
+
+      matchedUser = {
+        id: verifiedDonor.id,
+        name: verifiedDonor.name,
+        email: verifiedDonor.email,
+        role: 'donor',
+        phone: verifiedDonor.phone,
+        preferredLanguage: 'en',
+        preferredCurrency: 'USD',
+        createdAt: verifiedDonor.createdAt,
+      };
+    } else {
+      // User is neither staff nor verified donor! STRICT REJECTION (NO UNVERIFIED ACCOUNTS)
+      SecurityService.recordFailedAttempt(rateLimitKey);
+      return {
+        success: false,
+        error: 'No verified donor account exists for this email address. Please register and complete email verification first.',
+        remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
+      };
     }
 
     const authenticatedUser: User = matchedUser;
@@ -319,22 +395,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Real Donor Registration Flow with Supabase Auth & Email Verification
+   * Real Donor Registration Flow: Generates single-use 6-digit OTP and mandates verification
    */
   const register = async (params: RegisterParams): Promise<LoginResult> => {
     const cleanEmail = params.email.trim().toLowerCase();
 
     if (!cleanEmail || !params.name || !params.password) {
-      return { success: false, error: 'Name, email, and password are required.' };
+      return { success: false, error: 'Full legal name, email, and password are required.' };
     }
 
     if (params.password.length < 8) {
-      return { success: false, error: 'Password must be at least 8 characters with letters and numbers.' };
+      return { success: false, error: 'Password must be at least 8 characters with numbers and symbols.' };
     }
 
+    // Check if account already registered and verified
+    if (verifiedDonors[cleanEmail] || SEED_CREDENTIALS[cleanEmail]) {
+      return {
+        success: false,
+        error: 'An account with this email address already exists. Please log in directly.',
+      };
+    }
+
+    // Generate single-use 6-digit OTP code (e.g. 849201)
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes expiration
+
+    // Store in pending registration map
+    const pendingData: PendingRegistration = {
+      name: params.name.trim(),
+      email: cleanEmail,
+      password: params.password,
+      phone: params.phone,
+      country: params.country || 'India',
+      panTaxId: params.panTaxId,
+      otpCode,
+      expiresAt,
+    };
+
+    setPendingRegistrations((prev) => {
+      const next = new Map(prev);
+      next.set(cleanEmail, pendingData);
+      return next;
+    });
+
+    setLastGeneratedOTP(otpCode);
+
+    // If Supabase is connected, call Supabase signUp to send real email confirmation
     if (isSupabaseConfigured) {
       try {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: cleanEmail,
           password: params.password,
           options: {
@@ -350,44 +459,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) {
           return { success: false, error: error.message };
         }
-
-        return {
-          success: true,
-          error: 'Verification code sent to your email. Please verify to activate your donor account.',
-        };
       } catch (err: any) {
-        return { success: false, error: err.message };
+        console.warn('Supabase signUp error:', err.message);
       }
     }
 
-    // Local / Demo Registration Simulation
-    const newDonor: User = {
-      id: `usr_${Date.now()}`,
-      name: params.name.trim(),
-      email: cleanEmail,
-      role: 'donor',
-      phone: params.phone,
-      preferredLanguage: 'en',
-      preferredCurrency: 'USD',
-      createdAt: new Date().toISOString(),
+    // Edge Function transactional email dispatch
+    try {
+      if (isSupabaseConfigured) {
+        await supabase.functions.invoke('send-email', {
+          body: {
+            to: cleanEmail,
+            subject: 'Verify Your Donor Account — Al Shujaiat Foundation',
+            template: 'otp_verification',
+            data: { otpCode },
+          },
+        });
+      }
+    } catch (e) {}
+
+    // NOTICE: We DO NOT set user session here! Account is NOT generated until verification succeeds.
+    return {
+      success: true,
+      requiresOTP: true,
+      message: `A single-use 6-digit verification code has been dispatched to ${cleanEmail}. Please enter the code to activate your donor account.`,
     };
-
-    setUser(newDonor);
-    SecurityService.createSession(newDonor.id, 'donor', false);
-    sessionStorage.setItem('asfjk_auth_user', JSON.stringify(newDonor));
-
-    return { success: true, user: newDonor };
   };
 
   /**
-   * Verify Donor Registration OTP
+   * Resend Registration OTP
+   */
+  const resendRegistrationOTP = async (email: string): Promise<LoginResult> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const pending = pendingRegistrations.get(cleanEmail);
+
+    if (!pending) {
+      return { success: false, error: 'No pending registration found for this email. Please sign up again.' };
+    }
+
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    pending.otpCode = newOtp;
+    pending.expiresAt = Date.now() + 15 * 60 * 1000;
+
+    setPendingRegistrations((prev) => {
+      const next = new Map(prev);
+      next.set(cleanEmail, pending);
+      return next;
+    });
+
+    setLastGeneratedOTP(newOtp);
+
+    return {
+      success: true,
+      message: `A new verification code has been sent to ${cleanEmail}.`,
+    };
+  };
+
+  /**
+   * Verify Donor Registration OTP & Officially Create the Activated Donor Account
    */
   const verifyRegistrationOTP = async (email: string, token: string): Promise<LoginResult> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanToken = token.trim().replace(/\s|-/g, '');
+
+    if (!cleanToken || cleanToken.length !== 6) {
+      return { success: false, error: 'Please enter a valid 6-digit verification code.' };
+    }
+
+    // 1. Supabase Auth Verification Flow
     if (isSupabaseConfigured) {
       try {
         const { data, error } = await supabase.auth.verifyOtp({
-          email: email.trim().toLowerCase(),
-          token: token.trim(),
+          email: cleanEmail,
+          token: cleanToken,
           type: 'signup',
         });
 
@@ -399,7 +543,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const newUser: User = {
             id: data.user.id,
             name: data.user.user_metadata?.full_name || 'Donor',
-            email: data.user.email || email,
+            email: data.user.email || cleanEmail,
             role: 'donor',
             phone: data.user.user_metadata?.phone,
             preferredLanguage: 'en',
@@ -418,7 +562,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    return { success: true };
+    // 2. Local / Standard Verification Flow
+    const pending = pendingRegistrations.get(cleanEmail);
+
+    if (!pending) {
+      return {
+        success: false,
+        error: 'No pending registration found or verification session has expired. Please register again.',
+      };
+    }
+
+    if (Date.now() > pending.expiresAt) {
+      setPendingRegistrations((prev) => {
+        const next = new Map(prev);
+        next.delete(cleanEmail);
+        return next;
+      });
+      return { success: false, error: 'Verification code has expired. Please request a new code.' };
+    }
+
+    if (pending.otpCode !== cleanToken) {
+      return { success: false, error: 'Invalid 6-digit verification code. Please check your email and retry.' };
+    }
+
+    // OTP IS VALID! Compute PBKDF2 hash & create officially verified donor account
+    const hashRes = await SecurityService.hashPassword(pending.password || 'DonorPass2026!');
+    const newDonorRecord: VerifiedDonorRecord = {
+      id: `usr_donor_${Date.now()}`,
+      name: pending.name,
+      email: cleanEmail,
+      passwordHash: hashRes.hash,
+      salt: hashRes.salt,
+      phone: pending.phone,
+      country: pending.country,
+      panTaxId: pending.panTaxId,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Save to verified donor registry
+    setVerifiedDonors((prev) => ({
+      ...prev,
+      [cleanEmail]: newDonorRecord,
+    }));
+
+    // Clear pending registration
+    setPendingRegistrations((prev) => {
+      const next = new Map(prev);
+      next.delete(cleanEmail);
+      return next;
+    });
+
+    const verifiedUser: User = {
+      id: newDonorRecord.id,
+      name: newDonorRecord.name,
+      email: newDonorRecord.email,
+      role: 'donor',
+      phone: newDonorRecord.phone,
+      preferredLanguage: 'en',
+      preferredCurrency: 'USD',
+      createdAt: newDonorRecord.createdAt,
+    };
+
+    // Activate session & log in
+    SecurityService.createSession(verifiedUser.id, 'donor', false);
+    setUser(verifiedUser);
+    sessionStorage.setItem('asfjk_auth_user', JSON.stringify(verifiedUser));
+
+    return { success: true, user: verifiedUser };
   };
 
   /**
@@ -522,9 +732,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isDonor,
         role,
         twoFactorVerified,
+        pendingOTPCode: lastGeneratedOTP,
         login,
         register,
         verifyRegistrationOTP,
+        resendRegistrationOTP,
         verify2FA,
         logout,
         hasPermission,

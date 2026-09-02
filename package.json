@@ -15,6 +15,7 @@
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.462.0",
+    "nodemailer": "^9.1.1",
     "otpauth": "^9.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^22.10.1",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",

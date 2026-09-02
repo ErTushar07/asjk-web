@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useCountUp } from '../../hooks/useCountUp';
 import { ReceiptService } from '../../services/receiptService';
 import { 
   Heart, DollarSign, RefreshCw, FileText, Download, 
@@ -12,6 +13,31 @@ interface DonorDashboardProps {
   onNavigate: (route: string) => void;
   onOpenDonateModal: () => void;
 }
+
+const StatCard: React.FC<{
+  label: string;
+  value: number;
+  isCurrency?: boolean;
+  prefix?: string;
+  icon: React.ReactNode;
+  footerText: React.ReactNode;
+  colorClass?: string;
+}> = ({ label, value, isCurrency, prefix = '', icon, footerText, colorClass = 'text-content-primary' }) => {
+  const { count, ref } = useCountUp(value, 1500);
+
+  return (
+    <div ref={ref} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="text-xs font-bold uppercase text-content-muted">{label}</span>
+        {icon}
+      </div>
+      <span className={`text-2xl sm:text-3xl font-black block font-mono ${colorClass}`}>
+        {prefix}{count.toLocaleString()}
+      </span>
+      {footerText}
+    </div>
+  );
+};
 
 export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, onOpenDonateModal }) => {
   const { user } = useAuth();
@@ -30,7 +56,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
     .reduce((s, d) => s + d.amountUSD, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fadeIn">
       {/* Donor Banner */}
       <div className="bg-brand-purple text-white p-8 sm:p-10 rounded-3xl shadow-brand-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="relative z-10 space-y-2">
@@ -56,64 +82,55 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-2">
-          <div className="flex justify-between items-center text-brand-purple">
-            <span className="text-xs font-bold uppercase text-content-muted">Total Contributed</span>
-            <DollarSign className="w-5 h-5 text-brand-purple" />
-          </div>
-          <span className="text-2xl sm:text-3xl font-black text-brand-purple block">
-            {formatUSD(totalDonatedUSD)}
-          </span>
-          <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" /> 100% Allocated & Audited
-          </span>
-        </div>
+        <StatCard
+          label="Total Contributed"
+          value={totalDonatedUSD}
+          prefix="$"
+          colorClass="text-brand-purple dark:text-purple-300"
+          icon={<DollarSign className="w-5 h-5 text-brand-purple dark:text-purple-400" />}
+          footerText={
+            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> 100% Allocated & Audited
+            </span>
+          }
+        />
 
-        <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-2">
-          <div className="flex justify-between items-center text-brand-pink">
-            <span className="text-xs font-bold uppercase text-content-muted">Total Donations</span>
-            <Heart className="w-5 h-5 text-brand-pink fill-brand-pink" />
-          </div>
-          <span className="text-2xl sm:text-3xl font-black text-content-primary block">
-            {userDonations.length}
-          </span>
-          <span className="text-[11px] text-content-muted">Direct allocations completed</span>
-        </div>
+        <StatCard
+          label="Total Donations"
+          value={userDonations.length}
+          colorClass="text-content-primary"
+          icon={<Heart className="w-5 h-5 text-brand-pink fill-brand-pink" />}
+          footerText={<span className="text-[11px] text-content-muted">Direct allocations completed</span>}
+        />
 
-        <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-2">
-          <div className="flex justify-between items-center text-brand-blue">
-            <span className="text-xs font-bold uppercase text-content-muted">Active Subscriptions</span>
-            <RefreshCw className="w-5 h-5 text-brand-blue" />
-          </div>
-          <span className="text-2xl sm:text-3xl font-black text-brand-blue block">
-            {userRecurring.filter((r) => r.status === 'active').length}
-          </span>
-          <span className="text-[11px] text-content-muted">Monthly & Annual plans</span>
-        </div>
+        <StatCard
+          label="Active Subscriptions"
+          value={userRecurring.filter((r) => r.status === 'active').length}
+          colorClass="text-brand-blue dark:text-sky-300"
+          icon={<RefreshCw className="w-5 h-5 text-brand-blue dark:text-sky-400" />}
+          footerText={<span className="text-[11px] text-content-muted">Monthly & Annual plans</span>}
+        />
 
-        <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-2">
-          <div className="flex justify-between items-center text-amber-500">
-            <span className="text-xs font-bold uppercase text-content-muted">Tax Receipts</span>
-            <FileText className="w-5 h-5 text-amber-500" />
-          </div>
-          <span className="text-2xl sm:text-3xl font-black text-content-primary block">
-            {userReceipts.length}
-          </span>
-          <span className="text-[11px] text-brand-purple font-semibold">Section 80G / 501(c)(3) Certified</span>
-        </div>
+        <StatCard
+          label="Tax Receipts"
+          value={userReceipts.length}
+          colorClass="text-content-primary"
+          icon={<FileText className="w-5 h-5 text-amber-500" />}
+          footerText={<span className="text-[11px] text-brand-purple dark:text-purple-400 font-semibold">Section 80G / 501(c)(3) Certified</span>}
+        />
       </div>
 
       {/* Main Donor Content: Subscriptions & Recent Donations */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Recent Donations Table */}
-        <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+        <div className="lg:col-span-8 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-extrabold text-content-primary">
               Recent Contribution History
             </h3>
             <button
               onClick={() => onNavigate('/donations')}
-              className="text-xs font-bold text-brand-purple hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-brand-purple dark:text-purple-400 hover:underline flex items-center gap-1"
             >
               <span>View Full History</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -123,7 +140,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+                <tr className="border-b border-content-border dark:border-slate-800 text-content-muted uppercase font-bold text-[10px]">
                   <th className="pb-3">Donation #</th>
                   <th className="pb-3">Program / Project</th>
                   <th className="pb-3">Amount</th>
@@ -131,10 +148,10 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                   <th className="pb-3 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-content-border">
+              <tbody className="divide-y divide-content-border dark:divide-slate-800">
                 {myDonations.map((d) => (
-                  <tr key={d.id} className="hover:bg-surface-soft transition-colors">
-                    <td className="py-3.5 font-mono font-semibold text-brand-purple">
+                  <tr key={d.id} className="hover:bg-surface-soft dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3.5 font-mono font-semibold text-brand-purple dark:text-purple-300">
                       {d.donationNumber}
                     </td>
                     <td className="py-3.5 font-medium text-content-primary max-w-[200px] truncate">
@@ -147,10 +164,10 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                           d.status === 'successful'
-                            ? 'bg-emerald-100 text-emerald-700'
+                            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
                             : d.status === 'refunded'
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-amber-100 text-amber-700'
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'
+                            : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
                         }`}
                       >
                         {d.status}
@@ -179,14 +196,14 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
         </div>
 
         {/* Right Column: Active Recurring Plans Card */}
-        <div className="lg:col-span-4 bg-white p-6 sm:p-7 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+        <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-extrabold text-content-primary">
               Active Recurring Plans
             </h3>
             <button
               onClick={() => onNavigate('/recurring-donations')}
-              className="text-xs font-bold text-brand-purple hover:underline"
+              className="text-xs font-bold text-brand-purple dark:text-purple-400 hover:underline"
             >
               Manage All
             </button>
@@ -196,7 +213,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
             {myRecurring.map((sub) => (
               <div
                 key={sub.id}
-                className="p-4 rounded-2xl bg-surface-soft border border-content-border space-y-2"
+                className="p-4 rounded-2xl bg-surface-soft dark:bg-slate-950 border border-content-border dark:border-slate-800 space-y-2"
               >
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-xs text-content-primary truncate max-w-[150px]">
@@ -205,17 +222,17 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                       sub.status === 'active'
-                        ? 'bg-emerald-100 text-emerald-700'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
                         : sub.status === 'paused'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-rose-100 text-rose-700'
+                        ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
+                        : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'
                     }`}
                   >
                     {sub.status}
                   </span>
                 </div>
 
-                <div className="text-xs font-bold text-brand-purple">
+                <div className="text-xs font-bold text-brand-purple dark:text-purple-300">
                   {sub.currency} {sub.amount.toLocaleString()} / {sub.frequency}
                 </div>
 

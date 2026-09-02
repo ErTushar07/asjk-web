@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useToast } from '../../contexts/ToastContext';
 import { 
   Heart, MapPin, Calendar, Users, DollarSign, ArrowLeft, 
-  CheckCircle2, Clock, AlertCircle, Share2, FileText, ChevronRight 
+  CheckCircle2, Clock, AlertCircle, Share2, FileText, ChevronRight,
+  MessageCircle, Twitter, Link as LinkIcon, Check
 } from 'lucide-react';
 
 interface ProjectDetailsProps {
@@ -21,8 +23,52 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
   const { projects } = useDatabase();
   const { formatUSD } = useCurrency();
   const { t } = useLanguage();
+  const toast = useToast();
+  const [copied, setCopied] = useState(false);
 
-  const project = projects.find((p) => p.slug === slug) || projects[0];
+  const project = projects.find((p) => p.slug === slug);
+
+  if (!project) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-24 text-center space-y-6 animate-fadeIn">
+        <div className="w-16 h-16 rounded-full bg-surface-soft dark:bg-slate-800 text-content-muted flex items-center justify-center mx-auto shadow-inner">
+          <AlertCircle className="w-8 h-8 text-brand-pink" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-content-primary">Project Not Found</h2>
+          <p className="text-sm text-content-secondary leading-relaxed">
+            This project may have ended or the link may be incorrect.
+          </p>
+        </div>
+        <button
+          onClick={() => onNavigate('/projects')}
+          className="btn-primary !py-2.5 !px-6 text-xs font-bold inline-flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Projects</span>
+        </button>
+      </div>
+    );
+  }
+
+  const handleShareWhatsApp = () => {
+    const url = window.location.href;
+    const text = encodeURIComponent(`Support this project on Al Shujaiat Foundation: ${project.name}\n${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const handleShareTwitter = () => {
+    const url = window.location.href;
+    const text = encodeURIComponent(`Check out "${project.name}" on Al Shujaiat Foundation:`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank');
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href).catch(() => {});
+    setCopied(true);
+    toast.success('Project link copied to clipboard!', 'Link Copied');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const fundingPct = Math.min(
     100,
@@ -32,7 +78,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
   const isFunded = project.status === 'funded' || project.amountRaisedUSD >= project.fundingGoalUSD;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fadeIn">
       {/* Back button & Category */}
       <div className="flex items-center justify-between">
         <button
@@ -47,21 +93,49 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
         </span>
       </div>
 
-      {/* Hero Title & Location */}
-      <div className="space-y-3">
+      {/* Hero Title, Location & Social Share */}
+      <div className="space-y-4">
         <h1 className="text-3xl sm:text-4xl font-black text-content-primary tracking-tight">
           {project.name}
         </h1>
-        <div className="flex flex-wrap items-center gap-4 text-xs text-content-secondary">
-          <span className="flex items-center gap-1 font-medium">
-            <MapPin className="w-4 h-4 text-brand-pink" />
-            {project.locationDetails} ({project.city}, {project.region})
-          </span>
-          <span>·</span>
-          <span className="flex items-center gap-1 font-mono">
-            <Calendar className="w-4 h-4 text-brand-blue" />
-            {t('project.timeline', 'Timeline')}: {new Date(project.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} – {new Date(project.expectedCompletionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-content-secondary pt-1 border-b border-content-border dark:border-slate-800 pb-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="flex items-center gap-1 font-medium">
+              <MapPin className="w-4 h-4 text-brand-pink" />
+              {project.locationDetails} ({project.city}, {project.region})
+            </span>
+            <span>·</span>
+            <span className="flex items-center gap-1 font-mono">
+              <Calendar className="w-4 h-4 text-brand-blue" />
+              {t('project.timeline', 'Timeline')}: {new Date(project.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} – {new Date(project.expectedCompletionDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+            </span>
+          </div>
+
+          {/* Social Share Buttons */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-content-muted uppercase tracking-wider mr-1">Share:</span>
+            <button
+              onClick={handleShareWhatsApp}
+              title="Share on WhatsApp"
+              className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleShareTwitter}
+              title="Share on X (Twitter)"
+              className="p-2 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 hover:bg-sky-100 transition-colors"
+            >
+              <Twitter className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCopyLink}
+              title="Copy Link"
+              className="p-2 rounded-xl bg-surface-soft dark:bg-slate-800 text-content-secondary hover:text-brand-purple transition-colors"
+            >
+              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <LinkIcon className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -70,27 +144,27 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
         {/* Left Column: Media & Story (8 cols) */}
         <div className="lg:col-span-8 space-y-10">
           {/* Main Hero Image */}
-          <div className="relative h-96 rounded-3xl overflow-hidden shadow-brand-md border border-content-border">
+          <div className="relative h-96 rounded-3xl overflow-hidden shadow-brand-md border border-content-border dark:border-slate-800">
             <img
               src={project.heroImage}
               alt={project.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-brand-purple shadow-sm">
+            <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-brand-purple dark:text-purple-300 shadow-sm border border-content-border dark:border-slate-700">
               {project.beneficiariesCount.toLocaleString()}+ {t('project.direct_beneficiaries', 'Direct Beneficiaries')}
             </div>
           </div>
 
           {/* Problem Statement & Context */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-4">
             <h3 className="text-lg font-extrabold text-content-primary">
               {t('project.challenge_title', 'The Challenge & Need in Kashmir')}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
               {project.problemStatement}
             </p>
-            <div className="pt-2 border-t border-content-border/60">
-              <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider mb-2">
+            <div className="pt-2 border-t border-content-border/60 dark:border-slate-800">
+              <h4 className="text-xs font-bold text-brand-purple dark:text-purple-400 uppercase tracking-wider mb-2">
                 {t('project.overview_title', 'Detailed Program Overview')}
               </h4>
               <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
@@ -101,8 +175,8 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
           {/* Objectives & Activities */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-3">
-              <h4 className="font-extrabold text-sm text-brand-purple">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-3">
+              <h4 className="font-extrabold text-sm text-brand-purple dark:text-purple-400">
                 {t('project.key_objectives', 'Key Objectives')}
               </h4>
               <ul className="space-y-2 text-xs text-content-secondary">
@@ -115,8 +189,8 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
               </ul>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm space-y-3">
-              <h4 className="font-extrabold text-sm text-brand-blue">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-3">
+              <h4 className="font-extrabold text-sm text-brand-blue dark:text-sky-400">
                 {t('project.expected_outcomes', 'Expected Measurable Outcomes')}
               </h4>
               <ul className="space-y-2 text-xs text-content-secondary">
@@ -132,7 +206,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
           {/* Milestones Roadmap */}
           {project.milestones.length > 0 && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
               <h3 className="text-lg font-extrabold text-content-primary">
                 {t('project.milestones_title', 'Implementation Milestones & Budget Breakdown')}
               </h3>
@@ -140,16 +214,16 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
                 {project.milestones.map((ms) => (
                   <div
                     key={ms.id}
-                    className="p-4 rounded-2xl bg-surface-soft border border-content-border space-y-2"
+                    className="p-4 rounded-2xl bg-surface-soft dark:bg-slate-950 border border-content-border dark:border-slate-800 space-y-2"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-content-primary">{ms.title}</span>
-                      <span className="font-mono font-bold text-brand-purple">
+                      <span className="font-mono font-bold text-brand-purple dark:text-purple-300">
                         ${ms.costRequirementUSD.toLocaleString()} USD ({ms.completionPercentage}%)
                       </span>
                     </div>
                     <p className="text-xs text-content-secondary">{ms.description}</p>
-                    <div className="w-full h-2 bg-content-border rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-content-border dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-brand-gradient-blue rounded-full"
                         style={{ width: `${ms.completionPercentage}%` }}
@@ -163,16 +237,16 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
           {/* Field Updates & Reports */}
           {project.updates.length > 0 && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
               <h3 className="text-lg font-extrabold text-content-primary">
                 {t('project.field_updates', 'Field Updates & Progress Reports')}
               </h3>
               <div className="space-y-4">
                 {project.updates.map((upd) => (
-                  <div key={upd.id} className="p-4 rounded-2xl bg-surface-soft border border-content-border space-y-2">
+                  <div key={upd.id} className="p-4 rounded-2xl bg-surface-soft dark:bg-slate-950 border border-content-border dark:border-slate-800 space-y-2">
                     <div className="flex justify-between items-center text-xs text-content-muted">
                       <span className="font-mono">{new Date(upd.date).toLocaleDateString()}</span>
-                      <span className="font-semibold text-brand-purple">{upd.authorName}</span>
+                      <span className="font-semibold text-brand-purple dark:text-purple-400">{upd.authorName}</span>
                     </div>
                     <h4 className="font-bold text-sm text-content-primary">{upd.title}</h4>
                     <p className="text-xs text-content-secondary leading-relaxed">{upd.content}</p>
@@ -185,12 +259,12 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
         {/* Right Sticky Column: Financial Ledger & Donation (4 cols) */}
         <div className="lg:col-span-4">
-          <div className="sticky top-28 bg-white rounded-3xl border border-content-border p-6 sm:p-8 shadow-brand-md space-y-6">
+          <div className="sticky top-28 bg-white dark:bg-slate-900 rounded-3xl border border-content-border dark:border-slate-800 p-6 sm:p-8 shadow-brand-md space-y-6">
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-brand-pink uppercase tracking-widest block">
                 {t('project.financial_ledger', 'Verified Financial Ledger')}
               </span>
-              <div className="text-3xl font-black text-brand-purple">
+              <div className="text-3xl font-black text-brand-purple dark:text-purple-300">
                 {formatUSD(project.amountRaisedUSD)}
               </div>
               <p className="text-xs text-content-muted">
@@ -200,7 +274,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
 
             {/* Progress Bar */}
             <div className="space-y-1.5">
-              <div className="w-full h-3 bg-surface-soft rounded-full overflow-hidden border border-content-border/60">
+              <div className="w-full h-3 bg-surface-soft dark:bg-slate-800 rounded-full overflow-hidden border border-content-border/60 dark:border-slate-700">
                 <div
                   className="h-full bg-brand-gradient-pink rounded-full transition-all duration-700"
                   style={{ width: `${fundingPct}%` }}
@@ -213,9 +287,9 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
             </div>
 
             {/* Donors Count */}
-            <div className="bg-surface-soft p-3 rounded-xl flex items-center justify-between text-xs text-content-secondary">
+            <div className="bg-surface-soft dark:bg-slate-950 p-3 rounded-xl flex items-center justify-between text-xs text-content-secondary">
               <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-brand-purple" /> {t('project.verified_donors', 'Verified Donors')}
+                <Users className="w-4 h-4 text-brand-purple dark:text-purple-400" /> {t('project.verified_donors', 'Verified Donors')}
               </span>
               <span className="font-black text-content-primary">{project.donorCount} {t('project.donors', 'Donors')}</span>
             </div>
@@ -230,8 +304,8 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
             </button>
 
             {/* Exemption & Transparency Note */}
-            <div className="text-[11px] text-content-muted space-y-2 pt-2 border-t border-content-border">
-              <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
+            <div className="text-[11px] text-content-muted space-y-2 pt-2 border-t border-content-border dark:border-slate-800">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{t('hero.stat_pdf', 'Instant 80G Tax Exemption PDF Receipt')}</span>
               </div>

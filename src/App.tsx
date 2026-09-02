@@ -7,6 +7,7 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DonationModal } from './components/donation/DonationModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
+import { ScrollToTop } from './components/common/ScrollToTop';
 
 // 1. Code Splitting: Lazy-load all public pages
 const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
@@ -219,6 +220,9 @@ export const App: React.FC = () => {
 
       {/* Global Theme Shortcut Indicator on all pages */}
       <ThemeShortcutIndicator />
+
+      {/* Global Scroll-to-Top Floating Button */}
+      <ScrollToTop />
     </div>
   );
 };

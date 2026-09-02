@@ -19,15 +19,27 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React runtime — cached aggressively
-          'react-vendor': ['react', 'react-dom'],
-          // Heavy PDF & canvas libs — loaded only when needed
-          'pdf-libs': ['jspdf', 'html2canvas'],
-          // DOMPurify security lib
-          'security': ['dompurify'],
-          // Lucide icons (large icon tree)
-          'icons': ['lucide-react'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react/') || id.includes('react-dom/')) {
+              return 'react-vendor';
+            }
+            if (id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'pdf-libs';
+            }
+            if (id.includes('dompurify')) {
+              return 'security';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+          }
+          if (id.includes('DatabaseContext')) {
+            return 'database-context';
+          }
+          if (id.includes('AuthContext')) {
+            return 'auth-context';
+          }
         },
       },
     },

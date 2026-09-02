@@ -1,52 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useCountUp } from '../../hooks/useCountUp';
 import { Users, Droplets, GraduationCap, HeartHandshake, Activity, Home, CheckCircle2 } from 'lucide-react';
-
-// Custom Count-Up Animation Hook with IntersectionObserver
-const useCountUp = (target: number, duration: number = 1800) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const startTime = performance.now();
-
-          const step = (currentTime: number) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // easeOutCubic: 1 - pow(1 - progress, 3)
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
-            const currentVal = Math.floor(easeProgress * target);
-
-            setCount(currentVal);
-
-            if (progress < 1) {
-              requestAnimationFrame(step);
-            } else {
-              setCount(target);
-            }
-          };
-
-          requestAnimationFrame(step);
-        }
-      },
-      { threshold: 0.15 }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [target, duration]);
-
-  return { count, ref };
-};
 
 const MetricCard: React.FC<{ metric: any; iconMap: Record<string, any> }> = ({ metric, iconMap }) => {
   const { t, tNum } = useLanguage();
@@ -56,7 +12,7 @@ const MetricCard: React.FC<{ metric: any; iconMap: Record<string, any> }> = ({ m
   return (
     <div
       ref={ref}
-      className="bg-white rounded-2xl sm:rounded-3xl border border-content-border p-3.5 sm:p-8 shadow-brand-sm hover:shadow-brand-md transition-all space-y-3 sm:space-y-4 flex flex-col justify-between min-w-0 group"
+      className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-content-border dark:border-slate-800 p-3.5 sm:p-8 shadow-brand-sm hover:shadow-brand-md transition-all space-y-3 sm:space-y-4 flex flex-col justify-between min-w-0 group"
     >
       <div className="space-y-2 sm:space-y-3">
         <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-surface-soft flex items-center justify-center text-brand-purple group-hover:bg-brand-purple/10 transition-colors">

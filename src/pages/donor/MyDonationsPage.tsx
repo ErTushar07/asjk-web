@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { ReceiptService } from '../../services/receiptService';
-import { Download, Search, Filter, FileText, ArrowLeft } from 'lucide-react';
+import { Download, Search, Filter, FileText, ArrowLeft, Copy, Check } from 'lucide-react';
 
 export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
   const { user } = useAuth();
   const { donations, receipts, settings } = useDatabase();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = (num: string) => {
+    navigator.clipboard.writeText(num).catch(() => {});
+    setCopiedId(num);
+    setTimeout(() => {
+      setCopiedId((prev) => (prev === num ? null : prev));
+    }, 2000);
+  };
 
   const donorEmail = (user?.email || '').toLowerCase().trim();
 
@@ -42,7 +51,7 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-content-border shadow-brand-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-content-border dark:border-slate-800 shadow-brand-sm">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -50,7 +59,7 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
             placeholder="Search by donation # or project..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-800 text-content-primary focus:border-brand-purple outline-none"
           />
         </div>
 
@@ -59,7 +68,7 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-content-border bg-white text-content-primary"
+            className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-800 text-content-primary"
           >
             <option value="all">All Statuses</option>
             <option value="successful">Successful</option>
@@ -70,11 +79,11 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-3xl border border-content-border overflow-hidden shadow-brand-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-content-border dark:border-slate-800 overflow-hidden shadow-brand-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-surface-soft border-b border-content-border text-content-muted uppercase font-bold text-[10px]">
+              <tr className="bg-surface-soft dark:bg-slate-950 border-b border-content-border dark:border-slate-800 text-content-muted uppercase font-bold text-[10px]">
                 <th className="py-3.5 px-6">Date</th>
                 <th className="py-3.5 px-6">Donation ID</th>
                 <th className="py-3.5 px-6">Allocated Program</th>
@@ -85,14 +94,30 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
                 <th className="py-3.5 px-6 text-right">Receipt</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-content-border">
+            <tbody className="divide-y divide-content-border dark:divide-slate-800">
               {filtered.map((d) => (
-                <tr key={d.id} className="hover:bg-surface-soft transition-colors">
+                <tr key={d.id} className="hover:bg-surface-soft dark:hover:bg-slate-800/50 transition-colors">
                   <td className="py-3.5 px-6 font-mono text-content-secondary">
                     {new Date(d.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-3.5 px-6 font-mono font-bold text-brand-purple">
-                    {d.donationNumber}
+                    <div className="inline-flex items-center gap-1.5">
+                      <span>{d.donationNumber}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(d.donationNumber)}
+                        title="Copy Donation ID"
+                        className="p-1 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded transition-colors text-content-muted hover:text-brand-purple"
+                      >
+                        {copiedId === d.donationNumber ? (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-500 font-sans font-normal">
+                            <Check className="w-3 h-3" /> Copied!
+                          </span>
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                   <td className="py-3.5 px-6 font-semibold text-content-primary">
                     {d.targetName}
@@ -110,10 +135,10 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                         d.status === 'successful'
-                          ? 'bg-emerald-100 text-emerald-700'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
                           : d.status === 'refunded'
-                          ? 'bg-rose-100 text-rose-700'
-                          : 'bg-amber-100 text-amber-700'
+                          ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'
+                          : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
                       }`}
                     >
                       {d.status}

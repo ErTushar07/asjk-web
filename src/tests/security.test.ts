@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { SecurityService } from '../services/securityService';
 import { ValidationService } from '../services/validationService';
+import { TOTPService } from '../services/totpService';
 
 describe('Security Service - Cryptography & Authentication', () => {
   it('generates unique cryptographic salts', () => {
@@ -61,12 +62,22 @@ describe('Security Service - Cryptography & Authentication', () => {
     expect(check.remainingAttempts).toBe(5);
   });
 
-  it('validates 2FA TOTP format and backup codes', () => {
-    expect(SecurityService.verify2FACode('123456')).toBe(true);
-    expect(SecurityService.verify2FACode('987 654')).toBe(true);
-    expect(SecurityService.verify2FACode('REC88901')).toBe(true); // 8-char backup token
-    expect(SecurityService.verify2FACode('abc')).toBe(false); // too short
-    expect(SecurityService.verify2FACode('')).toBe(false); // empty
+  it('validates genuine RFC 6238 TOTP codes and rejects incorrect numbers', () => {
+    const testSecret = 'JBSWY3DPEHPK3PXP';
+    const currentValidCode = TOTPService.generateCurrentToken(testSecret);
+
+    // Valid current code should pass
+    expect(SecurityService.verify2FACode(currentValidCode, testSecret)).toBe(true);
+
+    // Arbitrary/wrong numbers should fail
+    expect(SecurityService.verify2FACode('000000', testSecret)).toBe(false);
+
+    // Valid 8-char recovery backup code starting with REC
+    expect(SecurityService.verify2FACode('REC88901', testSecret)).toBe(true);
+
+    // Malformed inputs should fail
+    expect(SecurityService.verify2FACode('abc', testSecret)).toBe(false);
+    expect(SecurityService.verify2FACode('', testSecret)).toBe(false);
   });
 });
 

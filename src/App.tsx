@@ -218,8 +218,8 @@ export const App: React.FC = () => {
         onNavigate={navigate}
       />
 
-      {/* Global Theme Shortcut Indicator on all pages */}
-      <ThemeShortcutIndicator />
+      {/* Floating Theme Button only visible on pages where there is no top navbar button */}
+      {isAdminRoute && <ThemeShortcutIndicator />}
 
       {/* Global Scroll-to-Top Floating Button */}
       <ScrollToTop />

@@ -14,4 +14,23 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  build: {
+    // Raise warning threshold since shared context bundle is intentionally large
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React runtime — cached aggressively
+          'react-vendor': ['react', 'react-dom'],
+          // Heavy PDF & canvas libs — loaded only when needed
+          'pdf-libs': ['jspdf', 'html2canvas'],
+          // DOMPurify security lib
+          'security': ['dompurify'],
+          // Lucide icons (large icon tree)
+          'icons': ['lucide-react'],
+        },
+      },
+    },
+  },
 });
+

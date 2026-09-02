@@ -282,6 +282,18 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     safeSetItem('asfjk_db_leadership', leadership);
   }, [leadership]);
   useEffect(() => {
+    safeSetItem('asfjk_db_metrics', impactMetrics);
+  }, [impactMetrics]);
+  useEffect(() => {
+    safeSetItem('asfjk_db_tickets', supportTickets);
+  }, [supportTickets]);
+  useEffect(() => {
+    safeSetItem('asfjk_db_stories', stories);
+  }, [stories]);
+  useEffect(() => {
+    safeSetItem('asfjk_db_news', news);
+  }, [news]);
+  useEffect(() => {
     safeSetItem('asfjk_db_settings', settings);
   }, [settings]);
 

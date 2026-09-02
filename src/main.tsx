@@ -6,6 +6,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { DatabaseProvider } from './contexts/DatabaseContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <CurrencyProvider>
           <DatabaseProvider>
             <ToastProvider>
-              <App />
+              <ThemeProvider>
+                <App />
+              </ThemeProvider>
             </ToastProvider>
           </DatabaseProvider>
         </CurrencyProvider>

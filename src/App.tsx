@@ -6,6 +6,7 @@ import { Footer } from './components/layout/Footer';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DonationModal } from './components/donation/DonationModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
 
 // 1. Code Splitting: Lazy-load all public pages
 const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
@@ -215,6 +216,9 @@ export const App: React.FC = () => {
         initialCampaignId={donateTargetCampaignId}
         onNavigate={navigate}
       />
+
+      {/* Global Theme Shortcut Indicator on all pages */}
+      <ThemeShortcutIndicator />
     </div>
   );
 };

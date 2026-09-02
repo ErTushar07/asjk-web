@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { 
   Heart, Globe, DollarSign, ChevronDown, 
   User as UserIcon, Shield, FileText, Activity, Layers, LogIn,
-  Check, LayoutDashboard, RefreshCw
+  Check, LayoutDashboard, RefreshCw, Moon, Sun
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -18,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
   const { currentLanguage, setLanguage, supportedLanguages, t, isRTL } = useLanguage();
   const { currentCurrency, setCurrency, availableCurrencies } = useCurrency();
   const { user, isAuthenticated, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [currDropdownOpen, setCurrDropdownOpen] = useState(false);
@@ -234,6 +236,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                 </div>
               )}
             </div>
+
+            {/* Dark / Light Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label={`Switch to ${isDark ? 'Light' : 'Dark'} Mode [Shortcut: Ctrl+Shift+D]`}
+              title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode (Ctrl+Shift+D)`}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-content-border hover:border-brand-purple text-content-primary hover:text-brand-purple transition-colors flex items-center gap-1.5 text-xs font-bold flex-shrink-0 group"
+            >
+              {isDark ? (
+                <Moon className="w-3.5 h-3.5 text-amber-300 fill-amber-300/30 group-hover:rotate-12 transition-transform" />
+              ) : (
+                <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-500/30 group-hover:rotate-45 transition-transform" />
+              )}
+              <span className="hidden lg:inline text-[11px] font-semibold">{isDark ? 'Dark' : 'Light'}</span>
+            </button>
 
             {/* User Account / Donor Portal */}
             {!isAuthenticated ? (

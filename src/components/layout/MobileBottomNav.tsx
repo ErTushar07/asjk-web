@@ -15,7 +15,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const isHome = currentRoute === '/' || currentRoute === '';
   const isProjects = currentRoute.startsWith('/projects') || currentRoute.startsWith('/campaigns');
   const isVolunteer = currentRoute === '/volunteer';
-  const isDashboard = currentRoute.startsWith('/dashboard') || currentRoute.startsWith('/login') || currentRoute.startsWith('/profile');
+  const isDashboard =
+    currentRoute === '/dashboard' ||
+    currentRoute === '/donations' ||
+    currentRoute === '/recurring-donations' ||
+    currentRoute === '/receipts' ||
+    currentRoute === '/profile' ||
+    currentRoute === '/settings' ||
+    currentRoute === '/security';
 
   return (
     <nav
@@ -27,7 +34,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('/')}
           className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-            isHome ? 'text-brand-purple font-bold' : 'text-content-muted hover:text-content-secondary'
+            isHome ? 'text-brand-purple dark:text-brand-pink font-bold' : 'text-content-muted hover:text-content-secondary'
           }`}
           aria-label="Navigate to Home"
         >
@@ -39,7 +46,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('/projects')}
           className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-            isProjects ? 'text-brand-purple font-bold' : 'text-content-muted hover:text-content-secondary'
+            isProjects ? 'text-brand-purple dark:text-brand-pink font-bold' : 'text-content-muted hover:text-content-secondary'
           }`}
           aria-label="Navigate to Projects"
         >
@@ -63,7 +70,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('/volunteer')}
           className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-            isVolunteer ? 'text-brand-purple font-bold' : 'text-content-muted hover:text-content-secondary'
+            isVolunteer ? 'text-brand-purple dark:text-brand-pink font-bold' : 'text-content-muted hover:text-content-secondary'
           }`}
           aria-label="Navigate to Volunteer Application"
         >
@@ -75,7 +82,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('/dashboard')}
           className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-            isDashboard ? 'text-brand-purple font-bold' : 'text-content-muted hover:text-content-secondary'
+            isDashboard ? 'text-brand-purple dark:text-brand-pink font-bold' : 'text-content-muted hover:text-content-secondary'
           }`}
           aria-label="Navigate to Donor Dashboard"
         >

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Shield, CheckCircle2, ArrowRight, Building2 } from 'lucide-react';
 
 export const PartnersPage: React.FC = () => {
   const { addPartnershipRequest } = useDatabase();
   const { t } = useLanguage();
+  const toast = useToast();
 
   const [orgName, setOrgName] = useState('');
   const [orgType, setOrgType] = useState<any>('corporate');
@@ -33,6 +35,7 @@ export const PartnersPage: React.FC = () => {
       message,
     });
 
+    toast.success('Partnership inquiry received. Our Programs team will reach out within 2 business days.', 'Proposal Submitted');
     setSubmitted(true);
   };
 

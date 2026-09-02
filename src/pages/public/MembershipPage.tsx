@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useToast } from '../../contexts/ToastContext';
 import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { 
@@ -28,6 +29,7 @@ export const MembershipPage: React.FC = () => {
   const { addMembership, lookupMembership, settings } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
   const { t } = useLanguage();
+  const toast = useToast();
 
   const formatAmount = (val: number) => formatOriginal(val, currentCurrency.code);
   const convertFromUSD = (valUSD: number) => convertUSDToCurrency(valUSD);
@@ -190,9 +192,11 @@ export const MembershipPage: React.FC = () => {
         });
 
         setConfirmedMember(newMbr);
+        toast.success(`Welcome, ${fullName}! Your ${currentTierObj.name} NGO Membership card is ready.`, 'Membership Enrolled');
         window.scrollTo({ top: 120, behavior: 'smooth' });
       } catch (err) {
         console.error('Membership activation error:', err);
+        toast.error('Could not complete membership enrollment. Please try again.', 'Enrollment Error');
       } finally {
         setIsProcessing(false);
       }

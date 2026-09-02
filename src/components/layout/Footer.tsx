@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Mail, Phone, MapPin, ShieldCheck, ArrowUpRight } from 'lucide-react';
 
 interface FooterProps {
@@ -8,6 +9,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
+  const toast = useToast();
 
   return (
     <footer className="bg-brand-purple-dark text-white pt-12 sm:pt-16 pb-20 sm:pb-24 border-t border-brand-purple/40 w-full max-w-full overflow-hidden">
@@ -192,8 +194,55 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
         </div>
 
+        {/* Newsletter Signup Section */}
+        <div className="mt-12 p-6 sm:p-8 rounded-3xl bg-white/5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-left w-full md:w-auto">
+            <h4 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-brand-pink" />
+              {t('footer.newsletter_title', 'Stay Updated · Get Field Reports')}
+            </h4>
+            <p className="text-xs text-white/70 max-w-lg leading-relaxed">
+              {t('footer.newsletter_sub', 'Receive monthly updates directly from community projects in Jammu & Kashmir.')}
+            </p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const input = form.elements.namedItem('email') as HTMLInputElement;
+              if (input && input.value) {
+                try {
+                  localStorage.setItem('asfjk_newsletter_subscribed', input.value);
+                } catch (err) {}
+                toast.success(
+                  t('footer.newsletter_success', "Thank you! You will receive our next field report."),
+                  'Subscribed'
+                );
+                form.reset();
+              }
+            }}
+            className="flex items-center gap-2 w-full md:w-auto flex-shrink-0"
+          >
+            <input
+              type="email"
+              name="email"
+              required
+              aria-label="Email address for newsletter"
+              placeholder={t('footer.newsletter_placeholder', 'Enter your email address')}
+              className="px-4 py-2.5 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-brand-pink w-full md:w-64"
+            />
+            <button
+              type="submit"
+              className="btn-secondary !py-2.5 !px-5 text-xs font-bold whitespace-nowrap shadow-pink-glow"
+            >
+              {t('footer.newsletter_subscribe', 'Subscribe')}
+            </button>
+          </form>
+        </div>
+
         {/* Bottom Legal Policies Bar */}
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
+        <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
           <p>© {new Date().getFullYear()} {t('footer.rights', 'All rights reserved. Al Shujaiat Foundation Jammu & Kashmir.')}</p>
 
           <div className="flex flex-wrap items-center gap-4 text-[11px]">

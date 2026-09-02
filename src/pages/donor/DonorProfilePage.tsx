@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { User, ShieldCheck, CheckCircle2, Lock, Bell, ArrowLeft } from 'lucide-react';
 
 export const DonorProfilePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('Donor Profile & Security', undefined, { noindex: true });
   const { user } = useAuth();
 
-  const [name, setName] = useState(user?.name || 'David Thompson');
-  const [email, setEmail] = useState(user?.email || 'david.thompson@example.com');
-  const [phone, setPhone] = useState('+1 415 555 0192');
-  const [taxId, setTaxId] = useState('US-TAX-88901');
-  const [country, setCountry] = useState('United States');
-  const [address, setAddress] = useState('124 Lexington Ave, New York, NY 10016, USA');
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [taxId, setTaxId] = useState('');
+  const [country, setCountry] = useState('India');
+  const [address, setAddress] = useState('');
 
   const [emailReceipts, setEmailReceipts] = useState(true);
   const [projectUpdates, setProjectUpdates] = useState(true);

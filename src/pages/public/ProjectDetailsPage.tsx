@@ -3,10 +3,11 @@ import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { 
   Heart, MapPin, Calendar, Users, DollarSign, ArrowLeft, 
   CheckCircle2, Clock, AlertCircle, Share2, FileText, ChevronRight,
-  MessageCircle, Twitter, Link as LinkIcon, Check
+  MessageCircle, Twitter, Link as LinkIcon, Check, Home
 } from 'lucide-react';
 
 interface ProjectDetailsProps {
@@ -27,6 +28,11 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
   const [copied, setCopied] = useState(false);
 
   const project = projects.find((p) => p.slug === slug);
+
+  usePageMeta(
+    project ? `${project.name} | Projects` : 'Project Details',
+    project?.shortDescription
+  );
 
   if (!project) {
     return (
@@ -78,17 +84,37 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
   const isFunded = project.status === 'funded' || project.amountRaisedUSD >= project.fundingGoalUSD;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fadeIn">
+      {/* Breadcrumb Bar */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-content-muted">
+        <button
+          onClick={() => onNavigate('/')}
+          className="hover:text-brand-purple dark:hover:text-purple-300 flex items-center gap-1 transition-colors"
+        >
+          <Home className="w-3.5 h-3.5" />
+          <span>{t('nav.home', 'Home')}</span>
+        </button>
+        <span>›</span>
+        <button
+          onClick={() => onNavigate('/projects')}
+          className="hover:text-brand-purple dark:hover:text-purple-300 transition-colors"
+        >
+          {t('nav.projects', 'Projects')}
+        </button>
+        <span>›</span>
+        <span className="text-content-primary font-semibold truncate max-w-xs">{project.name}</span>
+      </nav>
+
       {/* Back button & Category */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => onNavigate('/projects')}
-          className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple dark:hover:text-purple-300 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> {t('project.back_to_all', 'Back to All Projects')}
         </button>
 
-        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-purple/10 text-brand-purple uppercase tracking-wider">
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-purple/10 dark:bg-purple-950/60 text-brand-purple dark:text-purple-300 uppercase tracking-wider">
           {t(project.category, project.category)}
         </span>
       </div>

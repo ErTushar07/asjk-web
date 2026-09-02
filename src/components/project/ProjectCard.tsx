@@ -23,9 +23,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const isFullyFunded = project.amountRaisedUSD >= project.fundingGoalUSD;
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border border-content-border overflow-hidden shadow-brand-sm hover:shadow-brand-md transition-all duration-300 flex flex-col group min-w-0">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-content-border dark:border-slate-800 overflow-hidden shadow-brand-sm hover:shadow-brand-md transition-all duration-300 flex flex-col group min-w-0">
       {/* Hero Image Container */}
-      <div className="relative h-36 sm:h-56 w-full overflow-hidden bg-surface-soft flex-shrink-0">
+      <div className="relative h-36 sm:h-56 w-full overflow-hidden bg-surface-soft dark:bg-slate-950 flex-shrink-0">
         <img
           src={project.heroImage}
           alt={project.name}
@@ -73,7 +73,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div>
           <h3 
             onClick={() => onSelectProject(project.slug)}
-            className="text-xs sm:text-lg font-bold sm:font-extrabold text-content-primary hover:text-brand-purple cursor-pointer transition-colors line-clamp-1"
+            className="text-xs sm:text-lg font-bold sm:font-extrabold text-content-primary hover:text-brand-purple dark:hover:text-purple-300 cursor-pointer transition-colors line-clamp-1"
           >
             {project.name}
           </h3>
@@ -83,10 +83,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         {/* Dynamic Funding Stats */}
-        <div className="bg-surface-soft rounded-xl sm:rounded-2xl p-2.5 sm:p-4 space-y-2 sm:space-y-3 border border-content-border/60">
+        <div className="bg-surface-soft dark:bg-slate-950 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 space-y-2 sm:space-y-3 border border-content-border/60 dark:border-slate-800">
           <div className="flex justify-between items-center text-[10px] sm:text-xs">
             <span className="font-semibold text-content-muted">
-              {t('project.funded', 'Funded')}: <span className="font-bold text-brand-purple">{tNum(percentageFunded)}%</span>
+              {t('project.funded', 'Funded')}: <span className="font-bold text-brand-purple dark:text-purple-300">{tNum(percentageFunded)}%</span>
             </span>
             <span className="font-semibold text-content-muted flex items-center gap-0.5 sm:gap-1">
               <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-pink" />
@@ -95,9 +95,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full h-1.5 sm:h-2.5 bg-content-border/60 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 sm:h-2.5 bg-content-border/60 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${
+              className={`h-full rounded-full transition-all duration-1000 ease-out ${
                 isFullyFunded ? 'bg-emerald-500' : 'bg-brand-gradient-pink'
               }`}
               style={{ width: `${percentageFunded}%` }}

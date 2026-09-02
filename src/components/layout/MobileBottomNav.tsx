@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Home, FolderOpen, Heart, HeartHandshake, User } from 'lucide-react';
 
 interface MobileBottomNavProps {
@@ -12,6 +13,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onNavigate,
   onOpenDonateModal,
 }) => {
+  const { t } = useLanguage();
   const isHome = currentRoute === '/' || currentRoute === '';
   const isProjects = currentRoute.startsWith('/projects') || currentRoute.startsWith('/campaigns');
   const isVolunteer = currentRoute === '/volunteer';
@@ -27,7 +29,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-content-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/98 backdrop-blur-lg border-t border-content-border dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5"
     >
       <div className="flex items-center justify-around max-w-lg mx-auto">
         {/* Home */}
@@ -39,7 +41,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Navigate to Home"
         >
           <Home className={`w-5 h-5 ${isHome ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-          <span className="text-[10px] tracking-tight mt-0.5">Home</span>
+          <span className="text-[10px] tracking-tight mt-0.5">{t('nav.home', 'Home')}</span>
         </button>
 
         {/* Projects */}
@@ -51,7 +53,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Navigate to Projects"
         >
           <FolderOpen className={`w-5 h-5 ${isProjects ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-          <span className="text-[10px] tracking-tight mt-0.5">Projects</span>
+          <span className="text-[10px] tracking-tight mt-0.5">{t('nav.projects', 'Projects')}</span>
         </button>
 
         {/* Donate (Prominent Center) */}
@@ -63,7 +65,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <div className="w-6 h-6 flex items-center justify-center">
             <Heart className="w-5 h-5 fill-white" />
           </div>
-          <span className="text-[10px] font-black tracking-tight mt-0.5">Donate</span>
+          <span className="text-[10px] font-black tracking-tight mt-0.5">{t('nav.donate', 'Donate')}</span>
         </button>
 
         {/* Volunteer */}
@@ -75,7 +77,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Navigate to Volunteer Application"
         >
           <HeartHandshake className={`w-5 h-5 ${isVolunteer ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-          <span className="text-[10px] tracking-tight mt-0.5">Volunteer</span>
+          <span className="text-[10px] tracking-tight mt-0.5">{t('nav.volunteer', 'Volunteer')}</span>
         </button>
 
         {/* Account / Dashboard */}
@@ -87,7 +89,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Navigate to Donor Dashboard"
         >
           <User className={`w-5 h-5 ${isDashboard ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-          <span className="text-[10px] tracking-tight mt-0.5">Account</span>
+          <span className="text-[10px] tracking-tight mt-0.5">{t('donor.account', 'Account')}</span>
         </button>
       </div>
     </nav>

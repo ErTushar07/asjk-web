@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { Calendar, User, ArrowRight, Tag, Search } from 'lucide-react';
 
 export const NewsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('News & Press Releases', 'Stay informed on project inaugurations, winter relief logistics, and field operations across Jammu & Kashmir.');
   const { news } = useDatabase();
   const { t } = useLanguage();
   const [search, setSearch] = useState('');
@@ -36,6 +38,7 @@ export const NewsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ on
         <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
+          aria-label="Search news bulletins, topics, or authors"
           placeholder="Search news bulletins, topics, or authors..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}

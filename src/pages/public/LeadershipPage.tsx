@@ -3,6 +3,7 @@ import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { LeadershipCategory, LeadershipMember } from '../../types';
 import { LeadershipCard } from '../../components/leadership/LeadershipCard';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { 
   ShieldCheck, Users, Crown, Briefcase, 
   HeartHandshake, Award, Sparkles, CheckCircle2, ChevronRight 
@@ -14,26 +15,15 @@ interface LeadershipPageProps {
 }
 
 export const LeadershipPage: React.FC<LeadershipPageProps> = ({ selectedSlug, onNavigate }) => {
+  usePageMeta(
+    'Board of Trustees & Leadership',
+    'Meet the Board of Trustees, executive leadership, advisors, and core team members of Al Shujaiat Foundation Jammu & Kashmir (ASFJK).'
+  );
   const { getPublicLeadership } = useDatabase();
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<LeadershipCategory | 'all'>('all');
 
   const members = getPublicLeadership();
-
-  // Set document title & SEO meta tags
-  useEffect(() => {
-    document.title = 'Board of Trustees & Leadership | Al Shujaiat Foundation';
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.setAttribute('name', 'description');
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.setAttribute(
-      'content',
-      'Meet the Board of Trustees, executive leadership, advisors, and core team members of Al Shujaiat Foundation Jammu & Kashmir (ASFJK).'
-    );
-  }, []);
 
   const categories: { id: LeadershipCategory | 'all'; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'all', label: t('leadership.cat_all', 'All Governance'), icon: Users },

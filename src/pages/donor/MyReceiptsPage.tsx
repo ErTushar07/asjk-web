@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ReceiptService } from '../../services/receiptService';
 import { FileText, Download, ShieldCheck, Search, ArrowLeft, Printer } from 'lucide-react';
 
 export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('Tax Exemption Receipts (80G)', undefined, { noindex: true });
   const { user } = useAuth();
   const { receipts, settings } = useDatabase();
   const [search, setSearch] = useState('');

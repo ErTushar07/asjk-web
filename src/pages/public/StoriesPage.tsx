@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { MapPin, Clock, ArrowRight, Search, MessageCircle, Twitter, Link as LinkIcon, Check } from 'lucide-react';
 
 export const StoriesPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('Impact Stories', 'Read inspiring transformation stories from families, students, and communities across Jammu & Kashmir.');
   const { stories } = useDatabase();
   const { t } = useLanguage();
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+    }
+  }, []);
 
   const filteredStories = stories.filter((s) => {
     return (

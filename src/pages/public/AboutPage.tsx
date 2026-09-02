@@ -1,45 +1,18 @@
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useDatabase } from '../../contexts/DatabaseContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ShieldCheck, Heart, Users, MapPin, Award, CheckCircle2 } from 'lucide-react';
 
 export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('About Us', 'Learn about Al Shujaiat Foundation Jammu & Kashmir: our mission, core values, board of trustees, and statutory credentials.');
   const { t } = useLanguage();
+  const { getPublicLeadership } = useDatabase();
 
-  const leadershipTeam = [
-    {
-      name: 'Mohd Amin Ganai',
-      role: 'Executive Director',
-      bio: 'Visionary leadership directing humanitarian initiatives, community development, and emergency relief operations across Jammu & Kashmir.'
-    },
-    {
-      name: 'James Anderson',
-      role: 'International Programs Director',
-      bio: 'Oversees international donor alignment, cross-border development partnerships, and sustainable infrastructure programs.'
-    },
-    {
-      name: 'Michael Carter',
-      role: 'Finance Director',
-      bio: 'Chartered financial specialist managing statutory compliance, independent audit integrity, and 100% financial transparency.'
-    },
-    {
-      name: 'Sarah Mitchell',
-      role: 'Operations Director',
-      bio: 'Manages rapid response logistics, mountain disaster relief dispatch, and strategic reserve warehouses.'
-    },
-    {
-      name: 'Emily Carter',
-      role: 'Communications Director',
-      bio: 'Leads public relations, field reporting, educational advocacy, and global stakeholder engagement.'
-    },
-    {
-      name: 'Daniel Wilson',
-      role: 'Project Manager',
-      bio: 'Senior engineer coordinating groundwater surveys, solar filtration installations, and community water committees.'
-    }
-  ];
+  const activeLeadership = getPublicLeadership().slice(0, 6);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 animate-fadeIn">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
@@ -55,7 +28,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
 
       {/* Vision & Mission Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-8">
-        <div className="bg-brand-purple text-white p-4 sm:p-10 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-4 relative overflow-hidden">
+        <div className="bg-brand-purple text-white p-4 sm:p-10 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-4 relative overflow-hidden shadow-brand-sm">
           <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 flex items-center justify-center">
             <Heart className="w-4 h-4 sm:w-6 sm:h-6 text-brand-pink fill-brand-pink" />
           </div>
@@ -65,11 +38,11 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
           </p>
         </div>
 
-        <div className="bg-surface-highlight text-content-primary p-4 sm:p-10 rounded-2xl sm:rounded-3xl border border-brand-blue/30 space-y-2 sm:space-y-4">
+        <div className="bg-surface-highlight text-content-primary p-4 sm:p-10 rounded-2xl sm:rounded-3xl border border-brand-blue/30 space-y-2 sm:space-y-4 shadow-brand-sm">
           <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-brand-blue/20 flex items-center justify-center">
-            <Award className="w-4 h-4 sm:w-6 sm:h-6 text-brand-purple" />
+            <Award className="w-4 h-4 sm:w-6 sm:h-6 text-brand-purple dark:text-purple-300" />
           </div>
-          <h3 className="text-sm sm:text-2xl font-extrabold tracking-tight text-brand-purple">{t('about.vision_title', 'Our Vision')}</h3>
+          <h3 className="text-sm sm:text-2xl font-extrabold tracking-tight text-brand-purple dark:text-purple-300">{t('about.vision_title', 'Our Vision')}</h3>
           <p className="text-content-secondary text-[10px] sm:text-sm leading-relaxed">
             {t('about.vision_desc', 'A thriving, self-reliant Jammu & Kashmir where every child has access to quality schooling, every remote village has safe drinking water, and no family is left without warmth or survival support during winter crises.')}
           </p>
@@ -86,7 +59,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
             { title: t('about.val_empowerment', 'Local Empowerment'), desc: t('about.val_empowerment_desc', 'Villagers and youth committees are trained to maintain long-term infrastructure.') },
             { title: t('about.val_response', 'Rapid Response'), desc: t('about.val_response_desc', '24/7 disaster readiness teams deploy emergency aid within hours of any calamity.') },
           ].map((v, i) => (
-            <div key={i} className="bg-white p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border border-content-border space-y-1.5 sm:space-y-2 shadow-brand-sm">
+            <div key={i} className="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border border-content-border dark:border-slate-800 space-y-1.5 sm:space-y-2 shadow-brand-sm">
               <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-brand-pink" />
               <h4 className="font-bold text-xs sm:text-sm text-content-primary">{v.title}</h4>
               <p className="text-[10px] sm:text-xs text-content-secondary leading-relaxed">{v.desc}</p>
@@ -107,11 +80,22 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
-          {leadershipTeam.map((l, idx) => (
-            <div key={idx} className="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-content-border text-center space-y-2 sm:space-y-3 shadow-brand-sm flex flex-col justify-between min-w-0">
+          {activeLeadership.map((l) => (
+            <div key={l.id} className="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-content-border dark:border-slate-800 text-center space-y-2 sm:space-y-3 shadow-brand-sm flex flex-col justify-between min-w-0">
               <div className="space-y-2 sm:space-y-3">
-                <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-brand-purple/10 mx-auto flex items-center justify-center text-brand-purple font-black text-xs sm:text-lg">
-                  {l.name.split(' ').map(n => n[0]).join('')}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-brand-purple/10 mx-auto flex items-center justify-center text-brand-purple font-black text-xs sm:text-lg border border-content-border dark:border-slate-800">
+                  {l.photoUrl ? (
+                    <img 
+                      src={l.photoUrl} 
+                      alt={l.name} 
+                      loading="lazy"
+                      width="64"
+                      height="64"
+                      className="w-full h-full object-cover object-top"
+                    />
+                  ) : (
+                    <span>{l.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                  )}
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs sm:text-base text-content-primary truncate">{l.name}</h4>

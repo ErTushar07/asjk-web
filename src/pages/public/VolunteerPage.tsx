@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { VolunteerApplication } from '../../types';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import {
@@ -36,6 +37,10 @@ export const PRIMARY_VOLUNTEER_ROLES = [
 ];
 
 export const VolunteerPage: React.FC = () => {
+  usePageMeta(
+    'Volunteer Network & Application',
+    'Join the field humanitarian and disaster relief volunteer network of Al Shujaiat Foundation in Jammu & Kashmir.'
+  );
   const { t } = useLanguage();
   const { addVolunteerApplication, lookupVolunteerStatus, settings } = useDatabase();
   const toast = useToast();

@@ -1,11 +1,16 @@
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { Droplets, GraduationCap, Activity, HeartHandshake, ShieldAlert, Sun, ArrowRight, Heart } from 'lucide-react';
 
 export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpenDonateModal: () => void }> = ({
   onNavigate,
   onOpenDonateModal,
 }) => {
+  usePageMeta(
+    'Our Work & Programs',
+    'Explore our key humanitarian pillars: clean water, digital education, healthcare clinics, orphan care, and mountain emergency relief across Jammu & Kashmir.'
+  );
   const { t } = useLanguage();
   const pillars = [
     {

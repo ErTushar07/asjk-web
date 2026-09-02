@@ -2,9 +2,14 @@ import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ShieldCheck, FileText, Download, CheckCircle2, Lock } from 'lucide-react';
 
 export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }> = () => {
+  usePageMeta(
+    'Financial Transparency & Audits',
+    'Explore audited financial statements, Section 80G filings, and 100% transparent fund utilization of Al Shujaiat Foundation.'
+  );
   const { t } = useLanguage();
   const { settings } = useDatabase();
   const toast = useToast();

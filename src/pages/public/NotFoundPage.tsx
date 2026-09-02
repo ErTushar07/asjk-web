@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { Home, FolderOpen, Heart, Mail, ArrowRight, Compass } from 'lucide-react';
 
 interface NotFoundPageProps {
@@ -6,6 +7,7 @@ interface NotFoundPageProps {
 }
 
 export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
+  usePageMeta('404 Page Not Found', undefined, { noindex: true });
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
       <div className="max-w-2xl w-full text-center space-y-8 animate-fadeIn">

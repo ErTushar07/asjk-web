@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ProjectCard } from '../../components/project/ProjectCard';
 import { Search, Filter } from 'lucide-react';
 
@@ -10,6 +11,7 @@ interface ProjectsPageProps {
 }
 
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDonateModal }) => {
+  usePageMeta('Our Projects', 'Explore active clean water, education, health, and emergency relief projects across Jammu & Kashmir.');
   const { projects } = useDatabase();
   const { t } = useLanguage();
 
@@ -66,6 +68,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onNavigate, onOpenDo
           <Search className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
+            aria-label="Search projects or locations"
             placeholder={t('projects.search_placeholder', 'Search projects or locations...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

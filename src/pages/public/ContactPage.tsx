@@ -2,9 +2,12 @@ import React, { useState, useRef } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
+import { SupportTicket } from '../../types';
 import { MapPin, Mail, Phone, Clock, CheckCircle2, Send, AlertCircle } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
+  usePageMeta('Contact & Support', 'Reach out to Al Shujaiat Foundation Jammu & Kashmir. Inquire about relief programs, donations, or volunteering.');
   const { addSupportTicket, settings } = useDatabase();
   const { t } = useLanguage();
   const toast = useToast();
@@ -13,7 +16,7 @@ export const ContactPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
-  const [category, setCategory] = useState<any>('general_inquiry');
+  const [category, setCategory] = useState<SupportTicket['category']>('general');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -271,15 +274,15 @@ export const ContactPage: React.FC = () => {
                   <label className="text-xs font-bold text-content-secondary uppercase">Inquiry Category</label>
                   <select
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={(e) => setCategory(e.target.value as SupportTicket['category'])}
+                    aria-label="Inquiry Category"
                     className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-800 text-content-primary focus:border-brand-purple outline-none"
                   >
-                    <option value="general_inquiry">General Inquiry</option>
-                    <option value="donation_tax_receipt">Section 80G Tax Receipt & Audit</option>
-                    <option value="project_partnership">CSR / NGO Partnership</option>
-                    <option value="field_visit">Field Project Visit Request</option>
-                    <option value="volunteer_inquiry">Volunteer Network Query</option>
-                    <option value="payment_issue">Subscription / Payment Support</option>
+                    <option value="general">General Inquiry & Partnerships</option>
+                    <option value="receipt_request">Section 80G Tax Receipt & Audit</option>
+                    <option value="donation_issue">Donation & Payment Inquiry</option>
+                    <option value="refund_request">Refund / Reversal Request</option>
+                    <option value="recurring_cancellation">Recurring Subscription Support</option>
                   </select>
                 </div>
               </div>

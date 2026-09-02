@@ -2,6 +2,8 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ReceiptService } from '../../services/receiptService';
 import { 
@@ -43,6 +45,9 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
   const { user } = useAuth();
   const { donations, recurringDonations, receipts, settings } = useDatabase();
   const { formatUSD } = useCurrency();
+  const { t } = useLanguage();
+
+  usePageMeta(t('donor.dashboard', 'Donor Dashboard'), undefined, { noindex: true });
 
   const donorEmail = (user?.email || '').toLowerCase().trim();
   const userDonations = donations.filter((d) => d.donorEmail.toLowerCase().trim() === donorEmail);
@@ -61,13 +66,13 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
       <div className="bg-brand-purple text-white p-8 sm:p-10 rounded-3xl shadow-brand-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="relative z-10 space-y-2">
           <span className="text-xs font-bold text-brand-pink uppercase tracking-widest block">
-            Donor Impact Portal
+            {t('donor.portal_badge', 'Donor Impact Portal')}
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Welcome Back, {user?.name || 'David Thompson'}
+            {t('donor.welcome', 'Welcome Back')}, {user?.name || 'Valued Donor'}
           </h1>
           <p className="text-white/80 text-xs sm:text-sm max-w-xl leading-relaxed">
-            Thank you for standing with families and students across Jammu & Kashmir. Track your lifelong contributions, subscriptions, and instant tax exemption certificates.
+            {t('donor.welcome_sub', 'Thank you for standing with families and students across Jammu & Kashmir. Track your lifelong contributions, subscriptions, and instant tax exemption certificates.')}
           </p>
         </div>
 
@@ -76,27 +81,27 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
           className="btn-secondary !py-3 !px-6 text-xs sm:text-sm font-bold flex items-center gap-2 shadow-pink-glow relative z-10 flex-shrink-0"
         >
           <Heart className="w-4 h-4 fill-white" />
-          <span>Make a New Gift</span>
+          <span>{t('donor.new_gift', 'Make a New Gift')}</span>
         </button>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          label="Total Contributed"
+          label={t('donor.total_donated', 'Total Donated')}
           value={totalDonatedUSD}
           prefix="$"
           colorClass="text-brand-purple dark:text-purple-300"
           icon={<DollarSign className="w-5 h-5 text-brand-purple dark:text-purple-400" />}
           footerText={
             <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 100% Allocated & Audited
+              <CheckCircle2 className="w-3.5 h-3.5" /> {t('impact.field_verified', '100% Allocated & Audited')}
             </span>
           }
         />
 
         <StatCard
-          label="Total Donations"
+          label={t('donor.my_contributions', 'Total Donations')}
           value={userDonations.length}
           colorClass="text-content-primary"
           icon={<Heart className="w-5 h-5 text-brand-pink fill-brand-pink" />}
@@ -104,7 +109,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
         />
 
         <StatCard
-          label="Active Subscriptions"
+          label={t('donor.active_plans', 'Active Subscriptions')}
           value={userRecurring.filter((r) => r.status === 'active').length}
           colorClass="text-brand-blue dark:text-sky-300"
           icon={<RefreshCw className="w-5 h-5 text-brand-blue dark:text-sky-400" />}
@@ -112,7 +117,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
         />
 
         <StatCard
-          label="Tax Receipts"
+          label={t('donor.tax_receipts', 'Tax Receipts (80G)')}
           value={userReceipts.length}
           colorClass="text-content-primary"
           icon={<FileText className="w-5 h-5 text-amber-500" />}
@@ -126,13 +131,13 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
         <div className="lg:col-span-8 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-extrabold text-content-primary">
-              Recent Contribution History
+              {t('donor.recent_contributions', 'Recent Contributions')}
             </h3>
             <button
               onClick={() => onNavigate('/donations')}
               className="text-xs font-bold text-brand-purple dark:text-purple-400 hover:underline flex items-center gap-1"
             >
-              <span>View Full History</span>
+              <span>{t('donor.view_all_donations', 'View Full History')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -170,7 +175,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                             : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
                         }`}
                       >
-                        {d.status}
+                        {d.status === 'successful' ? t('donor.status_successful', 'Successful') : d.status === 'refunded' ? t('donor.status_refunded', 'Refunded') : d.status}
                       </span>
                     </td>
                     <td className="py-3.5 text-right">
@@ -199,13 +204,13 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
         <div className="lg:col-span-4 bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-extrabold text-content-primary">
-              Active Recurring Plans
+              {t('donor.active_recurring', 'Active Recurring Plans')}
             </h3>
             <button
               onClick={() => onNavigate('/recurring-donations')}
               className="text-xs font-bold text-brand-purple dark:text-purple-400 hover:underline"
             >
-              Manage All
+              {t('donor.view_recurring_plans', 'Manage All')}
             </button>
           </div>
 
@@ -249,7 +254,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
             className="btn-outline w-full !py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>View All Tax Exemption Receipts</span>
+            <span>{t('donor.tax_receipts', 'View All Tax Exemption Receipts')}</span>
           </button>
         </div>
       </div>

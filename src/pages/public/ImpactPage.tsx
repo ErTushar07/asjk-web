@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { useCountUp } from '../../hooks/useCountUp';
 import { Users, Droplets, GraduationCap, HeartHandshake, Activity, Home, CheckCircle2 } from 'lucide-react';
 
@@ -15,10 +16,10 @@ const MetricCard: React.FC<{ metric: any; iconMap: Record<string, any> }> = ({ m
       className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-content-border dark:border-slate-800 p-3.5 sm:p-8 shadow-brand-sm hover:shadow-brand-md transition-all space-y-3 sm:space-y-4 flex flex-col justify-between min-w-0 group"
     >
       <div className="space-y-2 sm:space-y-3">
-        <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-surface-soft flex items-center justify-center text-brand-purple group-hover:bg-brand-purple/10 transition-colors">
+        <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-surface-soft dark:bg-slate-950 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple/10 transition-colors">
           <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-brand-pink" />
         </div>
-        <div className="text-xl sm:text-4xl font-black text-brand-purple flex items-baseline flex-wrap">
+        <div className="text-xl sm:text-4xl font-black text-brand-purple dark:text-purple-300 flex items-baseline flex-wrap">
           <span className="font-mono tracking-tight">{tNum(count)}</span>
           <span className="text-brand-pink text-sm sm:text-3xl font-extrabold ml-0.5 sm:ml-1">
             {metric.unit && !['Units', 'Children', 'Meals', 'Patients', 'Villages'].includes(metric.unit)
@@ -34,7 +35,7 @@ const MetricCard: React.FC<{ metric: any; iconMap: Record<string, any> }> = ({ m
         </p>
       </div>
 
-      <div className="pt-2 sm:pt-3 border-t border-content-border/60 flex items-center gap-1 text-[9px] sm:text-[11px] text-emerald-600 font-bold">
+      <div className="pt-2 sm:pt-3 border-t border-content-border/60 dark:border-slate-800 flex items-center gap-1 text-[9px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
         <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
         <span className="truncate">{t('impact.field_verified', 'Field Verified in J&K')}</span>
       </div>
@@ -43,6 +44,7 @@ const MetricCard: React.FC<{ metric: any; iconMap: Record<string, any> }> = ({ m
 };
 
 export const ImpactPage: React.FC<{ onNavigate?: (route: string) => void }> = () => {
+  usePageMeta('Our Impact', 'Explore field-verified impact metrics and sustainable transformation programs across Jammu & Kashmir.');
   const { impactMetrics } = useDatabase();
   const { t } = useLanguage();
 
@@ -79,9 +81,9 @@ export const ImpactPage: React.FC<{ onNavigate?: (route: string) => void }> = ()
       </div>
 
       {/* Sustainable Development Goals */}
-      <div className="bg-surface-card rounded-3xl p-8 sm:p-12 border border-content-border space-y-6 shadow-brand-sm">
+      <div className="bg-surface-card dark:bg-slate-900/60 rounded-3xl p-8 sm:p-12 border border-content-border dark:border-slate-800 space-y-6 shadow-brand-sm">
         <div className="max-w-2xl space-y-2">
-          <span className="text-xs font-bold text-brand-blue uppercase tracking-wider block">
+          <span className="text-xs font-bold text-brand-blue dark:text-sky-400 uppercase tracking-wider block">
             {t('impact.sdg_badge', 'Global Development Alignment')}
           </span>
           <h3 className="text-2xl font-extrabold text-content-primary">
@@ -96,19 +98,19 @@ export const ImpactPage: React.FC<{ onNavigate?: (route: string) => void }> = ()
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold text-content-primary">
-          <div className="p-4 rounded-2xl bg-white border border-content-border space-y-1 hover:border-brand-pink transition-colors">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-content-border dark:border-slate-800 space-y-1 hover:border-brand-pink transition-colors">
             <span className="text-brand-pink font-mono block text-sm">SDG 6</span>
             <span>{t('Clean Water & Sanitation', 'Clean Water & Sanitation')}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-content-border space-y-1 hover:border-brand-purple transition-colors">
-            <span className="text-brand-purple font-mono block text-sm">SDG 4</span>
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-content-border dark:border-slate-800 space-y-1 hover:border-brand-purple transition-colors">
+            <span className="text-brand-purple dark:text-purple-300 font-mono block text-sm">SDG 4</span>
             <span>{t('Quality Education', 'Quality Education')}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-content-border space-y-1 hover:border-brand-blue transition-colors">
-            <span className="text-brand-blue font-mono block text-sm">SDG 3</span>
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-content-border dark:border-slate-800 space-y-1 hover:border-brand-blue transition-colors">
+            <span className="text-brand-blue dark:text-sky-400 font-mono block text-sm">SDG 3</span>
             <span>{t('Good Health & Well-being', 'Good Health & Well-being')}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-white border border-content-border space-y-1 hover:border-brand-orange transition-colors">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-content-border dark:border-slate-800 space-y-1 hover:border-brand-orange transition-colors">
             <span className="text-brand-orange font-mono block text-sm">SDG 1 & 2</span>
             <span>{t('No Poverty & Zero Hunger', 'No Poverty & Zero Hunger')}</span>
           </div>

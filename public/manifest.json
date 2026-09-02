@@ -1,0 +1,21 @@
+{
+  "name": "Al Shujaiat Foundation J&K",
+  "short_name": "ASFJK",
+  "description": "Donate, volunteer, and track impact with Al Shujaiat Foundation Jammu & Kashmir",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#393186",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

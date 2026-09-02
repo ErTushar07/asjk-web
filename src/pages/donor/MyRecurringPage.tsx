@@ -2,12 +2,14 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { 
   RefreshCw, Pause, Play, XCircle, ArrowLeft, 
   Calendar, CheckCircle2, AlertTriangle, ShieldCheck 
 } from 'lucide-react';
 
 export const MyRecurringPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('Recurring Subscriptions', undefined, { noindex: true });
   const { user } = useAuth();
   const { recurringDonations, updateRecurringStatus, simulateRetryRecurringPayment } = useDatabase();
   const { formatUSD } = useCurrency();

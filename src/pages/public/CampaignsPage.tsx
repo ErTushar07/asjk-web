@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
 
 interface CampaignsPageProps {
@@ -9,6 +10,10 @@ interface CampaignsPageProps {
 }
 
 export const CampaignsPage: React.FC<CampaignsPageProps> = ({ onNavigate, onOpenDonateModal }) => {
+  usePageMeta(
+    'Emergency Appeals & Campaigns',
+    'Targeted emergency response drives and seasonal distributions protecting vulnerable Himalayan families during severe climate hazards.'
+  );
   const { campaigns } = useDatabase();
   const { t } = useLanguage();
 

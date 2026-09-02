@@ -2,9 +2,10 @@ import React from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { 
   Heart, Calendar, Users, DollarSign, ArrowLeft, 
-  CheckCircle2, ShieldAlert, Sparkles 
+  CheckCircle2, ShieldAlert, Sparkles, Home 
 } from 'lucide-react';
 
 interface CampaignDetailsProps {
@@ -23,6 +24,12 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
   const { t } = useLanguage();
 
   const campaign = campaigns.find((c) => c.slug === slug) || campaigns[0];
+
+  usePageMeta(
+    campaign ? `${campaign.name} | Campaigns` : 'Campaign Details',
+    campaign?.description
+  );
+
   const fundingPct = Math.min(
     100,
     Math.round((campaign.amountRaisedUSD / campaign.goalUSD) * 100)
@@ -34,16 +41,36 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fadeIn">
+      {/* Breadcrumb Bar */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-content-muted">
+        <button
+          onClick={() => onNavigate('/')}
+          className="hover:text-brand-purple dark:hover:text-purple-300 flex items-center gap-1 transition-colors"
+        >
+          <Home className="w-3.5 h-3.5" />
+          <span>{t('nav.home', 'Home')}</span>
+        </button>
+        <span>›</span>
+        <button
+          onClick={() => onNavigate('/campaigns')}
+          className="hover:text-brand-purple dark:hover:text-purple-300 transition-colors"
+        >
+          {t('nav.campaigns', 'Campaigns')}
+        </button>
+        <span>›</span>
+        <span className="text-content-primary font-semibold truncate max-w-xs">{campaign.name}</span>
+      </nav>
+
       <div className="flex items-center justify-between">
         <button
           onClick={() => onNavigate('/campaigns')}
-          className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold text-content-secondary hover:text-brand-purple dark:hover:text-purple-300 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> {t('campaign.back', 'Back to All Appeals')}
         </button>
 
-        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-pink/10 text-brand-pink uppercase tracking-wider">
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-pink/10 dark:bg-pink-950/60 text-brand-pink uppercase tracking-wider">
           {t(campaign.type, campaign.type)} {t('campaign.appeal_label', 'Appeal')}
         </span>
       </div>

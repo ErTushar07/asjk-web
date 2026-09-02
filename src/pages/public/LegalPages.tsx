@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ShieldCheck, FileText, Lock, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface LegalPageProps {
@@ -6,6 +7,15 @@ interface LegalPageProps {
 }
 
 export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
+  const titles: Record<string, string> = {
+    privacy: 'Privacy Policy',
+    terms: 'Terms and Conditions',
+    'refund-policy': 'Refund & Cancellation Policy',
+    'donation-policy': 'Donation Allocation & Tax Exemption Policy',
+    'cookie-policy': 'Cookie Policy & Privacy Preferences',
+  };
+
+  usePageMeta(titles[type] || 'Legal Policy');
   const contentMap = {
     privacy: {
       title: 'Privacy Policy',

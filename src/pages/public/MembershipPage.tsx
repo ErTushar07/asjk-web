@@ -24,8 +24,13 @@ interface TierOption {
 }
 
 import { optimizePhotoForCard } from '../../utils/imageOptimizer';
+import { usePageMeta } from '../../hooks/usePageMeta';
 
 export const MembershipPage: React.FC = () => {
+  usePageMeta(
+    'NGO Membership & Patron Program',
+    'Become an official member or patron of Al Shujaiat Foundation Jammu & Kashmir. Receive official membership credential and attend annual meetings.'
+  );
   const { addMembership, lookupMembership, settings } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
   const { t } = useLanguage();

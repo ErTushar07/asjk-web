@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ChevronDown, ChevronUp, HelpCircle, Sparkles } from 'lucide-react';
 
 export const FAQPage: React.FC = () => {
+  usePageMeta(
+    'Frequently Asked Questions',
+    'Find answers to questions about Section 80G tax receipts, donation allocations, recurring plans, and volunteering with Al Shujaiat Foundation.'
+  );
   const { t } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 

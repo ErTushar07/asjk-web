@@ -8,6 +8,8 @@ import { DonationModal } from './components/donation/DonationModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { CookieConsent } from './components/common/CookieConsent';
+import { WhatsAppButton } from './components/common/WhatsAppButton';
 
 // 1. Code Splitting: Lazy-load all public pages
 const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
@@ -220,6 +222,12 @@ export const App: React.FC = () => {
 
       {/* Floating Theme Button only visible on pages where there is no top navbar button */}
       {isAdminRoute && <ThemeShortcutIndicator />}
+
+      {/* WhatsApp Floating Contact Button */}
+      {!isAdminRoute && <WhatsAppButton />}
+
+      {/* Cookie Consent Banner */}
+      {!isAdminRoute && <CookieConsent onNavigate={navigate} />}
 
       {/* Global Scroll-to-Top Floating Button */}
       <ScrollToTop />

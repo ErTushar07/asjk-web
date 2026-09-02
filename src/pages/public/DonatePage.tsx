@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
@@ -9,6 +11,8 @@ import {
 } from 'lucide-react';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
+  usePageMeta('Donate Securely', 'Donate to clean water, education, and humanitarian relief projects across Jammu & Kashmir with 100% financial transparency.');
+  const { user } = useAuth();
   const { projects, campaigns, settings, processDonation } = useDatabase();
   const { currentCurrency, convertUSDToCurrency, convertCurrencyToUSD } = useCurrency();
   const { t } = useLanguage();
@@ -19,12 +23,12 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const [selectedTargetType, setSelectedTargetType] = useState<'general' | 'project' | 'campaign'>('general');
   const [targetId, setTargetId] = useState<string>('');
 
-  const [fullName, setFullName] = useState('David Thompson');
-  const [email, setEmail] = useState('david.thompson@example.com');
-  const [phone, setPhone] = useState('+1 415 555 0192');
-  const [country, setCountry] = useState('United States');
-  const [taxId, setTaxId] = useState('US-TAX-88901');
-  const [address, setAddress] = useState('124 Lexington Ave, New York, NY');
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [country, setCountry] = useState('India');
+  const [taxId, setTaxId] = useState('');
+  const [address, setAddress] = useState('');
   const [anonymous, setAnonymous] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe_card');

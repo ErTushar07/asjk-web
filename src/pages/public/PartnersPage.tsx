@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { Shield, CheckCircle2, ArrowRight, Building2 } from 'lucide-react';
 
 export const PartnersPage: React.FC = () => {
+  usePageMeta(
+    'Corporate & NGO Partnerships',
+    'Partner with Al Shujaiat Foundation for CSR projects, sustainable development grants, and humanitarian initiatives in Jammu & Kashmir.'
+  );
   const { addPartnershipRequest } = useDatabase();
   const { t } = useLanguage();
   const toast = useToast();

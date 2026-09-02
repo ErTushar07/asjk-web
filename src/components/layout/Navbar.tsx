@@ -129,6 +129,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
               <img 
                 src="/images/logo.png" 
                 alt="Al Shujaiat Foundation Jammu & Kashmir Logo" 
+                loading="lazy"
+                width="72"
+                height="72"
                 className="w-full h-full object-contain drop-shadow-sm"
               />
             </div>
@@ -283,8 +286,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white border border-content-border rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
-                    <div className="px-4 py-3 border-b border-content-border bg-surface-soft rounded-t-2xl">
+                  <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white dark:bg-slate-900 border border-content-border dark:border-slate-800 rounded-2xl shadow-2xl py-2 z-[100] animate-fadeIn">
+                    <div className="px-4 py-3 border-b border-content-border dark:border-slate-800 bg-surface-soft dark:bg-slate-950 rounded-t-2xl">
                       <p className="text-xs font-bold text-content-primary truncate">{user?.name}</p>
                       <p className="text-[11px] text-content-secondary truncate font-mono">{user?.email}</p>
                     </div>
@@ -295,10 +298,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                           onNavigate('/dashboard');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                       >
-                        <LayoutDashboard className="w-3.5 h-3.5 text-brand-purple" />
-                        <span>Donor Dashboard</span>
+                        <LayoutDashboard className="w-3.5 h-3.5 text-brand-purple dark:text-purple-400" />
+                        <span>{t('donor.dashboard', 'Donor Dashboard')}</span>
                       </button>
 
                       <button
@@ -306,10 +309,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                           onNavigate('/donations');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                       >
                         <Heart className="w-3.5 h-3.5 text-brand-pink" />
-                        <span>My Contributions</span>
+                        <span>{t('donor.my_contributions', 'My Contributions')}</span>
                       </button>
 
                       <button
@@ -317,10 +320,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                           onNavigate('/recurring-donations');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                       >
-                        <RefreshCw className="w-3.5 h-3.5 text-brand-purple" />
-                        <span>Recurring Subscriptions</span>
+                        <RefreshCw className="w-3.5 h-3.5 text-brand-purple dark:text-purple-400" />
+                        <span>{t('donor.recurring', 'Recurring Subscriptions')}</span>
                       </button>
 
                       <button
@@ -328,10 +331,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                           onNavigate('/receipts');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                       >
-                        <FileText className="w-3.5 h-3.5 text-brand-blue" />
-                        <span>Tax Receipts (80G)</span>
+                        <FileText className="w-3.5 h-3.5 text-brand-blue dark:text-sky-400" />
+                        <span>{t('donor.tax_receipts', 'Tax Receipts (80G)')}</span>
                       </button>
 
                       <button
@@ -339,22 +342,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
                           onNavigate('/profile');
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors"
                       >
                         <UserIcon className="w-3.5 h-3.5 text-content-muted" />
-                        <span>Profile & Security</span>
+                        <span>{t('donor.profile', 'Profile & Security')}</span>
                       </button>
 
-                      <div className="border-t border-content-border my-1" />
+                      <div className="border-t border-content-border dark:border-slate-800 my-1" />
 
                       <button
                         onClick={() => {
                           logout();
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-semibold"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-semibold"
                       >
-                        Sign Out
+                        {t('nav.logout', 'Sign Out')}
                       </button>
                     </div>
                   </div>

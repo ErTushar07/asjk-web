@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { ProjectCard } from '../../components/project/ProjectCard';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
 import { 
@@ -15,6 +16,10 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModal }) => {
+  usePageMeta(
+    'Al Shujaiat Foundation Jammu & Kashmir | Empowering Communities, Transforming Lives',
+    'Al Shujaiat Foundation delivers clean water, quality education, emergency relief, and healthcare across remote Himalayan villages with 100% financial transparency.'
+  );
   const { t, tNum } = useLanguage();
   const { formatUSD } = useCurrency();
   const { projects, campaigns, stories, impactMetrics } = useDatabase();

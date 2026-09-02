@@ -53,8 +53,28 @@ export default {
         'gradient-purple-pink': 'linear-gradient(135deg, #393186 0%, #E40981 100%)',
         'gradient-blue-purple': 'linear-gradient(135deg, #01A0E2 0%, #393186 100%)',
         'gradient-pink-purple': 'linear-gradient(135deg, #E40981 0%, #393186 100%)',
-      }
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.3s ease-out both',
+        slideUp: 'slideUp 0.4s ease-out both',
+        scaleIn: 'scaleIn 0.25s ease-out both',
+      },
     },
   },
   plugins: [],
 }
+

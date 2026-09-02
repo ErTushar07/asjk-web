@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import { TurnstileWidget } from '../../components/common/TurnstileWidget';
 import { Lock, Mail, ArrowRight, User as UserIcon, CheckCircle2, Shield, AlertTriangle, Key, RefreshCw, ArrowLeft } from 'lucide-react';
 
@@ -12,6 +13,13 @@ interface AuthPageProps {
 export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const { login, register, verifyRegistrationOTP, resendRegistrationOTP, pendingOTPCode } = useAuth();
   const { t } = useLanguage();
+
+  const pageTitles = {
+    login: 'Sign In to Donor Portal',
+    register: 'Create Donor Account',
+    'forgot-password': 'Reset Password',
+  };
+  usePageMeta(pageTitles[mode] || 'Donor Portal', undefined, { noindex: true });
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

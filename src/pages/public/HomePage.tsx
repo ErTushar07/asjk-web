@@ -38,7 +38,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="lg:col-span-7 space-y-6 text-start">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-highlight dark:bg-purple-950/60 border border-brand-blue/30 dark:border-purple-800 text-brand-purple dark:text-purple-300 text-xs font-bold tracking-wide shadow-sm">
                 <Sparkles className="w-4 h-4 text-brand-pink" />
                 <span>{t('hero.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}</span>

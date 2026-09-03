@@ -20,6 +20,17 @@ export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
 
 export const TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
+    // Alignment and Presidential Endorsement Keys
+    'about.statutory_subtitle': 'Accredited under Section 80G, 12A, NGO-DARPAN, and Global Transparency Standards',
+    'about.status_active': 'STATUS: ACTIVE & VERIFIED',
+    'about.presidential_charter': 'PRESIDENTIAL ATTESTATION & CHARTER',
+    'about.presidential_quote': 'We hereby solemnly affirm our dedication to the underprivileged families, orphans, and students of Jammu & Kashmir. Every donation and volunteer hour is accounted for with 100% statutory transparency.',
+    'transparency.presidential_tag': 'STATUTORY ATTESTATION & AUDIT VERIFICATION',
+    'transparency.presidential_title': 'Executive Attestation of Financial Integrity',
+    'transparency.presidential_quote': 'We confirm that all audited accounts and statutory tax filings published above represent true, certified statements of our Jammu & Kashmir relief operations.',
+    'transparency.statutory_filing': 'Certified Statutory Filing',
+    'transparency.section_certified': 'Section 80G & 12A Certified',
+
     // All Cards Global Parity
     'Press Release': 'Press Release',
     'Announcement': 'Announcement',
@@ -671,6 +682,17 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   hi: {
+    // Alignment and Presidential Endorsement Keys
+    'about.statutory_subtitle': 'धारा 80G, 12A, एनजीओ-दर्पण और वैश्विक पारदर्शिता मानकों के तहत मान्यता प्राप्त',
+    'about.status_active': 'स्थिति: सक्रिय एवं सत्यापित',
+    'about.presidential_charter': 'अध्यक्षीय सत्यापन एवं चार्टर',
+    'about.presidential_quote': 'हम जम्मू और कश्मीर के वंचित परिवारों, अनाथों और छात्रों के प्रति अपनी निष्ठा की पुष्टि करते हैं। प्रत्येक दान का 100% वैधानिक पारदर्शिता के साथ हिसाब रखा जाता है।',
+    'transparency.presidential_tag': 'वैधानिक सत्यापन एवं ऑडिट प्रमाणन',
+    'transparency.presidential_title': 'वित्तीय निष्ठा کا कार्यकारी प्रमाणन',
+    'transparency.presidential_quote': 'हम पुष्टि करते हैं कि ऊपर प्रकाशित सभी ऑडिट किए गए खाते और वैधानिक रिटर्न हमारे राहत कार्यों के सच्चे और प्रमाणित विवरण हैं।',
+    'transparency.statutory_filing': 'प्रमाणित वैधानिक फाइलिंग',
+    'transparency.section_certified': 'धारा 80G एवं 12A प्रमाणित',
+
     // All Cards Global Parity
     'Press Release': 'प्रेस विज्ञप्ति',
     'Announcement': 'आधिकारिक घोषणा',
@@ -1322,6 +1344,17 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   ur: {
+    // Alignment and Presidential Endorsement Keys
+    'about.statutory_subtitle': 'دفعہ 80G، 12A، نیتی آیوگ این جی او درپن اور عالمی شفافیت کے معیارات کے تحت مصدقہ',
+    'about.status_active': 'حیثیت: فعال اور تصدیق شدہ',
+    'about.presidential_charter': 'صدارتی توثیق اور باضابطہ منشور',
+    'about.presidential_quote': 'ہم جموں و کشمیر کے پسماندہ خاندانوں، یتیموں اور طلباء کے لیے اپنی غیر متزلزل وابستگی کا عہد کرتے ہیں۔ ہر عطیہ 100٪ شفافیت کے ساتھ ریکارڈ کیا جاتا ہے۔',
+    'transparency.presidential_tag': 'قانونی تصدیق اور آڈٹ توثیق',
+    'transparency.presidential_title': 'مالیاتی دیانت داری کا باضابطہ بیان',
+    'transparency.presidential_quote': 'ہم تصدیق کرتے ہیں کہ مندرجہ بالا تمام آڈٹ شدہ کھاتے اور ٹیکس گوشوارے جموں و کشمیر میں ہمارے فلاحی کاموں کے سچے اور تصدیق شدہ بیانات ہیں۔',
+    'transparency.statutory_filing': 'تصدیق شدہ قانونی ریکارڈ',
+    'transparency.section_certified': 'دفعہ 80G اور 12A مصدقہ',
+
     // All Cards Global Parity
     'Press Release': 'پریس ریلیز',
     'Announcement': 'سرکاری اعلان',
@@ -1973,6 +2006,17 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 
   ar: {
+    // Alignment and Presidential Endorsement Keys
+    'about.statutory_subtitle': 'معتمد بموجب المادتين 80G و 12A، وبوابة داربان الحكومية، ومعايير الشفافية العالمية',
+    'about.status_active': 'الحالة: نشط ومعتمد رسمياً',
+    'about.presidential_charter': 'إقرار وميثاق رئاسة المؤسسة',
+    'about.presidential_quote': 'نؤكد هنا رسمياً تفانينا لخدمة الأسر المستضعفة والأيتام والطلاب في جامو وكشمير. كل تبرع وساعة تطوع يتم توثيقها بشفافية قانونية بنسبة 100٪.',
+    'transparency.presidential_tag': 'التصديق القانوني والتدقيق المالي',
+    'transparency.presidential_title': 'إقرار تنفيذي بالنزاهة والشفافية المالية',
+    'transparency.presidential_quote': 'نؤكد أن جميع الحسابات المدققة والإقرارات الضريبية المنشورة أعلاه تمثل بيانات حقيقية ومعتمدة لعملياتنا الإغاثية في جامو وكشمير.',
+    'transparency.statutory_filing': 'ملف قانوني معتمد ومصدق',
+    'transparency.section_certified': 'معتمد بموجب المادتين 80G و 12A',
+
     // All Cards Global Parity
     'Press Release': 'بيان صحفي',
     'Announcement': 'إعلان رسمي',

@@ -161,7 +161,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
 
         {/* Official Presidential Seal & Signatory Endorsement */}
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-content-border flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1.5 text-left flex-1">
+          <div className="space-y-1.5 text-start flex-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink block">
               {t('about.presidential_charter', 'PRESIDENTIAL ATTESTATION & CHARTER')}
             </span>

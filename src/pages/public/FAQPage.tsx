@@ -101,7 +101,7 @@ export const FAQPage: React.FC = () => {
               <button
                 onClick={() => setOpenIndex(isOpen ? null : idx)}
                 aria-expanded={isOpen}
-                className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-content-primary hover:text-brand-purple transition-colors"
+                className="w-full p-5 text-start flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-content-primary hover:text-brand-purple transition-colors"
               >
                 <span className="flex items-center gap-2.5">
                   <span className="text-[11px] font-mono text-brand-pink font-extrabold">

@@ -147,27 +147,33 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
 
         {/* Presidential Attestation with Authentic Seal & Signature */}
         <div className="mt-8 pt-6 border-t border-content-border dark:border-slate-800 bg-surface-soft dark:bg-slate-950 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1.5 text-left flex-1">
+          <div className="space-y-1.5 text-start flex-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink block">
-              STATUTORY ATTESTATION & AUDIT VERIFICATION
+              {t('transparency.presidential_tag', 'STATUTORY ATTESTATION & AUDIT VERIFICATION')}
             </span>
             <h4 className="text-sm font-extrabold text-content-primary">
-              Executive Attestation of Financial Integrity
+              {t('transparency.presidential_title', 'Executive Attestation of Financial Integrity')}
             </h4>
             <p className="text-xs text-content-secondary leading-relaxed max-w-xl">
-              "We confirm that all audited accounts and statutory tax filings published above represent true, certified statements of our Jammu & Kashmir relief operations."
+              "{t('transparency.presidential_quote', 'We confirm that all audited accounts and statutory tax filings published above represent true, certified statements of our Jammu & Kashmir relief operations.')}"
             </p>
             <div className="pt-2">
               <p className="text-xs font-bold text-brand-purple">Mohd Amin Ganai</p>
-              <p className="text-[11px] text-content-muted">Founder & President · Al Shujaiat Foundation</p>
+              <p className="text-[11px] text-content-muted">
+                {t('about.president_title', 'Founder & President · Al Shujaiat Foundation')}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 bg-white dark:bg-slate-900 px-4 sm:px-5 py-3.5 rounded-2xl border border-content-border dark:border-slate-800 shadow-sm">
             <ShieldCheck className="w-8 h-8 text-brand-purple dark:text-purple-400 flex-shrink-0" />
             <div>
-              <span className="text-xs font-extrabold text-content-primary block">Certified Statutory Filing</span>
-              <span className="text-[10px] font-mono text-content-muted block">Section 80G & 12A Certified</span>
+              <span className="text-xs font-extrabold text-content-primary block">
+                {t('transparency.statutory_filing', 'Certified Statutory Filing')}
+              </span>
+              <span className="text-[10px] font-mono text-content-muted block">
+                {t('transparency.section_certified', 'Section 80G & 12A Certified')}
+              </span>
             </div>
           </div>
         </div>

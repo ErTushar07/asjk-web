@@ -1,0 +1,19 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, npm-shrinkwrap.json, yarn.lock, pnpm-lock.yaml",
+    "tsconfig.json": "tsconfig.*.json",
+    "vite.config.ts": "tailwind.config.js, postcss.config.js, vercel.json",
+    ".env.example": ".env, .env.*, .env.local",
+    "index.html": "robots.txt, sitemap.xml, manifest.json, sw.js, offline.html, CNAME, _redirects",
+    "README.md": "LICENSE, CONTRIBUTING.md"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "typescript.suggest.completeFunctionCalls": true,
+  "javascript.suggest.completeFunctionCalls": true
+}

@@ -5,7 +5,8 @@ import { useToast } from '../../contexts/ToastContext';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { 
   Shield, CheckCircle2, Building2, Globe, MapPin, 
-  Landmark, HeartHandshake, Award, ExternalLink, Filter, Droplets, BookOpen, AlertCircle
+  Landmark, HeartHandshake, Award, ExternalLink, Filter, 
+  Droplets, BookOpen, AlertCircle, FileText, Quote, X, Calendar
 } from 'lucide-react';
 
 interface PartnerEntity {
@@ -32,16 +33,31 @@ interface GovEntity {
   bgLight: string;
 }
 
+interface AppreciationLetter {
+  id: string;
+  authorityKey: string;
+  badgeKey: string;
+  subjectKey: string;
+  quoteKey: string;
+  signatoryKey: string;
+  refNo: string;
+  date: string;
+  icon: any;
+  color: string;
+  badgeColor: string;
+}
+
 export const PartnersPage: React.FC = () => {
   usePageMeta(
     'Government & Institutional Partnerships',
-    'Explore Al Shujaiat Foundation’s accredited partnerships with government bodies, Indian national institutions, and global humanitarian organizations in Jammu & Kashmir.'
+    'Explore Al Shujaiat Foundation’s accredited partnerships with government bodies, Indian national institutions, global humanitarian organizations, and letters of appreciation in Jammu & Kashmir.'
   );
   const { addPartnershipRequest } = useDatabase();
   const { t } = useLanguage();
   const toast = useToast();
 
   const [partnerFilter, setPartnerFilter] = useState<'all' | 'indian' | 'international'>('all');
+  const [selectedLetter, setSelectedLetter] = useState<AppreciationLetter | null>(null);
 
   const [orgName, setOrgName] = useState('');
   const [orgType, setOrgType] = useState<any>('corporate');
@@ -237,6 +253,62 @@ export const PartnersPage: React.FC = () => {
       icon: Shield,
       color: 'text-brand-purple',
       bgLight: 'bg-purple-50/60 dark:bg-purple-950/30 border-purple-200/80 dark:border-purple-800/60'
+    }
+  ];
+
+  // Letters of Appreciation & Commendations
+  const appreciationLetters: AppreciationLetter[] = [
+    {
+      id: 'let_01',
+      authorityKey: 'partners.let_01.authority',
+      badgeKey: 'partners.let_01.badge',
+      subjectKey: 'partners.let_01.subject',
+      quoteKey: 'partners.let_01.quote',
+      signatoryKey: 'partners.let_01.signatory',
+      refNo: 'DCB/DM/2026/1142',
+      date: 'January 2026',
+      icon: Landmark,
+      color: 'text-emerald-600',
+      badgeColor: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+    },
+    {
+      id: 'let_02',
+      authorityKey: 'partners.let_02.authority',
+      badgeKey: 'partners.let_02.badge',
+      subjectKey: 'partners.let_02.subject',
+      quoteKey: 'partners.let_02.quote',
+      signatoryKey: 'partners.let_02.signatory',
+      refNo: 'DHSK/NGO-APPR/2025/892',
+      date: 'November 2025',
+      icon: HeartHandshake,
+      color: 'text-brand-pink',
+      badgeColor: 'bg-pink-50 dark:bg-pink-950/60 text-pink-800 dark:text-pink-300 border-pink-200 dark:border-pink-800'
+    },
+    {
+      id: 'let_03',
+      authorityKey: 'partners.let_03.authority',
+      badgeKey: 'partners.let_03.badge',
+      subjectKey: 'partners.let_03.subject',
+      quoteKey: 'partners.let_03.quote',
+      signatoryKey: 'partners.let_03.signatory',
+      refNo: 'GRT-UK/INT-J&K/2025/04',
+      date: 'October 2025',
+      icon: Globe,
+      color: 'text-brand-purple',
+      badgeColor: 'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+    },
+    {
+      id: 'let_04',
+      authorityKey: 'partners.let_04.authority',
+      badgeKey: 'partners.let_04.badge',
+      subjectKey: 'partners.let_04.subject',
+      quoteKey: 'partners.let_04.quote',
+      signatoryKey: 'partners.let_04.signatory',
+      refNo: 'DSEK/WELF/2025/5510',
+      date: 'August 2025',
+      icon: BookOpen,
+      color: 'text-amber-600',
+      badgeColor: 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
     }
   ];
 
@@ -446,7 +518,162 @@ export const PartnersPage: React.FC = () => {
         </div>
       </section>
 
-      {/* SECTION 3: PROPOSAL SUBMISSION FORM */}
+      {/* SECTION 3: LETTERS OF APPRECIATION & COMMENDATIONS (NEW) */}
+      <section className="space-y-6">
+        <div className="border-b border-content-border dark:border-slate-800 pb-4 text-start">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-bold mb-1.5">
+            <Award className="w-3.5 h-3.5" />
+            <span>{t('partners.appreciation_badge', 'Official Recognition · Institutional Commendations')}</span>
+          </div>
+          <h2 className="text-xl sm:text-3xl font-extrabold text-content-primary">
+            {t('partners.appreciation_title', 'Letters of Appreciation & Commendations')}
+          </h2>
+          <p className="text-xs sm:text-sm text-content-secondary max-w-3xl leading-relaxed mt-1">
+            {t('partners.appreciation_desc', 'Formal citations, government appreciation letters, and partner awards recognizing Al Shujaiat Foundation’s humanitarian impact and statutory integrity across Jammu & Kashmir.')}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {appreciationLetters.map((letter) => {
+            const Icon = letter.icon;
+            return (
+              <div
+                key={letter.id}
+                className="bg-gradient-to-br from-white via-amber-50/15 to-white dark:from-slate-900 dark:to-slate-950 border border-content-border dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-brand-sm hover:shadow-brand-md transition-all duration-300 flex flex-col justify-between space-y-4 group hover:-translate-y-1 relative overflow-hidden"
+              >
+                {/* Official Citation Watermark Accent */}
+                <div className="absolute top-4 right-4 pointer-events-none opacity-5 dark:opacity-10">
+                  <Award className="w-32 h-32" />
+                </div>
+
+                <div className="space-y-3.5 text-start relative z-10">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-content-border/60 dark:border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-300 flex-shrink-0">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-[11px] font-mono font-bold text-content-muted">
+                        {letter.refNo}
+                      </span>
+                    </div>
+                    <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-full border ${letter.badgeColor}`}>
+                      {t(letter.badgeKey, letter.badgeKey)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-brand-purple dark:text-purple-300">
+                      {t(letter.authorityKey, letter.authorityKey)}
+                    </h3>
+                    <h4 className="text-sm sm:text-base font-extrabold text-content-primary mt-1">
+                      {t(letter.subjectKey, letter.subjectKey)}
+                    </h4>
+                  </div>
+
+                  {/* Blockquote styling */}
+                  <div className="relative pl-4 rtl:pl-0 rtl:pr-4 border-l-2 rtl:border-l-0 rtl:border-r-2 border-brand-pink py-1">
+                    <p className="text-xs text-content-secondary leading-relaxed italic">
+                      "{t(letter.quoteKey, letter.quoteKey)}"
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-content-border/60 dark:border-slate-800 flex items-center justify-between gap-3 text-start relative z-10">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-content-primary truncate">
+                      {t(letter.signatoryKey, letter.signatoryKey)}
+                    </p>
+                    <p className="text-[10px] text-content-muted font-mono flex items-center gap-1 mt-0.5">
+                      <Calendar className="w-3 h-3" /> {letter.date}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLetter(letter)}
+                    className="text-xs font-bold text-brand-purple dark:text-purple-300 hover:text-brand-pink transition-colors inline-flex items-center gap-1 flex-shrink-0"
+                  >
+                    <span>{t('partners.view_full_letter', 'View Citation')}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* MODAL: FULL OFFICIAL CITATION LETTER VIEWER */}
+      {selectedLetter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-content-border dark:border-slate-800 max-w-2xl w-full p-6 sm:p-8 shadow-brand-xl space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-content-border dark:border-slate-800 pb-4 text-start">
+              <div className="space-y-1">
+                <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border inline-block ${selectedLetter.badgeColor}`}>
+                  {t(selectedLetter.badgeKey, selectedLetter.badgeKey)}
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-content-primary">
+                  {t(selectedLetter.authorityKey, selectedLetter.authorityKey)}
+                </h3>
+                <p className="text-xs text-content-muted font-mono">
+                  Ref: {selectedLetter.refNo} · {selectedLetter.date}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedLetter(null)}
+                className="w-8 h-8 rounded-full bg-surface-soft dark:bg-slate-800 text-content-secondary hover:text-content-primary flex items-center justify-center transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Official Letter Body */}
+            <div className="bg-surface-soft dark:bg-slate-950 p-6 rounded-2xl border border-content-border dark:border-slate-800 space-y-4 text-start">
+              <div className="border-b border-content-border/60 dark:border-slate-800 pb-3">
+                <span className="text-[10px] uppercase font-bold text-content-muted tracking-wider block">Official Subject:</span>
+                <p className="text-sm font-extrabold text-brand-purple dark:text-purple-300">
+                  {t(selectedLetter.subjectKey, selectedLetter.subjectKey)}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-[10px] uppercase font-bold text-content-muted tracking-wider block">Official Citation & Text:</span>
+                <p className="text-xs sm:text-sm text-content-secondary leading-relaxed italic bg-white dark:bg-slate-900 p-4 rounded-xl border border-content-border/80 dark:border-slate-800 shadow-sm">
+                  "{t(selectedLetter.quoteKey, selectedLetter.quoteKey)}"
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-content-border/60 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-black text-content-primary">
+                    {t(selectedLetter.signatoryKey, selectedLetter.signatoryKey)}
+                  </p>
+                  <p className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                    ✓ Verified Official Public Record
+                  </p>
+                </div>
+                <Award className="w-8 h-8 text-amber-500 opacity-80" />
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedLetter(null)}
+                className="btn-outline !py-2 !px-5 text-xs font-bold"
+              >
+                {t('partners.close_letter', 'Close Letter')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 4: PROPOSAL SUBMISSION FORM */}
       <section className="space-y-6 pt-4">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">

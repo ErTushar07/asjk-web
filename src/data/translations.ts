@@ -333,6 +333,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'Refund Policy',
     'footer.donation_policy': 'Donation Policy',
     'footer.cookie_policy': 'Cookie Policy',
+    // Stories
+    'story.story_001.title': 'Restoring Clean Water Access in Remote Mountain Highlands',
+    'story.story_001.summary': 'How the ASFJK solar deep-tube filtration plant in northern Kashmir brought 10,000 liters of potable water daily to isolated mountain communities.',
+    'story.story_001.location': 'Baramulla District, Kashmir',
+    'story.story_001.beneficiary': 'Mountain Hamlet Community',
+    'story.story_002.title': 'Empowering Youth Through Digital Smart Classrooms and STEM',
+    'story.story_002.summary': 'A look into how modern computer labs and scholarship kits are opening career opportunities for students in high-altitude Himalayan schools.',
+    'story.story_002.location': 'Budgam District, Kashmir',
+    'story.story_002.beneficiary': 'Community School Students',
     // Donor Portal & History
     'donor.portal_badge': 'Donor Impact Portal',
     'donor.welcome': 'Welcome Back',
@@ -689,6 +698,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'रिफंड नीति',
     'footer.donation_policy': 'दान नीति',
     'footer.cookie_policy': 'कुकी नीति',
+    // Stories
+    'story.story_001.title': 'दूरदराज के पहाड़ी इलाकों में स्वच्छ पेयजल की बहाली',
+    'story.story_001.summary': 'फाउंडेशन के सौर जल शोधन संयंत्र ने सुदूर पहाड़ी बस्तियों तक प्रतिदिन 10,000 लीटर शुद्ध पेयजल कैसे पहुँचाया।',
+    'story.story_001.location': 'बारामूला जिला, कश्मीर',
+    'story.story_001.beneficiary': 'पहाड़ी ग्रामीण समुदाय',
+    'story.story_002.title': 'डिजिटल स्मार्ट कक्षाओं और स्टेम शिक्षा के माध्यम से युवाओं का सशक्तिकरण',
+    'story.story_002.summary': 'आधुनिक कंप्यूटर प्रयोगशालाएँ और छात्रवृत्ति किट हिमालयी स्कूलों के छात्रों के लिए करियर के नए अवसर कैसे खोल रहे हैं।',
+    'story.story_002.location': 'बडगाम जिला, कश्मीर',
+    'story.story_002.beneficiary': 'सामुदायिक स्कूल के छात्र',
     // Donor Portal & History
     'donor.portal_badge': 'दाता प्रभाव पोर्टल',
     'donor.welcome': 'पुनः स्वागत है',
@@ -1045,6 +1063,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'واپسی کی پالیسی',
     'footer.donation_policy': 'عطیات کی پالیسی',
     'footer.cookie_policy': 'کوکی پالیسی',
+    // Stories
+    'story.story_001.title': 'دور افتادہ پہاڑی علاقوں میں پینے کے صاف پانی کی بحالی',
+    'story.story_001.summary': 'الشجاعت فاؤنڈیشن کے شمسی واٹر پلانٹ نے کس طرح روزانہ 10,000 لیٹر صاف پانی دور دراز پہاڑی آبادیوں تک پہنچایا۔',
+    'story.story_001.location': 'ضلع بارہمولہ، کشمیر',
+    'story.story_001.beneficiary': 'پہاڑی دیہی آبادی',
+    'story.story_002.title': 'ڈیجیٹل اسمارٹ کلاس رومز اور سائنسی تعلیم کے ذریعے نوجوانوں کی خود مختاری',
+    'story.story_002.summary': 'جدید کمپیوٹر لیبز اور وظائف کس طرح ہمالیائی پہاڑی علاقوں کے طلبہ کے لیے روشن مستقبل کے دروازے کھول رہے ہیں۔',
+    'story.story_002.location': 'ضلع بڈگام، کشمیر',
+    'story.story_002.beneficiary': 'کمیونٹی اسکولوں کے طلبہ',
     // Donor Portal & History
     'donor.portal_badge': 'ڈونر امپیکٹ پورٹل',
     'donor.welcome': 'خوش آمدید',
@@ -1401,6 +1428,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'سياسة الاسترداد',
     'footer.donation_policy': 'سياسة التبرع',
     'footer.cookie_policy': 'سياسة ملفات تعريف الارتباط',
+    // Stories
+    'story.story_001.title': 'إعادة توفير المياه النقية في مرتفعات جبال كشمير النائية',
+    'story.story_001.summary': 'كيف وفرت محطة تنقية المياه بالطاقة الشمسية التابعة للمؤسسة 10,000 لتر يومياً من المياه الصالحة للشرب للقرى الجبلية المعزولة.',
+    'story.story_001.location': 'منطقة بارامولا، كشمير',
+    'story.story_001.beneficiary': 'مجتمع القرى الجبلية',
+    'story.story_002.title': 'تمكين الشباب من خلال الفصول الرقمية الذكية وتعليم العلوم',
+    'story.story_002.summary': 'نظرة على كيفية فتح مختبرات الحاسوب الحديثة والمنح الدراسية آفاقاً وظيفية جديدة للطلاب في مدارس الهيمالايا.',
+    'story.story_002.location': 'منطقة بدغام، كشمير',
+    'story.story_002.beneficiary': 'طلاب المدارس المجتمعية',
     // Donor Portal & History
     'donor.portal_badge': 'بوابة أثر المتبرع',
     'donor.welcome': 'مرحباً بعودتك',
@@ -1711,6 +1747,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'Politique de Remboursement',
     'footer.donation_policy': 'Politique de Don',
     'footer.cookie_policy': 'Politique relative aux Cookies',
+    // Stories
+    'story.story_001.title': 'Rétablissement de l\'accès à l\'eau potable dans les hautes montagnes isolées',
+    'story.story_001.summary': 'Comment la station de filtration solaire d\'ASFJK a apporté 10 000 litres d\'eau potable par jour aux communautés montagnardes isolées.',
+    'story.story_001.location': 'District de Baramulla, Cachemire',
+    'story.story_001.beneficiary': 'Communauté des hameaux de montagne',
+    'story.story_002.title': 'Autonomiser les jeunes grâce aux classes numériques intelligentes et aux STEM',
+    'story.story_002.summary': 'Comment les laboratoires informatiques modernes ouvrent des perspectives professionnelles aux élèves des écoles himalayennes.',
+    'story.story_002.location': 'District de Budgam, Cachemire',
+    'story.story_002.beneficiary': 'Élèves des écoles communautaires',
 
     // Donor Portal & History
     'donor.portal_badge': 'Espace Donateur & Impact',
@@ -2023,6 +2068,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'Política de Reembolso',
     'footer.donation_policy': 'Política de Donaciones',
     'footer.cookie_policy': 'Política de Cookies',
+    // Stories
+    'story.story_001.title': 'Restauración del acceso a agua potable en zonas montañosas remotas',
+    'story.story_001.summary': 'Cómo la planta solar de filtración de ASFJK suministró 10,000 litros diarios de agua potable a aldeas aisladas.',
+    'story.story_001.location': 'Distrito de Baramulla, Cachemira',
+    'story.story_001.beneficiary': 'Comunidad de aldeas de montaña',
+    'story.story_002.title': 'Empoderando a los jóvenes a través de aulas digitales inteligentes y STEM',
+    'story.story_002.summary': 'Cómo los laboratorios modernos de computación abren oportunidades para estudiantes en escuelas del Himalaya.',
+    'story.story_002.location': 'Distrito de Budgam, Cachemira',
+    'story.story_002.beneficiary': 'Estudiantes de escuelas comunitarias',
 
     // Donor Portal & History
     'donor.portal_badge': 'Portal de Impacto del Donante',
@@ -2335,6 +2389,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'footer.refund': 'Rückerstattungsrichtlinie',
     'footer.donation_policy': 'Spendenrichtlinie',
     'footer.cookie_policy': 'Cookie-Richtlinie',
+    // Stories
+    'story.story_001.title': 'Wiederherstellung des Trinkwasserzugangs in abgelegenen Bergregionen',
+    'story.story_001.summary': 'Wie die solarbetriebene Filteranlage der Stiftung täglich 10.000 Liter Trinkwasser in isolierte Bergdörfer brachte.',
+    'story.story_001.location': 'Bezirk Baramulla, Kaschmir',
+    'story.story_001.beneficiary': 'Gemeinschaft der Bergdörfer',
+    'story.story_002.title': 'Förderung der Jugend durch digitale Klassenzimmer und MINT-Bildung',
+    'story.story_002.summary': 'Wie moderne Computerräume Schülern in hochgelegenen Himalaja-Schulen neue Bildungschancen eröffnen.',
+    'story.story_002.location': 'Bezirk Budgam, Kaschmir',
+    'story.story_002.beneficiary': 'Schüler der Gemeindeschulen',
 
     // Donor Portal & History
     'donor.portal_badge': 'Spender-Wirkungsportal',

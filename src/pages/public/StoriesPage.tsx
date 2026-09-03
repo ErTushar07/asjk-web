@@ -99,22 +99,24 @@ export const StoriesPage: React.FC<{ onNavigate: (route: string) => void }> = ({
                   <img src={s.coverImage} alt={s.title} loading="lazy" width="600" height="350" className="w-full h-full object-cover" />
                   <div className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-brand-purple/90 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-white text-[10px] sm:text-xs font-semibold flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-brand-pink" />
-                    <span className="truncate max-w-[100px] sm:max-w-none">{s.location}</span>
+                    <span className="truncate max-w-[100px] sm:max-w-none">{t(`story.${s.id}.location`, s.location)}</span>
                   </div>
                 </div>
 
                 <div className="p-3 sm:p-8 space-y-2 sm:space-y-3">
                   <div className="flex items-center justify-between text-[10px] sm:text-xs text-content-muted">
-                    <span className="font-bold text-brand-pink uppercase tracking-wide truncate max-w-[100px]">{s.beneficiaryName}</span>
+                    <span className="font-bold text-brand-pink uppercase tracking-wide truncate max-w-[100px]">
+                      {t(`story.${s.id}.beneficiary`, s.beneficiaryName)}
+                    </span>
                     <span className="flex items-center gap-0.5 font-mono"><Clock className="w-2.5 h-2.5" /> {s.readTime}</span>
                   </div>
 
                   <h2 className="text-xs sm:text-xl font-bold sm:font-extrabold text-content-primary hover:text-brand-purple dark:hover:text-purple-300 transition-colors line-clamp-2">
-                    {s.title}
+                    {t(`story.${s.id}.title`, s.title)}
                   </h2>
 
                   <p className="text-[10px] sm:text-sm text-content-secondary leading-relaxed line-clamp-3">
-                    {s.content}
+                    {t(`story.${s.id}.summary`, s.summary)}
                   </p>
                 </div>
               </div>

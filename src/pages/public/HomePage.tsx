@@ -350,19 +350,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenDonateModa
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-white text-[9px] sm:text-xs font-semibold flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-brand-pink" /> <span className="truncate max-w-[100px] sm:max-w-none">{s.location}</span>
+                  <MapPin className="w-3 h-3 text-brand-pink" /> <span className="truncate max-w-[100px] sm:max-w-none">{t(`story.${s.id}.location`, s.location)}</span>
                 </div>
               </div>
               <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
                 <div>
                   <span className="text-[9px] sm:text-[11px] font-bold text-brand-pink uppercase tracking-wider truncate block">
-                    {s.beneficiaryName}
+                    {t(`story.${s.id}.beneficiary`, s.beneficiaryName)}
                   </span>
                   <h3 className="text-xs sm:text-base font-bold sm:font-extrabold text-content-primary group-hover:text-brand-purple transition-colors mt-0.5 line-clamp-1">
-                    {s.title}
+                    {t(`story.${s.id}.title`, s.title)}
                   </h3>
                   <p className="text-[10px] sm:text-xs text-content-secondary line-clamp-2 mt-1 leading-relaxed">
-                    {s.summary}
+                    {t(`story.${s.id}.summary`, s.summary)}
                   </p>
                 </div>
                 <div className="text-[10px] sm:text-xs font-bold text-brand-purple flex items-center gap-1 pt-1">

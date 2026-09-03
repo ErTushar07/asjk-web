@@ -163,24 +163,11 @@ export const TransparencyPage: React.FC<{ onNavigate: (route: string) => void }>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
-            {/* Real Signature */}
-            <div className="text-center">
-              <img 
-                src="/images/signature.png" 
-                alt="President Signature" 
-                className="h-12 w-auto object-contain dark:invert mix-blend-multiply dark:mix-blend-normal opacity-95"
-              />
-              <span className="text-[9px] font-mono text-content-muted block">Authorized Signature</span>
-            </div>
-
-            {/* Real Seal */}
-            <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-              <img 
-                src="/images/seal.png" 
-                alt="Official Seal" 
-                className="w-full h-full object-contain dark:invert mix-blend-multiply dark:mix-blend-normal opacity-95 rotate-[-6deg] drop-shadow-sm hover:rotate-0 transition-transform duration-300"
-              />
+          <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 bg-white dark:bg-slate-900 px-4 sm:px-5 py-3.5 rounded-2xl border border-content-border dark:border-slate-800 shadow-sm">
+            <ShieldCheck className="w-8 h-8 text-brand-purple dark:text-purple-400 flex-shrink-0" />
+            <div>
+              <span className="text-xs font-extrabold text-content-primary block">Certified Statutory Filing</span>
+              <span className="text-[10px] font-mono text-content-muted block">Section 80G & 12A Certified</span>
             </div>
           </div>
         </div>

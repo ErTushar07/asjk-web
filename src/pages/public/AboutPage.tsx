@@ -177,30 +177,11 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
             </div>
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
-            {/* Real Handwritten Signature */}
-            <div className="text-center">
-              <img 
-                src="/images/signature.png" 
-                alt="Founder Signature" 
-                loading="lazy"
-                width="120"
-                height="48"
-                className="h-12 w-auto object-contain mix-blend-multiply opacity-95"
-              />
-              <span className="text-[9px] font-mono text-content-muted block">Authorized Signatory</span>
-            </div>
-
-            {/* Real Official Seal */}
-            <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-              <img 
-                src="/images/seal.png" 
-                alt="Official Foundation Seal" 
-                loading="lazy"
-                width="80"
-                height="80"
-                className="w-full h-full object-contain mix-blend-multiply opacity-95 rotate-[-5deg] drop-shadow-sm hover:rotate-0 transition-transform duration-300"
-              />
+          <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 bg-surface-soft dark:bg-slate-800/80 px-4 sm:px-5 py-3.5 rounded-2xl border border-content-border dark:border-slate-700">
+            <ShieldCheck className="w-8 h-8 text-brand-purple dark:text-purple-400 flex-shrink-0" />
+            <div>
+              <span className="text-xs font-extrabold text-content-primary block">Executive Charter Endorsed</span>
+              <span className="text-[10px] font-mono text-content-muted block">Registered Non-Profit Trust</span>
             </div>
           </div>
         </div>

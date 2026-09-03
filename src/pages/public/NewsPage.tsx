@@ -75,16 +75,16 @@ export const NewsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ on
                     </span>
                     <span className="flex items-center gap-1 font-medium truncate max-w-[100px] sm:max-w-none">
                       <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-purple dark:text-purple-400" />
-                      {item.author}
+                      {t(`news.${item.id}.author`, item.author)}
                     </span>
                   </div>
 
                   <h2 className="text-xs sm:text-xl font-bold sm:font-extrabold text-content-primary hover:text-brand-purple dark:hover:text-purple-300 transition-colors line-clamp-2">
-                    {item.title}
+                    {t(`news.${item.id}.title`, item.title)}
                   </h2>
 
                   <p className="text-[10px] sm:text-sm text-content-secondary leading-relaxed line-clamp-3">
-                    {item.content}
+                    {t(`news.${item.id}.content`, item.content)}
                   </p>
                 </div>
               </div>

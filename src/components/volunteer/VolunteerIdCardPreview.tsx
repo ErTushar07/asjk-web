@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VolunteerApplication, SystemSettings } from '../../types';
 import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   Download, Printer, RotateCw, User, 
   Calendar, Shield, Award, MapPin, Globe, Mail, Heart 
@@ -12,6 +13,7 @@ interface VolunteerIdCardPreviewProps {
 }
 
 export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ volunteer, settings }) => {
+  const { t } = useLanguage();
   const [showBackSide, setShowBackSide] = useState(false);
 
   const handleDownloadPDF = () => {
@@ -373,7 +375,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
             className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-slate-50 w-full"
           >
             <RotateCw className="w-4 h-4 text-amber-600" />
-            <span>Flip ({showBackSide ? 'Front' : 'Back'})</span>
+            <span>{t('membership.flip', 'Flip')} ({showBackSide ? t('membership.front', 'Front') : t('membership.back', 'Back')})</span>
           </button>
 
           <button
@@ -382,7 +384,7 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
             className="btn-outline !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 w-full"
           >
             <Printer className="w-4 h-4" />
-            <span>Print Badge</span>
+            <span>{t('volunteer.print_badge', 'Print Badge')}</span>
           </button>
 
           <button
@@ -392,16 +394,16 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
             className="btn-primary !py-2.5 !px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow-pink-glow border-none text-white w-full sm:col-span-1"
           >
             <Download className="w-4 h-4" />
-            <span>Download PDF</span>
+            <span>{t('volunteer.download_pdf', 'Download PDF')}</span>
           </button>
         </div>
       ) : (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center space-y-1.5">
           <p className="text-xs font-bold text-amber-900 uppercase flex items-center justify-center gap-1.5">
-            <Shield className="w-4 h-4 text-amber-600" /> ID Card Locked — Awaiting Administrative Approval
+            <Shield className="w-4 h-4 text-amber-600" /> {t('volunteer.badge_locked_title', 'ID Card Locked — Awaiting Administrative Approval')}
           </p>
           <p className="text-[11px] text-amber-700">
-            PDF download and badge printing are disabled until an authorized administrator verifies your application.
+            {t('volunteer.badge_locked_desc', 'PDF download and badge printing are disabled until an authorized administrator verifies your application.')}
           </p>
         </div>
       )}

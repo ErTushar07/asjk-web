@@ -14,6 +14,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
   const { t } = useLanguage();
   const pillars = [
     {
+      id: 'water',
       title: 'Clean Water & Sanitation',
       icon: Droplets,
       color: 'text-brand-blue',
@@ -22,6 +23,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       link: '/projects/clean-water-initiative',
     },
     {
+      id: 'education',
       title: 'Global Education Access',
       icon: GraduationCap,
       color: 'text-brand-pink',
@@ -30,6 +32,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       link: '/projects/global-education-access-program',
     },
     {
+      id: 'health',
       title: 'Community Healthcare Outreach',
       icon: Activity,
       color: 'text-emerald-600',
@@ -38,6 +41,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       link: '/projects/community-healthcare-outreach',
     },
     {
+      id: 'emergency',
       title: 'Emergency Relief and Recovery',
       icon: ShieldAlert,
       color: 'text-brand-orange',
@@ -46,6 +50,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       link: '/projects/emergency-relief-and-recovery',
     },
     {
+      id: 'livelihood',
       title: 'Women and Livelihood Development',
       icon: HeartHandshake,
       color: 'text-brand-purple',
@@ -54,6 +59,7 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
       link: '/projects/women-and-livelihood-development',
     },
     {
+      id: 'winter',
       title: 'Climate Resilience & Winter Survival',
       icon: Sun,
       color: 'text-amber-600',
@@ -64,8 +70,8 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-      {/* Banner */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+      {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-bold text-brand-pink tracking-widest uppercase block">
           {t('our_work.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
@@ -92,16 +98,16 @@ export const OurWorkPage: React.FC<{ onNavigate: (route: string) => void; onOpen
                   <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${p.color}`} />
                 </div>
                 <h3 className="text-xs sm:text-xl font-bold sm:font-extrabold text-content-primary group-hover:text-brand-purple transition-colors line-clamp-1">
-                  {t(p.title, p.title)}
+                  {t(`pillar.${p.id}.title`, p.title)}
                 </h3>
                 <p className="text-[10px] sm:text-xs text-content-secondary leading-relaxed line-clamp-3">
-                  {t(p.title + '.desc', p.desc)}
+                  {t(`pillar.${p.id}.desc`, p.desc)}
                 </p>
               </div>
 
               <div className="pt-2 sm:pt-4 border-t border-content-border/60 space-y-2">
                 <span className="text-[9px] sm:text-xs font-bold text-brand-purple block truncate">
-                  {p.stats}
+                  {t(`pillar.${p.id}.stats`, p.stats)}
                 </span>
                 <div className="flex items-center justify-between gap-1 pt-1">
                   <button

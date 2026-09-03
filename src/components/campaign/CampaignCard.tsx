@@ -15,7 +15,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   onSelectCampaign,
   onDonateToCampaign,
 }) => {
-  const { t } = useLanguage();
+  const { t, tNum } = useLanguage();
   const { formatUSD } = useCurrency();
 
   const percentageFunded = Math.min(100, Math.round((campaign.amountRaisedUSD / campaign.goalUSD) * 100));
@@ -78,7 +78,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
             <span className="font-bold text-brand-purple truncate">
               {formatUSD(campaign.amountRaisedUSD)}
             </span>
-            <span className="font-bold text-brand-pink ml-1">{percentageFunded}%</span>
+            <span className="font-bold text-brand-pink ml-1">{tNum(percentageFunded)}%</span>
           </div>
 
           <div className="w-full h-1.5 sm:h-2 bg-content-border/60 rounded-full overflow-hidden">
@@ -90,7 +90,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
 
           <div className="flex justify-between items-center text-[9px] sm:text-[11px] text-content-muted pt-0.5">
             <span className="flex items-center gap-1">
-              <Users className="w-3 h-3 text-brand-blue" /> {campaign.donorCount}
+              <Users className="w-3 h-3 text-brand-blue" /> {tNum(campaign.donorCount)}
             </span>
             <span className="font-semibold text-emerald-600">{t('project.status.active', 'Active')}</span>
           </div>

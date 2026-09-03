@@ -102,7 +102,7 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
           {t('nav.projects', 'Projects')}
         </button>
         <span>›</span>
-        <span className="text-content-primary font-semibold truncate max-w-xs">{project.name}</span>
+        <span className="text-content-primary font-semibold truncate max-w-xs">{t(`project.${project.id}.name`, project.name)}</span>
       </nav>
 
       {/* Back button & Category */}
@@ -122,13 +122,13 @@ export const ProjectDetailsPage: React.FC<ProjectDetailsProps> = ({
       {/* Hero Title, Location & Social Share */}
       <div className="space-y-4">
         <h1 className="text-3xl sm:text-4xl font-black text-content-primary tracking-tight">
-          {project.name}
+          {t(`project.${project.id}.name`, project.name)}
         </h1>
         <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-content-secondary pt-1 border-b border-content-border dark:border-slate-800 pb-4">
           <div className="flex flex-wrap items-center gap-4">
             <span className="flex items-center gap-1 font-medium">
               <MapPin className="w-4 h-4 text-brand-pink" />
-              {project.locationDetails} ({project.city}, {project.region})
+              {t(`project.${project.id}.location`, `${project.city}, ${project.region}`)}
             </span>
             <span>·</span>
             <span className="flex items-center gap-1 font-mono">

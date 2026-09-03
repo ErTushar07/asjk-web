@@ -43,7 +43,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </span>
           {project.urgent && (
             <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold bg-brand-orange text-white shadow-sm animate-pulse">
-              {t('Urgent Appeal', 'Urgent')}
+              {t('campaign.urgent', 'Urgent')}
             </span>
           )}
         </div>
@@ -51,7 +51,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Location Badge */}
         <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-4 flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-white">
           <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand-pink flex-shrink-0" />
-          <span className="truncate max-w-[120px] sm:max-w-none">{project.city}, {project.region}</span>
+          <span className="truncate max-w-[120px] sm:max-w-none">
+            {t(`project.${project.id}.location`, `${project.city}, ${project.region}`)}
+          </span>
         </div>
 
         {/* Status Indicator */}
@@ -75,10 +77,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             onClick={() => onSelectProject(project.slug)}
             className="text-xs sm:text-lg font-bold sm:font-extrabold text-content-primary hover:text-brand-purple dark:hover:text-purple-300 cursor-pointer transition-colors line-clamp-1"
           >
-            {project.name}
+            {t(`project.${project.id}.name`, project.name)}
           </h3>
           <p className="text-[10px] sm:text-xs text-content-secondary line-clamp-2 mt-1 leading-relaxed">
-            {project.shortDescription}
+            {t(`project.${project.id}.desc`, project.shortDescription)}
           </p>
         </div>
 

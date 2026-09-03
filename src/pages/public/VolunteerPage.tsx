@@ -318,21 +318,21 @@ export const VolunteerPage: React.FC = () => {
           {/* Application Summary Card */}
           <div className="bg-surface-soft p-5 sm:p-6 rounded-2xl border border-content-border space-y-3 text-xs">
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
-              <span className="text-content-secondary">Primary Designation on Badge:</span>
+              <span className="text-content-secondary">{t('volunteer.primary_designation', 'Primary Designation on Badge:')}</span>
               <span className="font-bold text-brand-purple">{createdVolunteer?.roleDesignation}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
-              <span className="text-content-secondary">Qualification:</span>
+              <span className="text-content-secondary">{t('volunteer.qualification_label', 'Qualification:')}</span>
               <span className="font-bold text-content-primary">{createdVolunteer?.qualification}</span>
             </div>
             <div className="flex justify-between items-center pb-2 border-b border-content-border">
-              <span className="text-content-secondary">Location:</span>
+              <span className="text-content-secondary">{t('volunteer.location_label', 'Location:')}</span>
               <span className="font-bold text-content-primary">{createdVolunteer?.city}, {createdVolunteer?.country}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-content-secondary">Status:</span>
+              <span className="text-content-secondary">{t('volunteer.status_label', 'Status:')}</span>
               <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[11px]">
-                Pending Administrative Review
+                {t('volunteer.pending_review', 'Pending Administrative Review')}
               </span>
             </div>
           </div>
@@ -340,9 +340,9 @@ export const VolunteerPage: React.FC = () => {
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-2xl text-xs text-blue-900 leading-relaxed flex items-start gap-2.5">
             <ShieldCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">What happens next?</p>
+              <p className="font-bold">{t('volunteer.what_next', 'What happens next?')}</p>
               <p className="text-blue-800 text-[11px] mt-0.5">
-                Our Volunteer Coordinator will inspect your qualifications and uploaded resume. Once verified and approved by the administrator, your official Volunteer Identity Card with your designation <strong className="text-brand-purple">"{createdVolunteer?.roleDesignation}"</strong> will be activated.
+                {t('volunteer.review_process_desc', 'Our Volunteer Coordinator will inspect your qualifications and uploaded resume. Once verified and approved by the administrator, your official Volunteer Identity Card will be activated.')}
               </p>
             </div>
           </div>
@@ -360,7 +360,7 @@ export const VolunteerPage: React.FC = () => {
               className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2"
             >
               <Search className="w-4 h-4" />
-              <span>Track Application Status</span>
+              <span>{t('volunteer.track_status', 'Track Application Status')}</span>
             </button>
           </div>
         </div>
@@ -500,7 +500,9 @@ export const VolunteerPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-content-secondary uppercase">Highest Qualification Level</label>
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  {t('volunteer.qual_level', 'Highest Qualification Level')}
+                </label>
                 <select
                   value={degreeLevel}
                   onChange={(e) => setDegreeLevel(e.target.value)}
@@ -517,7 +519,9 @@ export const VolunteerPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-content-secondary uppercase">Specialization / University</label>
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  {t('volunteer.specialization', 'Specialization / University')}
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Civil Engineering (NIT Srinagar)"
@@ -531,28 +535,34 @@ export const VolunteerPage: React.FC = () => {
             {/* Photo & Resume Uploads */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-content-secondary uppercase">Passport ID Photograph (Face Clear)</label>
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  {t('volunteer.passport_photo', 'Passport ID Photograph (Face Clear)')}
+                </label>
                 <div className="flex items-center gap-3">
                   <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-purple/30 bg-surface-soft hover:bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors">
                     <Camera className="w-4 h-4 text-brand-pink" />
-                    <span>Upload Photo</span>
+                    <span>{t('volunteer.upload_photo', 'Upload Photo')}</span>
                     <input type="file" accept="image/*" aria-label="Upload Passport ID Photo" onChange={handlePhotoUpload} className="hidden" />
                   </label>
                   {photoUrl && (
                     <div className="flex items-center gap-2">
                       <img src={photoUrl} alt="Preview" className="w-9 h-9 rounded-xl object-cover border border-brand-purple" />
-                      <span className="text-[11px] text-emerald-600 font-bold">Photo Attached</span>
+                      <span className="text-[11px] text-emerald-600 font-bold">
+                        {t('volunteer.photo_attached', 'Photo Attached')}
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-content-secondary uppercase">Curriculum Vitae / Resume (PDF)</label>
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  {t('volunteer.resume_pdf', 'Curriculum Vitae / Resume (PDF)')}
+                </label>
                 <div className="flex items-center gap-3">
                   <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-blue/30 bg-surface-soft hover:bg-brand-blue/10 text-brand-blue text-xs font-bold transition-colors">
                     <Upload className="w-4 h-4 text-brand-blue" />
-                    <span>Attach CV</span>
+                    <span>{t('volunteer.attach_cv', 'Attach CV')}</span>
                     <input type="file" accept=".pdf,.doc,.docx" aria-label="Attach CV or Resume Document" onChange={handleResumeUpload} className="hidden" />
                   </label>
                   {resumeFile && (

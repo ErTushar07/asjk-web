@@ -204,7 +204,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   }}
                   className="text-brand-purple focus:ring-brand-purple"
                 />
-                <span className="text-xs font-bold text-content-primary">General Humanitarian Relief Fund</span>
+                <span className="text-xs font-bold text-content-primary">
+                  {t('donate.general_relief_fund', 'General Humanitarian Relief Fund')}
+                </span>
               </label>
 
               <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-content-border cursor-pointer hover:bg-surface-soft">
@@ -218,7 +220,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   }}
                   className="text-brand-purple focus:ring-brand-purple"
                 />
-                <span className="text-xs font-bold text-content-primary">Specific Project Fund</span>
+                <span className="text-xs font-bold text-content-primary">
+                  {t('donate.specific_project_fund', 'Specific Project Fund')}
+                </span>
               </label>
             </div>
 
@@ -230,7 +234,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               >
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} ({p.category})
+                    {t(`project.${p.id}.name`, p.name)} ({t(p.category, p.category)})
                   </option>
                 ))}
               </select>
@@ -240,7 +244,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
           {/* Amount Presets */}
           <div className="space-y-3">
             <label className="block text-xs font-bold text-content-secondary uppercase tracking-wider">
-              2. Select Donation Amount ({currentCurrency.code})
+              {t('donate.select_amount', '2. Select Donation Amount')} ({currentCurrency.code})
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
               {settings.presetAmounts.map((amtUSD) => {
@@ -270,7 +274,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               <input
                 type="number"
                 min="1"
-                placeholder={`Or enter custom amount in ${currentCurrency.code}...`}
+                placeholder={t('donate.custom_amount', 'Or enter custom amount...')}
                 value={customAmountUSD}
                 onChange={(e) => setCustomAmountUSD(e.target.value)}
                 className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
@@ -278,64 +282,16 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             </div>
           </div>
 
-          {/* Allocation Selector */}
-          <div className="space-y-3">
-            <label className="block text-xs font-bold text-content-secondary uppercase tracking-wider">
-              3. Allocate Your Donation
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-content-border cursor-pointer hover:bg-surface-soft">
-                <input
-                  type="radio"
-                  name="targetType"
-                  checked={selectedTargetType === 'general'}
-                  onChange={() => {
-                    setSelectedTargetType('general');
-                    setTargetId('');
-                  }}
-                  className="text-brand-purple focus:ring-brand-purple"
-                />
-                <span className="text-xs font-bold text-content-primary">General Humanitarian Relief Fund</span>
-              </label>
-
-              <label className="flex items-center gap-3 p-3.5 rounded-2xl border border-content-border cursor-pointer hover:bg-surface-soft">
-                <input
-                  type="radio"
-                  name="targetType"
-                  checked={selectedTargetType === 'project'}
-                  onChange={() => {
-                    setSelectedTargetType('project');
-                    setTargetId(projects[0]?.id || '');
-                  }}
-                  className="text-brand-purple focus:ring-brand-purple"
-                />
-                <span className="text-xs font-bold text-content-primary">Specific Project Fund</span>
-              </label>
-            </div>
-
-            {selectedTargetType === 'project' && (
-              <select
-                value={targetId}
-                onChange={(e) => setTargetId(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-content-border bg-white outline-none"
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.category})
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
           {/* Donor Information */}
           <div className="space-y-4">
             <label className="block text-xs font-bold text-content-secondary uppercase tracking-wider">
-              4. Donor Information (for Section 80G Tax Exemption Receipt)
+              {t('donate.donor_info_title', '4. Donor Information (for Section 80G Tax Exemption Receipt)')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Full Legal Name *</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('donate.full_legal_name', 'Full Legal Name *')}
+                </label>
                 <input
                   type="text"
                   required
@@ -346,7 +302,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Email Address *</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('donate.email_address', 'Email Address *')}
+                </label>
                 <input
                   type="email"
                   required
@@ -360,7 +318,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Phone Number</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('donate.phone_number', 'Phone Number')}
+                </label>
                 <input
                   type="tel"
                   placeholder="+1 415 555 0192"
@@ -370,7 +330,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Country</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('donate.country_label', 'Country')}
+                </label>
                 <input
                   type="text"
                   value={country}
@@ -379,7 +341,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">PAN / Tax ID (for 80G)</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">
+                  {t('donate.tax_id_label', 'PAN / Tax ID (for 80G)')}
+                </label>
                 <input
                   type="text"
                   placeholder="Optional Tax ID"
@@ -394,7 +358,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
           {/* Payment Method Selector */}
           <div className="space-y-3">
             <label className="block text-xs font-bold text-content-secondary uppercase tracking-wider">
-              5. Payment Method
+              {t('donate.payment_method_title', '5. Payment Method')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'stripe_card' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
@@ -406,7 +370,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   className="text-brand-purple focus:ring-brand-purple"
                 />
                 <CreditCard className="w-4 h-4 text-brand-purple" />
-                <span className="text-xs font-semibold text-content-primary">Credit / Debit Card (Stripe International)</span>
+                <span className="text-xs font-semibold text-content-primary">
+                  {t('donate.card_stripe', 'Credit / Debit Card (Stripe International)')}
+                </span>
               </label>
 
               <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'razorpay_upi' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
@@ -418,7 +384,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   className="text-brand-purple focus:ring-brand-purple"
                 />
                 <Smartphone className="w-4 h-4 text-brand-pink" />
-                <span className="text-xs font-semibold text-content-primary">UPI & Netbanking (Razorpay India)</span>
+                <span className="text-xs font-semibold text-content-primary">
+                  {t('donate.upi_razorpay', 'UPI & Netbanking (Razorpay India)')}
+                </span>
               </label>
 
               <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'bank_wire' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
@@ -430,7 +398,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   className="text-brand-purple focus:ring-brand-purple"
                 />
                 <Building className="w-4 h-4 text-brand-blue" />
-                <span className="text-xs font-semibold text-content-primary">Direct Bank Wire / NEFT</span>
+                <span className="text-xs font-semibold text-content-primary">
+                  {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
+                </span>
               </label>
             </div>
 
@@ -440,7 +410,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 <div className="flex items-center justify-between border-b border-content-border pb-2.5">
                   <div className="flex items-center gap-2">
                     <Building className="w-4 h-4 text-brand-purple" />
-                    <span className="text-xs font-extrabold text-content-primary">Official Statutory Bank Account</span>
+                    <span className="text-xs font-extrabold text-content-primary">
+                      {t('donate.bank_account_title', 'Official Statutory Bank Account')}
+                    </span>
                   </div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                     80G Tax Exempt
@@ -449,20 +421,30 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-[10px] text-content-muted block font-semibold">Beneficiary Name</span>
+                    <span className="text-[10px] text-content-muted block font-semibold">
+                      {t('donate.beneficiary_name', 'Beneficiary Name')}
+                    </span>
                     <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-content-muted block font-semibold">Account Type</span>
-                    <span className="font-bold text-content-primary">Current Account (Charitable Trust)</span>
+                    <span className="text-[10px] text-content-muted block font-semibold">
+                      {t('donate.account_type', 'Account Type')}
+                    </span>
+                    <span className="font-bold text-content-primary">
+                      {t('donate.current_account', 'Current Account (Charitable Trust)')}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-content-muted block font-semibold">Bank & Branch</span>
+                    <span className="text-[10px] text-content-muted block font-semibold">
+                      {t('donate.bank_branch', 'Bank & Branch')}
+                    </span>
                     <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral Pulwama'}</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-content-muted font-semibold">Account Number</span>
+                      <span className="text-[10px] text-content-muted font-semibold">
+                        {t('donate.account_number', 'Account Number')}
+                      </span>
                       <button
                         type="button"
                         onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'acc')}
@@ -472,11 +454,13 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                         {copiedKey === 'acc' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <span className="font-mono font-bold text-sm text-brand-purple">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
+                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-content-muted font-semibold">IFSC Code</span>
+                      <span className="text-[10px] text-content-muted font-semibold">
+                        {t('donate.ifsc_code', 'IFSC Code')}
+                      </span>
                       <button
                         type="button"
                         onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'ifsc')}
@@ -486,11 +470,13 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                         {copiedKey === 'ifsc' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <span className="font-mono font-bold text-sm text-brand-purple">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
+                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-content-muted font-semibold">Direct UPI VPA</span>
+                      <span className="text-[10px] text-content-muted font-semibold">
+                        {t('donate.direct_vpa', 'Direct UPI VPA')}
+                      </span>
                       <button
                         type="button"
                         onClick={() => copyToClipboard(settings.bankDetails?.upiId || 'asfjk@jksbi', 'upi')}
@@ -500,12 +486,12 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                         {copiedKey === 'upi' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <span className="font-mono font-bold text-sm text-brand-pink">{settings.bankDetails?.upiId || 'asfjk@jksbi'}</span>
+                    <span className="font-mono font-bold text-sm text-brand-pink" dir="ltr">{settings.bankDetails?.upiId || 'asfjk@jksbi'}</span>
                   </div>
                 </div>
 
                 <p className="text-[11px] text-content-secondary pt-1 border-t border-content-border leading-relaxed">
-                  💡 <strong>Instructions:</strong> Complete your NEFT/RTGS/IMPS transfer and submit the form below. Your official Section 80G tax receipt will be issued immediately with your verification reference.
+                  💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> Complete your NEFT/RTGS/IMPS transfer and submit the form below. Your official Section 80G tax receipt will be issued immediately with your verification reference.
                 </p>
               </div>
             )}

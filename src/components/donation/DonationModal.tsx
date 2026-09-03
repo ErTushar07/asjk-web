@@ -389,8 +389,10 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                       </option>
                     ))}
                   </optgroup>
-                  <optgroup label="General Foundation Funds">
-                    <option value="general_fund">General Humanitarian Relief Fund</option>
+                  <optgroup label={t('General Foundation Funds', 'General Foundation Funds')}>
+                    <option value="general_fund">
+                      {t('donate.general_relief_fund', 'General Humanitarian Relief Fund')}
+                    </option>
                   </optgroup>
                 </select>
               </div>
@@ -417,7 +419,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.email', 'Email Address')} * (For PDF Receipt)
+                      {t('donate.email', 'Email Address')} * ({t('For PDF Receipt', 'For PDF Receipt')})
                     </label>
                     <input
                       type="email"
@@ -445,7 +447,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      PAN / Tax ID (Optional for 80G tax benefit)
+                      {t('donate.tax_id_label', 'PAN / Tax ID (Optional for 80G tax benefit)')}
                     </label>
                     <input
                       type="text"
@@ -495,8 +497,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     />
                     <CreditCard className="w-5 h-5 text-brand-purple flex-shrink-0" />
                     <div className="text-xs">
-                      <p className="font-bold text-content-primary">International Card (Stripe)</p>
-                      <p className="text-[10px] text-content-muted">Visa, Mastercard, Amex, Apple Pay</p>
+                      <p className="font-bold text-content-primary">
+                        {t('donate.card_stripe', 'International Card (Stripe)')}
+                      </p>
+                      <p className="text-[10px] text-content-muted">
+                        {t('donate.card_stripe_sub', 'Visa, Mastercard, Amex, Apple Pay')}
+                      </p>
                     </div>
                   </label>
 
@@ -517,8 +523,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     />
                     <Smartphone className="w-5 h-5 text-brand-pink flex-shrink-0" />
                     <div className="text-xs">
-                      <p className="font-bold text-content-primary">UPI & Netbanking (Razorpay)</p>
-                      <p className="text-[10px] text-content-muted">GPay, PhonePe, Paytm, Indian Banks</p>
+                      <p className="font-bold text-content-primary">
+                        {t('donate.upi_razorpay', 'UPI & Netbanking (Razorpay)')}
+                      </p>
+                      <p className="text-[10px] text-content-muted">
+                        {t('donate.upi_sub', 'GPay, PhonePe, Paytm, Indian Banks')}
+                      </p>
                     </div>
                   </label>
 
@@ -539,8 +549,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     />
                     <Building className="w-5 h-5 text-brand-blue flex-shrink-0" />
                     <div className="text-xs">
-                      <p className="font-bold text-content-primary">Direct Bank Wire / NEFT</p>
-                      <p className="text-[10px] text-content-muted">J&K Bank / HDFC Official Accounts</p>
+                      <p className="font-bold text-content-primary">
+                        {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
+                      </p>
+                      <p className="text-[10px] text-content-muted">
+                        {t('donate.bank_wire_sub', 'J&K Bank / HDFC Official Accounts')}
+                      </p>
                     </div>
                   </label>
                 </div>
@@ -551,7 +565,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     <div className="flex items-center justify-between border-b border-content-border pb-2">
                       <div className="flex items-center gap-1.5">
                         <Building className="w-4 h-4 text-brand-purple" />
-                        <span className="text-xs font-bold text-content-primary">Official Statutory Bank Account</span>
+                        <span className="text-xs font-bold text-content-primary">
+                          {t('donate.bank_account_title', 'Official Statutory Bank Account')}
+                        </span>
                       </div>
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                         80G Tax Exempt
@@ -560,16 +576,22 @@ export const DonationModal: React.FC<DonationModalProps> = ({
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                       <div>
-                        <span className="text-[10px] text-content-muted block">Beneficiary Name</span>
+                        <span className="text-[10px] text-content-muted block">
+                          {t('donate.beneficiary_name', 'Beneficiary Name')}
+                        </span>
                         <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-content-muted block">Bank & Branch</span>
+                        <span className="text-[10px] text-content-muted block">
+                          {t('donate.bank_branch', 'Bank & Branch')}
+                        </span>
                         <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-content-muted">Account Number</span>
+                          <span className="text-[10px] text-content-muted">
+                            {t('donate.account_number', 'Account Number')}
+                          </span>
                           <button
                             type="button"
                             onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'modal_acc')}
@@ -579,11 +601,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                             {copiedKey === 'modal_acc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] text-content-muted">IFSC Code</span>
+                          <span className="text-[10px] text-content-muted">
+                            {t('donate.ifsc_code', 'IFSC Code')}
+                          </span>
                           <button
                             type="button"
                             onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'modal_ifsc')}
@@ -593,12 +617,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                             {copiedKey === 'modal_ifsc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
                       </div>
                     </div>
 
                     <p className="text-[10px] text-content-secondary border-t border-content-border pt-1 leading-snug">
-                      💡 Transfer via IMPS/NEFT/UPI. Submit below to generate your official Section 80G tax receipt immediately.
+                      💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> {t('Transfer the amount via your banking app. Your instant Section 80G tax receipt will be issued upon transaction confirmation.', 'Transfer the amount via your banking app. Your instant Section 80G tax receipt will be issued upon transaction confirmation.')}
                     </p>
                   </div>
                 )}

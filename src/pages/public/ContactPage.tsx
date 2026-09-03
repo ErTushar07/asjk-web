@@ -210,7 +210,7 @@ export const ContactPage: React.FC = () => {
                 {/* Full Name */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-content-secondary uppercase">
-                    Your Full Name <span className="text-rose-500">*</span>
+                    {t('donate.full_name', 'Your Full Name')} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -233,7 +233,7 @@ export const ContactPage: React.FC = () => {
                 {/* Email */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-content-secondary uppercase">
-                    Email Address <span className="text-rose-500">*</span>
+                    {t('donate.email', 'Email Address')} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -258,7 +258,7 @@ export const ContactPage: React.FC = () => {
                 {/* Phone */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-content-secondary uppercase">
-                    Phone / WhatsApp (Optional)
+                    {t('contact.phone_desk', 'Phone / WhatsApp')}
                   </label>
                   <input
                     type="tel"
@@ -271,25 +271,29 @@ export const ContactPage: React.FC = () => {
 
                 {/* Category */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-content-secondary uppercase">Inquiry Category</label>
+                  <label className="text-xs font-bold text-content-secondary uppercase">
+                    {t('contact.inquiry_category', 'Inquiry Category')}
+                  </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as SupportTicket['category'])}
                     aria-label="Inquiry Category"
                     className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-800 text-content-primary focus:border-brand-purple outline-none"
                   >
-                    <option value="general">General Inquiry & Partnerships</option>
-                    <option value="receipt_request">Section 80G Tax Receipt & Audit</option>
-                    <option value="donation_issue">Donation & Payment Inquiry</option>
-                    <option value="refund_request">Refund / Reversal Request</option>
-                    <option value="recurring_cancellation">Recurring Subscription Support</option>
+                    <option value="general">{t('contact.cat_general', 'General Inquiry & Partnerships')}</option>
+                    <option value="receipt_request">{t('contact.cat_80g', 'Section 80G Tax Receipt & Audit')}</option>
+                    <option value="donation_issue">{t('contact.cat_donation', 'Donation & Payment Inquiry')}</option>
+                    <option value="refund_request">{t('contact.cat_refund', 'Refund / Reversal Request')}</option>
+                    <option value="recurring_cancellation">{t('contact.cat_recurring', 'Recurring Subscription Support')}</option>
                   </select>
                 </div>
               </div>
 
               {/* Subject */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-content-secondary uppercase">Subject</label>
+                <label className="text-xs font-bold text-content-secondary uppercase">
+                  {t('contact.subject', 'Subject')}
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Request for CSR Partnership Documentation"
@@ -303,7 +307,7 @@ export const ContactPage: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-content-secondary uppercase">
-                    Message / Details <span className="text-rose-500">*</span>
+                    {t('contact.message_details', 'Message / Details')} <span className="text-rose-500">*</span>
                   </label>
                   <span className={`text-[10px] font-mono ${message.length > 950 ? 'text-rose-500 font-bold' : 'text-content-muted'}`}>
                     {message.length} / 1000
@@ -334,7 +338,7 @@ export const ContactPage: React.FC = () => {
                 className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-brand-sm"
               >
                 <Send className="w-4 h-4" />
-                <span>Submit Inquiry</span>
+                <span>{t('contact.submit_inquiry', 'Submit Inquiry')}</span>
               </button>
             </form>
           )}

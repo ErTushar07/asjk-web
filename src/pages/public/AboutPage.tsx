@@ -112,7 +112,7 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
             onClick={() => onNavigate('/leadership')}
             className="btn-primary !py-3 !px-6 text-xs sm:text-sm font-black shadow-brand-md inline-flex items-center gap-2"
           >
-            <span>View Full Board of Trustees & Governance Directory</span>
+            <span>{t('about.view_board', 'View Full Board of Trustees & Governance Directory')}</span>
             <Users className="w-4 h-4" />
           </button>
         </div>
@@ -126,12 +126,12 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
               <ShieldCheck className="w-5 h-5 text-brand-pink" /> {t('about.statutory_title', 'Legal & Statutory Registrations')}
             </h3>
             <p className="text-xs text-content-secondary mt-0.5">
-              Accredited under Section 80G, 12A, NGO-DARPAN, and Global Transparency Standards
+              {t('about.statutory_subtitle', 'Accredited under Section 80G, 12A, NGO-DARPAN, and Global Transparency Standards')}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full uppercase">
-              STATUS: ACTIVE & VERIFIED
+              {t('about.status_active', 'STATUS: ACTIVE & VERIFIED')}
             </span>
           </div>
         </div>
@@ -163,25 +163,31 @@ export const AboutPage: React.FC<{ onNavigate: (route: string) => void }> = ({ o
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-content-border flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1.5 text-left flex-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink block">
-              PRESIDENTIAL ATTESTATION & CHARTER
+              {t('about.presidential_charter', 'PRESIDENTIAL ATTESTATION & CHARTER')}
             </span>
             <h4 className="text-sm font-extrabold text-content-primary">
-              Al Shujaiat Foundation · Jammu & Kashmir
+              {t('hero.badge', 'Al Shujaiat Foundation · Jammu & Kashmir')}
             </h4>
             <p className="text-xs text-content-secondary leading-relaxed max-w-xl">
-              "We hereby solemnly affirm our dedication to the underprivileged families, orphans, and students of Jammu & Kashmir. Every donation and volunteer hour is accounted for with 100% statutory transparency."
+              "{t('about.presidential_quote', 'We hereby solemnly affirm our dedication to the underprivileged families, orphans, and students of Jammu & Kashmir. Every donation and volunteer hour is accounted for with 100% statutory transparency.')}"
             </p>
             <div className="pt-2">
               <p className="text-xs font-bold text-brand-purple">Mohd Amin Ganai</p>
-              <p className="text-[11px] text-content-muted">Founder & President · Al Shujaiat Foundation</p>
+              <p className="text-[11px] text-content-muted">
+                {t('about.president_title', 'Founder & President · Al Shujaiat Foundation')}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 bg-surface-soft dark:bg-slate-800/80 px-4 sm:px-5 py-3.5 rounded-2xl border border-content-border dark:border-slate-700">
             <ShieldCheck className="w-8 h-8 text-brand-purple dark:text-purple-400 flex-shrink-0" />
             <div>
-              <span className="text-xs font-extrabold text-content-primary block">Executive Charter Endorsed</span>
-              <span className="text-[10px] font-mono text-content-muted block">Registered Non-Profit Trust</span>
+              <span className="text-xs font-extrabold text-content-primary block">
+                {t('about.charter_endorsed', 'Executive Charter Endorsed')}
+              </span>
+              <span className="text-[10px] font-mono text-content-muted block">
+                {t('about.registered_trust', 'Registered Non-Profit Trust')}
+              </span>
             </div>
           </div>
         </div>

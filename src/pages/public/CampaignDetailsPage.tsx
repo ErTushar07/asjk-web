@@ -59,7 +59,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
           {t('nav.campaigns', 'Campaigns')}
         </button>
         <span>›</span>
-        <span className="text-content-primary font-semibold truncate max-w-xs">{campaign.name}</span>
+        <span className="text-content-primary font-semibold truncate max-w-xs">{t(`campaign.${campaign.id}.name`, campaign.name)}</span>
       </nav>
 
       <div className="flex items-center justify-between">
@@ -77,7 +77,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
 
       <div className="space-y-3">
         <h1 className="text-3xl sm:text-4xl font-black text-content-primary tracking-tight">
-          {campaign.name}
+          {t(`campaign.${campaign.id}.name`, campaign.name)}
         </h1>
         <div className="flex items-center gap-4 text-xs text-content-secondary font-mono">
           <span className="flex items-center gap-1">
@@ -92,7 +92,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
           <div className="relative h-96 rounded-3xl overflow-hidden shadow-brand-md border border-content-border">
             <img
               src={campaign.heroImage}
-              alt={campaign.name}
+              alt={t(`campaign.${campaign.id}.name`, campaign.name)}
               className="w-full h-full object-cover"
             />
           </div>
@@ -102,7 +102,7 @@ export const CampaignDetailsPage: React.FC<CampaignDetailsProps> = ({
               {t('campaign.overview_title', 'Emergency Appeal Overview')}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary leading-relaxed">
-              {campaign.description}
+              {t(`campaign.${campaign.id}.desc`, campaign.description)}
             </p>
           </div>
 

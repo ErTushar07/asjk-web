@@ -65,10 +65,10 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
             onClick={() => onSelectCampaign(campaign.slug)}
             className="text-xs sm:text-lg font-bold sm:font-extrabold text-content-primary hover:text-brand-purple cursor-pointer transition-colors line-clamp-1"
           >
-            {campaign.name}
+            {t(`campaign.${campaign.id}.name`, campaign.name)}
           </h3>
           <p className="text-[10px] sm:text-xs text-content-secondary line-clamp-2 mt-1 leading-relaxed">
-            {campaign.description}
+            {t(`campaign.${campaign.id}.desc`, campaign.description)}
           </p>
         </div>
 

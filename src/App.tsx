@@ -6,7 +6,6 @@ import { Footer } from './components/layout/Footer';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { DonationModal } from './components/donation/DonationModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { CookieConsent } from './components/common/CookieConsent';
 import { WhatsAppButton } from './components/common/WhatsAppButton';
@@ -220,17 +219,14 @@ export const App: React.FC = () => {
         onNavigate={navigate}
       />
 
-      {/* Floating Theme Button only visible on pages where there is no top navbar button */}
-      {isAdminRoute && <ThemeShortcutIndicator />}
-
       {/* WhatsApp Floating Contact Button */}
       {!isAdminRoute && <WhatsAppButton />}
 
       {/* Cookie Consent Banner */}
       {!isAdminRoute && <CookieConsent onNavigate={navigate} />}
 
-      {/* Global Scroll-to-Top Floating Button */}
-      <ScrollToTop />
+      {/* Global Scroll-to-Top Floating Button (public only) */}
+      {!isAdminRoute && <ScrollToTop />}
     </div>
   );
 };

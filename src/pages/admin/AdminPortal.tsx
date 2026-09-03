@@ -11,6 +11,7 @@ import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCa
 import { MembershipCardService } from '../../services/membershipCardService';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { NgoMembership, LeadershipMember, LeadershipCategory } from '../../types';
+import { useTheme } from '../../contexts/ThemeContext';
 import { SecurityService } from '../../services/securityService';
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
@@ -19,7 +20,7 @@ import {
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
   Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight,
-  Building
+  Building, Sun, Moon
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -54,6 +55,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   } = useDatabase();
   const { formatUSD } = useCurrency();
   const { supportedLanguages } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -349,9 +351,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const uniqueDonorsList = Array.from(uniqueDonorsMap.values());
 
   return (
-    <div className="min-h-screen bg-surface-soft flex flex-col lg:flex-row">
-      {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6">
+    <div className="h-screen w-full bg-surface-soft dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden">
+      {/* Fixed/Sticky Sidebar Navigation */}
+      <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6 lg:h-screen lg:overflow-y-auto lg:sticky lg:top-0">
         <div className="flex items-center gap-3 px-2">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1.5 flex-shrink-0 shadow-lg flex items-center justify-center border-2 border-white/20">
             <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
@@ -406,10 +408,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
         </div>
       </aside>
 
-      {/* Main Admin Body */}
-      <main className="flex-1 p-4 sm:p-8 lg:p-10 max-w-7xl overflow-y-auto space-y-8">
+      {/* Main Admin Body with independent scrolling */}
+      <main className="flex-1 p-4 sm:p-8 lg:p-10 max-w-7xl h-full lg:h-screen overflow-y-auto space-y-8">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-content-border shadow-brand-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-content-border dark:border-slate-800 shadow-brand-sm">
           <div>
             <h1 className="text-2xl font-extrabold text-content-primary tracking-tight capitalize">
               {adminMenu.find((m) => m.id === activeTab)?.label || activeTab.replace('-', ' ')}
@@ -420,9 +422,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono font-bold text-brand-purple bg-surface-highlight px-3 py-1.5 rounded-xl border border-brand-blue/30">
+            <span className="text-xs font-mono font-bold text-brand-purple dark:text-purple-300 bg-surface-highlight dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-brand-blue/30">
               FY 2025–2026 Live Ledger
             </span>
+
+            {/* Header Theme Switcher */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-content-primary hover:bg-surface-soft dark:hover:bg-slate-800 transition-colors shadow-sm"
+            >
+              {isDark ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span className="hidden sm:inline text-amber-300">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-brand-purple" />
+                  <span className="hidden sm:inline text-content-secondary">Dark</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 

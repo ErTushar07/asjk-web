@@ -561,39 +561,39 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                       <div>
                         <span className="text-[10px] text-content-muted block">Beneficiary Name</span>
-                        <span className="font-bold text-content-primary">Al Shujaiat Foundation Jammu & Kashmir</span>
+                        <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
                       </div>
                       <div>
                         <span className="text-[10px] text-content-muted block">Bank & Branch</span>
-                        <span className="font-bold text-content-primary">The Jammu & Kashmir Bank Ltd, Tral</span>
+                        <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-content-muted">Account Number</span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard('0134010100008892', 'modal_acc')}
+                            onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'modal_acc')}
                             className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                           >
                             {copiedKey === 'modal_acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                             {copiedKey === 'modal_acc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple">0134010100008892</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-content-muted">IFSC Code</span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard('JAKA0LURGAM', 'modal_ifsc')}
+                            onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'modal_ifsc')}
                             className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                           >
                             {copiedKey === 'modal_ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                             {copiedKey === 'modal_ifsc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple">JAKA0LURGAM</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
                       </div>
                     </div>
 

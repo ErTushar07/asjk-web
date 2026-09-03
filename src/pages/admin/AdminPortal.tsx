@@ -18,7 +18,8 @@ import {
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
-  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight
+  Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight,
+  Building
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -856,7 +857,58 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-              {/* Stripe */}
+              {/* Razorpay (India & UPI) */}
+              <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-6 h-6 text-brand-blue" />
+                    <div>
+                      <h4 className="font-extrabold text-sm text-content-primary">Razorpay (India & UPI)</h4>
+                      <p className="text-[11px] text-content-muted">UPI (GPay, PhonePe, Paytm), Netbanking, Indian Cards</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateSettings({
+                        paymentGateways: {
+                          ...settings.paymentGateways,
+                          razorpayEnabled: !settings.paymentGateways?.razorpayEnabled,
+                        },
+                      })
+                    }
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-colors ${
+                      settings.paymentGateways?.razorpayEnabled
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    }`}
+                  >
+                    {settings.paymentGateways?.razorpayEnabled ? 'Active (Click to Disable)' : 'Disabled (Click to Enable)'}
+                  </button>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <label className="block text-[11px] font-bold text-content-muted">Razorpay Key ID (Public)</label>
+                  <input
+                    type="text"
+                    placeholder="rzp_live_... or rzp_test_..."
+                    value={settings.paymentGateways?.razorpayKeyId || ''}
+                    onChange={(e) =>
+                      updateSettings({
+                        paymentGateways: {
+                          ...settings.paymentGateways,
+                          razorpayKeyId: e.target.value.trim(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
+                  />
+                  <p className="text-[10px] text-content-muted leading-relaxed">
+                    💡 <strong>Where to find:</strong> Razorpay Dashboard &rarr; <em>Account & Settings</em> &rarr; <em>API Keys</em>. Generate a Key ID to start receiving live UPI, QR code, and netbanking donations.
+                  </p>
+                </div>
+              </div>
+
+              {/* Stripe (International Cards) */}
               <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -866,42 +918,160 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       <p className="text-[11px] text-content-muted">Global Visa, Mastercard, AMEX, Apple Pay</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                    {settings.paymentGateways?.stripeEnabled ? 'Active' : 'Disabled'}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateSettings({
+                        paymentGateways: {
+                          ...settings.paymentGateways,
+                          stripeEnabled: !settings.paymentGateways?.stripeEnabled,
+                        },
+                      })
+                    }
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-colors ${
+                      settings.paymentGateways?.stripeEnabled
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    }`}
+                  >
+                    {settings.paymentGateways?.stripeEnabled ? 'Active (Click to Disable)' : 'Disabled (Click to Enable)'}
+                  </button>
                 </div>
                 <div className="space-y-2 text-xs">
-                  <label className="block text-[11px] font-bold text-content-muted">Publishable Key</label>
+                  <label className="block text-[11px] font-bold text-content-muted">Stripe Publishable Key (Public)</label>
                   <input
                     type="text"
-                    value={settings.paymentGateways?.stripePublishableKey || 'pk_test_sample_asfjk'}
-                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white"
-                    readOnly
+                    placeholder="pk_live_... or pk_test_..."
+                    value={settings.paymentGateways?.stripePublishableKey || ''}
+                    onChange={(e) =>
+                      updateSettings({
+                        paymentGateways: {
+                          ...settings.paymentGateways,
+                          stripePublishableKey: e.target.value.trim(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
                   />
+                  <p className="text-[10px] text-content-muted leading-relaxed">
+                    💡 <strong>Where to find:</strong> Stripe Dashboard &rarr; <em>Developers</em> &rarr; <em>API Keys</em> &rarr; <em>Publishable key</em>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Bank Wire Credentials Card */}
+            <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Building className="w-6 h-6 text-emerald-600" />
+                  <div>
+                    <h4 className="font-extrabold text-sm text-content-primary">Official Statutory Bank Account & UPI Details</h4>
+                    <p className="text-[11px] text-content-muted">Displayed directly to donors who choose "Direct Bank Wire / NEFT / IMPS"</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Razorpay */}
-              <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-6 h-6 text-brand-blue" />
-                    <div>
-                      <h4 className="font-extrabold text-sm text-content-primary">Razorpay (India)</h4>
-                      <p className="text-[11px] text-content-muted">UPI (Google Pay, PhonePe, Paytm), Netbanking</p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                    {settings.paymentGateways?.razorpayEnabled ? 'Active' : 'Disabled'}
-                  </span>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <label className="block text-[11px] font-bold text-content-muted">Key ID</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Beneficiary Name</label>
                   <input
                     type="text"
-                    value={settings.paymentGateways?.razorpayKeyId || 'rzp_test_sample_asfjk'}
-                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white"
-                    readOnly
+                    value={settings.bankDetails?.accountName || settings.foundationLegalName}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          accountName: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Bank & Branch</label>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          bankName: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Account Number</label>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.accountNumber || '0134010100008892'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          accountNumber: e.target.value.trim(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">IFSC Code</label>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          ifscCode: e.target.value.trim().toUpperCase(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Direct UPI VPA ID</label>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.upiId || 'asfjk@jksbi'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          upiId: e.target.value.trim().toLowerCase(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-pink rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Branch Location</label>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.branch || 'Luragam Tral, Pulwama, J&K - 192123'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          branch: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-content-border bg-white"
                   />
                 </div>
               </div>

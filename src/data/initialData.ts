@@ -1175,9 +1175,16 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
     stripeEnabled: true,
     stripePublishableKey: 'pk_test_sample_asfjk',
     razorpayEnabled: true,
-    razorpayKeyId: 'rzp_test_sample_asfjk',
     sandboxEnabled: false,
     bankTransferEnabled: true,
+  },
+  bankDetails: {
+    accountName: 'Al Shujaiat Foundation Jammu & Kashmir',
+    accountNumber: '0134010100008892',
+    bankName: 'The Jammu & Kashmir Bank Ltd',
+    ifscCode: 'JAKA0LURGAM',
+    branch: 'Luragam Tral, Pulwama, J&K - 192123',
+    upiId: 'asfjk@jksbi',
   },
   notificationThresholds: {
     largeDonationUSD: 1000,

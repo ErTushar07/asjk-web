@@ -427,6 +427,14 @@ export interface SystemSettings {
     sandboxEnabled: boolean;
     bankTransferEnabled: boolean;
   };
+  bankDetails?: {
+    accountName?: string;
+    accountNumber?: string;
+    bankName?: string;
+    ifscCode?: string;
+    branch?: string;
+    upiId?: string;
+  };
   notificationThresholds: {
     largeDonationUSD: number;
     lowProjectFundsAlertUSD: number;

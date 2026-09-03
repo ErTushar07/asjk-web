@@ -63,32 +63,32 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2.5 text-xs text-white/70">
               <li>
                 <button onClick={() => onNavigate('/projects/clean-water-initiative')} className="hover:text-white transition-colors">
-                  {t('Clean Water Initiative', 'Clean Water Initiative')}
+                  {t('footer.prog_water', 'Clean Water Initiative')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/global-education-access-program')} className="hover:text-white transition-colors">
-                  {t('Global Education Access Program', 'Global Education Access Program')}
+                  {t('footer.prog_edu', 'Global Education Access Program')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/community-healthcare-outreach')} className="hover:text-white transition-colors">
-                  {t('Community Healthcare Outreach', 'Community Healthcare Outreach')}
+                  {t('footer.prog_health', 'Community Healthcare Outreach')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/emergency-relief-and-recovery')} className="hover:text-white transition-colors">
-                  {t('Emergency Relief and Recovery', 'Emergency Relief and Recovery')}
+                  {t('footer.prog_relief', 'Emergency Relief and Recovery')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/women-and-livelihood-development')} className="hover:text-white transition-colors">
-                  {t('Women and Livelihood Development', 'Women and Livelihood Development')}
+                  {t('footer.prog_women', 'Women and Livelihood Development')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/projects/climate-resilience-and-winter-survival')} className="hover:text-white transition-colors">
-                  {t('Climate Resilience & Winter Survival', 'Climate Resilience & Winter Survival')}
+                  {t('footer.prog_climate', 'Climate Resilience & Winter Survival')}
                 </button>
               </li>
             </ul>
@@ -102,42 +102,42 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2.5 text-xs text-white/70">
               <li>
                 <button onClick={() => onNavigate('/leadership')} className="hover:text-white transition-colors flex items-center gap-1 font-semibold text-white">
-                  Board of Trustees & Leadership <ArrowUpRight className="w-3 h-3 text-brand-pink" />
+                  {t('footer.gov_trustees', 'Board of Trustees & Leadership')} <ArrowUpRight className="w-3 h-3 text-brand-pink" />
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/transparency')} className="hover:text-white transition-colors flex items-center gap-1">
-                  Annual Audited Reports <ArrowUpRight className="w-3 h-3 text-brand-pink" />
+                  {t('footer.gov_audits', 'Annual Audited Reports')} <ArrowUpRight className="w-3 h-3 text-brand-pink" />
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/impact')} className="hover:text-white transition-colors">
-                  Impact Dashboard
+                  {t('footer.gov_impact', 'Impact Dashboard')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/stories')} className="hover:text-white transition-colors">
-                  Impact Stories
+                  {t('footer.gov_stories', 'Impact Stories')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/news')} className="hover:text-white transition-colors">
-                  News & Press Releases
+                  {t('footer.gov_news', 'News & Press Releases')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/volunteer')} className="hover:text-white transition-colors">
-                  Volunteer Application & Badges
+                  {t('footer.gov_volunteer', 'Volunteer Application & Badges')}
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/membership')} className="hover:text-white transition-colors flex items-center gap-1">
-                  NGO Membership Program <ArrowUpRight className="w-3 h-3 text-brand-pink" />
+                  {t('footer.gov_membership', 'NGO Membership Program')} <ArrowUpRight className="w-3 h-3 text-brand-pink" />
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('/partners')} className="hover:text-white transition-colors">
-                  Corporate Partnerships
+                  {t('footer.gov_partners', 'Corporate Partnerships')}
                 </button>
               </li>
             </ul>
@@ -146,20 +146,24 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Column 4: Contact & Office */}
           <div>
             <h4 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-4">
-              Offices & Helplines
+              {t('footer.offices_title', 'Offices & Helplines')}
             </h4>
             <ul className="space-y-3 text-xs text-white/70">
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-brand-pink flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-white font-bold block text-[11px]">Registered Office:</span>
+                  <span className="text-white font-bold block text-[11px]">
+                    {t('footer.registered_office', 'Registered Office:')}
+                  </span>
                   <span>D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025</span>
                 </div>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-white font-bold block text-[11px]">Operating / Field Office:</span>
+                  <span className="text-white font-bold block text-[11px]">
+                    {t('footer.field_office', 'Operating / Field Office:')}
+                  </span>
                   <span>Luragam Tral Pulwama Jammu and Kashmir 192123</span>
                 </div>
               </li>
@@ -169,7 +173,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-start gap-2 pt-1">
                 <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <div className="space-y-1.5 font-mono text-[11px]">
+                <div className="space-y-1.5 font-mono text-[11px]" dir="ltr">
                   <div>
                     <a href="tel:+911933351585" className="hover:text-white transition-colors block text-white/90">
                       +91 1933 351585
@@ -187,7 +191,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('/faq')}
                   className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors"
                 >
-                  FAQ & Support Desk
+                  {t('footer.faq_btn', 'FAQ & Support Desk')}
                 </button>
               </li>
             </ul>
@@ -247,23 +251,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           <div className="flex flex-wrap items-center gap-4 text-[11px]">
             <button onClick={() => onNavigate('/privacy')} className="hover:text-white transition-colors">
-              Privacy Policy
+              {t('footer.privacy', 'Privacy Policy')}
             </button>
             <span>·</span>
             <button onClick={() => onNavigate('/terms')} className="hover:text-white transition-colors">
-              Terms & Conditions
+              {t('footer.terms', 'Terms & Conditions')}
             </button>
             <span>·</span>
             <button onClick={() => onNavigate('/refund-policy')} className="hover:text-white transition-colors">
-              Refund Policy
+              {t('footer.refund', 'Refund Policy')}
             </button>
             <span>·</span>
             <button onClick={() => onNavigate('/donation-policy')} className="hover:text-white transition-colors">
-              Donation Policy
+              {t('footer.donation_policy', 'Donation Policy')}
             </button>
             <span>·</span>
             <button onClick={() => onNavigate('/cookie-policy')} className="hover:text-white transition-colors">
-              Cookie Policy
+              {t('footer.cookie_policy', 'Cookie Policy')}
             </button>
           </div>
         </div>

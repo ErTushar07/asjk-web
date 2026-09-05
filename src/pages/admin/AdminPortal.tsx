@@ -10,7 +10,7 @@ import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
 import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
 import { MembershipCardService } from '../../services/membershipCardService';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
-import { NgoMembership, LeadershipMember, LeadershipCategory } from '../../types';
+import { NgoMembership, LeadershipMember, LeadershipCategory, Project } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SecurityService } from '../../services/securityService';
 import { 
@@ -66,13 +66,50 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const [refundAmount, setRefundAmount] = useState<number>(0);
   const [refundReason, setRefundReason] = useState<string>('');
 
-  // New Project Form State
-  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-  const [newProjName, setNewProjName] = useState('');
-  const [newProjCategory, setNewProjCategory] = useState<any>('Clean Water');
-  const [newProjGoal, setNewProjGoal] = useState(50000);
-  const [newProjCity, setNewProjCity] = useState('Baramulla');
-  const [newProjDesc, setNewProjDesc] = useState('');
+  // Project Management State (Create & Edit)
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [projectForm, setProjectForm] = useState<{
+    name: string;
+    category: Project['category'];
+    status: Project['status'];
+    city: string;
+    locationDetails: string;
+    fundingGoalUSD: number;
+    amountRaisedUSD: number;
+    shortDescription: string;
+    longDescription: string;
+    problemStatement: string;
+    beneficiariesCount: number;
+    beneficiariesDescription: string;
+    startDate: string;
+    expectedCompletionDate: string;
+    heroImage: string;
+    objectives: string;
+    activities: string;
+    featured: boolean;
+    urgent: boolean;
+  }>({
+    name: '',
+    category: 'Clean Water',
+    status: 'active',
+    city: 'Srinagar',
+    locationDetails: 'Srinagar, Jammu & Kashmir',
+    fundingGoalUSD: 25000,
+    amountRaisedUSD: 0,
+    shortDescription: '',
+    longDescription: '',
+    problemStatement: '',
+    beneficiariesCount: 5000,
+    beneficiariesDescription: 'Local families & villagers across remote terrain',
+    startDate: new Date().toISOString().split('T')[0],
+    expectedCompletionDate: '2027-12-31',
+    heroImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f3?auto=format&fit=crop&w=1200&q=80',
+    objectives: 'Deploy clean drinking water, Provide sustainable infrastructure',
+    activities: 'Site surveys and hydrogeology tests, Solar pump installation',
+    featured: false,
+    urgent: false,
+  });
 
   // New Campaign Form State
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
@@ -169,41 +206,127 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     setRefundReason('');
   };
 
-  const handleCreateProjectSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProjName.trim()) return;
-
-    createProject({
-      name: newProjName,
-      slug: newProjName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      category: newProjCategory,
-      country: 'India',
-      region: 'Jammu & Kashmir',
-      city: newProjCity,
-      locationDetails: `${newProjCity}, Jammu & Kashmir`,
-      shortDescription: newProjDesc || `Humanitarian welfare initiative in ${newProjCity}.`,
-      longDescription: newProjDesc || `Dedicated program delivering vital relief and infrastructure.`,
-      problemStatement: `Communities in ${newProjCity} lack sufficient resources.`,
-      objectives: ['Deploy sustainable facilities', 'Directly benefit 5,000+ local residents'],
-      activities: ['Procurement and field installation', 'Community training'],
-      expectedOutcomes: ['Improved quality of life'],
+  const handleOpenNewProject = () => {
+    setEditingProject(null);
+    setProjectForm({
+      name: '',
+      category: 'Clean Water',
+      status: 'active',
+      city: 'Srinagar',
+      locationDetails: 'Srinagar, Jammu & Kashmir',
+      fundingGoalUSD: 25000,
+      amountRaisedUSD: 0,
+      shortDescription: '',
+      longDescription: '',
+      problemStatement: '',
       beneficiariesCount: 5000,
-      beneficiariesDescription: 'Local community families',
+      beneficiariesDescription: 'Local families & villagers across remote terrain',
       startDate: new Date().toISOString().split('T')[0],
       expectedCompletionDate: '2027-12-31',
-      fundingGoalUSD: newProjGoal,
-      fundingCurrency: 'USD',
-      status: 'active',
       heroImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f3?auto=format&fit=crop&w=1200&q=80',
-      galleryImages: [],
-      milestones: [],
-      updates: [],
-      impactMetrics: [{ label: 'Target Beneficiaries', value: '5,000' }],
+      objectives: 'Deploy clean drinking water, Provide sustainable infrastructure',
+      activities: 'Site surveys and hydrogeology tests, Solar pump installation',
+      featured: false,
+      urgent: false,
     });
+    setShowProjectModal(true);
+  };
 
-    setShowNewProjectModal(false);
-    setNewProjName('');
-    setNewProjDesc('');
+  const handleOpenEditProject = (p: Project) => {
+    setEditingProject(p);
+    setProjectForm({
+      name: p.name,
+      category: p.category,
+      status: p.status,
+      city: p.city || 'Srinagar',
+      locationDetails: p.locationDetails || `${p.city || 'Srinagar'}, Jammu & Kashmir`,
+      fundingGoalUSD: p.fundingGoalUSD,
+      amountRaisedUSD: p.amountRaisedUSD || 0,
+      shortDescription: p.shortDescription || '',
+      longDescription: p.longDescription || p.shortDescription || '',
+      problemStatement: p.problemStatement || '',
+      beneficiariesCount: p.beneficiariesCount || 5000,
+      beneficiariesDescription: p.beneficiariesDescription || 'Local families in Jammu & Kashmir',
+      startDate: p.startDate || new Date().toISOString().split('T')[0],
+      expectedCompletionDate: p.expectedCompletionDate || '2027-12-31',
+      heroImage: p.heroImage || 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f3?auto=format&fit=crop&w=1200&q=80',
+      objectives: Array.isArray(p.objectives) ? p.objectives.join(', ') : '',
+      activities: Array.isArray(p.activities) ? p.activities.join(', ') : '',
+      featured: !!p.featured,
+      urgent: !!p.urgent,
+    });
+    setShowProjectModal(true);
+  };
+
+  const handleSaveProjectSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectForm.name.trim()) return;
+
+    const objectivesList = projectForm.objectives
+      ? projectForm.objectives.split(',').map((o) => o.trim()).filter(Boolean)
+      : ['Deploy sustainable facilities', 'Directly benefit local residents'];
+    const activitiesList = projectForm.activities
+      ? projectForm.activities.split(',').map((a) => a.trim()).filter(Boolean)
+      : ['Procurement and field installation', 'Community training'];
+
+    if (editingProject) {
+      updateProject(editingProject.id, {
+        name: projectForm.name,
+        category: projectForm.category,
+        status: projectForm.status,
+        city: projectForm.city,
+        locationDetails: projectForm.locationDetails,
+        fundingGoalUSD: projectForm.fundingGoalUSD,
+        amountRaisedUSD: projectForm.amountRaisedUSD,
+        shortDescription: projectForm.shortDescription,
+        longDescription: projectForm.longDescription,
+        problemStatement: projectForm.problemStatement,
+        beneficiariesCount: projectForm.beneficiariesCount,
+        beneficiariesDescription: projectForm.beneficiariesDescription,
+        startDate: projectForm.startDate,
+        expectedCompletionDate: projectForm.expectedCompletionDate,
+        heroImage: projectForm.heroImage,
+        objectives: objectivesList,
+        activities: activitiesList,
+        featured: projectForm.featured,
+        urgent: projectForm.urgent,
+      });
+      toast.success(`Project "${projectForm.name}" updated successfully!`);
+    } else {
+      createProject({
+        name: projectForm.name,
+        slug: projectForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        category: projectForm.category,
+        country: 'India',
+        region: 'Jammu & Kashmir',
+        city: projectForm.city,
+        locationDetails: projectForm.locationDetails || `${projectForm.city}, Jammu & Kashmir`,
+        shortDescription: projectForm.shortDescription || `Humanitarian welfare initiative in ${projectForm.city}.`,
+        longDescription: projectForm.longDescription || projectForm.shortDescription || `Dedicated program delivering vital relief and infrastructure.`,
+        problemStatement: projectForm.problemStatement || `Communities in ${projectForm.city} lack sufficient resources.`,
+        objectives: objectivesList,
+        activities: activitiesList,
+        expectedOutcomes: ['Improved quality of life for families'],
+        beneficiariesCount: projectForm.beneficiariesCount,
+        beneficiariesDescription: projectForm.beneficiariesDescription,
+        startDate: projectForm.startDate,
+        expectedCompletionDate: projectForm.expectedCompletionDate,
+        fundingGoalUSD: projectForm.fundingGoalUSD,
+        fundingCurrency: 'USD',
+        status: projectForm.status,
+        heroImage: projectForm.heroImage,
+        galleryImages: [],
+        milestones: [],
+        updates: [],
+        impactMetrics: [{ label: 'Target Beneficiaries', value: projectForm.beneficiariesCount.toLocaleString() }],
+        featured: projectForm.featured,
+        urgent: projectForm.urgent,
+      });
+      toast.success(`New project "${projectForm.name}" published successfully!`);
+    }
+
+    setShowProjectModal(false);
+    setEditingProject(null);
   };
 
   const handleCreateCampaignSubmit = (e: React.FormEvent) => {
@@ -497,7 +620,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   Project Funding Progress (Source of Truth)
                 </h3>
                 <button
-                  onClick={() => setShowNewProjectModal(true)}
+                  onClick={handleOpenNewProject}
                   className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
                 >
                   <Plus className="w-4 h-4" /> Add New Project
@@ -510,7 +633,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   return (
                     <div key={p.id} className="p-4 rounded-2xl bg-surface-soft border border-content-border/60 space-y-2">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-content-primary">{p.name} ({p.category})</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-content-primary">{p.name} ({p.category})</span>
+                          <button
+                            onClick={() => handleOpenEditProject(p)}
+                            className="text-brand-purple hover:underline text-[11px] font-semibold inline-flex items-center gap-0.5"
+                            title="Edit Project"
+                          >
+                            <Edit3 className="w-3 h-3" /> Edit
+                          </button>
+                        </div>
                         <span className="font-bold text-brand-purple">
                           {formatUSD(p.amountRaisedUSD)} / {formatUSD(p.fundingGoalUSD)} ({pct}%)
                         </span>
@@ -676,7 +808,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 Active Projects & Welfare Programs ({projects.length})
               </h3>
               <button
-                onClick={() => setShowNewProjectModal(true)}
+                onClick={handleOpenNewProject}
                 className="btn-primary !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
               >
                 <Plus className="w-4 h-4" /> Add Project
@@ -711,19 +843,34 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-content-border/60 text-xs">
+                    <div className="flex items-center justify-between pt-3 border-t border-content-border/60 text-xs gap-2">
                       <button
                         onClick={() => onNavigate(`/projects/${p.slug}`)}
                         className="text-brand-purple hover:underline font-bold flex items-center gap-1"
+                        title="View Public Page"
                       >
-                        <Eye className="w-3.5 h-3.5" /> View Public Page
+                        <Eye className="w-3.5 h-3.5" /> View
                       </button>
-                      <button
-                        onClick={() => deleteProject(p.id)}
-                        className="text-rose-600 hover:underline flex items-center gap-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
-                      </button>
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => handleOpenEditProject(p)}
+                          className="text-brand-purple hover:text-brand-purple-dark font-bold flex items-center gap-1 hover:underline"
+                          title="Edit Project"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete project "${p.name}"?`)) {
+                              deleteProject(p.id);
+                            }
+                          }}
+                          className="text-rose-600 hover:underline flex items-center gap-1"
+                          title="Delete Project"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -2219,34 +2366,54 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
         </div>
       )}
 
-      {/* New Project Modal */}
-      {showNewProjectModal && (
+      {/* Project Add / Edit Modal */}
+      {showProjectModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn">
-            <h3 className="text-lg font-extrabold text-content-primary">
-              Create New Humanitarian Project
-            </h3>
-
-            <form onSubmit={handleCreateProjectSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Project Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Gurez Mountain Solar Well"
-                  value={newProjName}
-                  onChange={(e) => setNewProjName(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-content-border shadow-2xl space-y-4 animate-fadeIn max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-content-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                  <FolderKanban className="w-5 h-5 text-brand-pink" />
+                </div>
                 <div>
-                  <label className="block text-xs font-semibold text-content-primary mb-1">Category</label>
+                  <h3 className="text-base font-extrabold text-content-primary">
+                    {editingProject ? 'Edit Published Project Dossier' : 'Create & Publish New Humanitarian Project'}
+                  </h3>
+                  <p className="text-[11px] text-content-secondary">
+                    {editingProject
+                      ? `Editing "${editingProject.name}". Changes take effect immediately across public pages.`
+                      : 'Deploy a new relief program, water well initiative, or education facility across J&K.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowProjectModal(false)}
+                className="p-1.5 rounded-full text-content-muted hover:text-content-primary hover:bg-surface-soft transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProjectSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Project Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Gurez Valley Solar Deep-Well Initiative"
+                    value={projectForm.name}
+                    onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Sector Category *</label>
                   <select
-                    value={newProjCategory}
-                    onChange={(e: any) => setNewProjCategory(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
+                    value={projectForm.category}
+                    onChange={(e: any) => setProjectForm({ ...projectForm, category: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-semibold"
                   >
                     <option value="Clean Water">Clean Water</option>
                     <option value="Education">Education</option>
@@ -2254,6 +2421,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                     <option value="Emergency Relief">Emergency Relief</option>
                     <option value="Orphan Sponsorship">Orphan Sponsorship</option>
                     <option value="Winter Relief">Winter Relief</option>
+                    <option value="Livelihood">Livelihood</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Project Status *</label>
+                  <select
+                    value={projectForm.status}
+                    onChange={(e: any) => setProjectForm({ ...projectForm, status: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-semibold"
+                  >
+                    <option value="active">Active (Accepting Donations)</option>
+                    <option value="completed">Completed / Successfully Delivered</option>
+                    <option value="upcoming">Upcoming / Planned</option>
+                    <option value="paused">Paused / Under Review</option>
                   </select>
                 </div>
 
@@ -2262,47 +2444,199 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   <input
                     type="number"
                     required
-                    min="1000"
-                    value={newProjGoal}
-                    onChange={(e) => setNewProjGoal(parseFloat(e.target.value) || 0)}
+                    min="500"
+                    value={projectForm.fundingGoalUSD}
+                    onChange={(e) => setProjectForm({ ...projectForm, fundingGoalUSD: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-bold font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Amount Raised (USD)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={projectForm.amountRaisedUSD}
+                    onChange={(e) => setProjectForm({ ...projectForm, amountRaisedUSD: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">City / District in J&K *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Baramulla, Srinagar, Kupwara, Pulwama"
+                    value={projectForm.city}
+                    onChange={(e) => setProjectForm({ ...projectForm, city: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Specific Location Details</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Uri Border Sector, Baramulla, J&K"
+                    value={projectForm.locationDetails}
+                    onChange={(e) => setProjectForm({ ...projectForm, locationDetails: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Target Beneficiaries Count</label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={projectForm.beneficiariesCount}
+                    onChange={(e) => setProjectForm({ ...projectForm, beneficiariesCount: parseInt(e.target.value, 10) || 1000 })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Beneficiaries Description</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Remote border villagers & school students"
+                    value={projectForm.beneficiariesDescription}
+                    onChange={(e) => setProjectForm({ ...projectForm, beneficiariesDescription: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={projectForm.startDate}
+                    onChange={(e) => setProjectForm({ ...projectForm, startDate: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Expected Completion Date</label>
+                  <input
+                    type="date"
+                    value={projectForm.expectedCompletionDate}
+                    onChange={(e) => setProjectForm({ ...projectForm, expectedCompletionDate: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-content-primary mb-1">Hero / Feature Image URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://images.unsplash.com/... or /images/..."
+                    value={projectForm.heroImage}
+                    onChange={(e) => setProjectForm({ ...projectForm, heroImage: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">City / District in J&K</label>
-                <input
-                  type="text"
-                  value={newProjCity}
-                  onChange={(e) => setNewProjCity(e.target.value)}
+                <label className="block text-xs font-semibold text-content-primary mb-1">Short Summary (displayed on cards) *</label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Concise overview for preview cards and search results..."
+                  value={projectForm.shortDescription}
+                  onChange={(e) => setProjectForm({ ...projectForm, shortDescription: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-content-primary mb-1">Short Description</label>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Detailed Project Dossier (Public Details Page) *</label>
                 <textarea
-                  rows={3}
-                  value={newProjDesc}
-                  onChange={(e) => setNewProjDesc(e.target.value)}
+                  rows={4}
+                  required
+                  placeholder="Comprehensive description of needs, execution plan, methodology, and local community impact..."
+                  value={projectForm.longDescription}
+                  onChange={(e) => setProjectForm({ ...projectForm, longDescription: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Problem Statement</label>
+                <textarea
+                  rows={2}
+                  placeholder="What specific humanitarian challenge does this project solve?"
+                  value={projectForm.problemStatement}
+                  onChange={(e) => setProjectForm({ ...projectForm, problemStatement: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Key Objectives (comma-separated)</label>
+                <input
+                  type="text"
+                  placeholder="Deploy solar deep filtration, Train local village water committee"
+                  value={projectForm.objectives}
+                  onChange={(e) => setProjectForm({ ...projectForm, objectives: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-content-primary mb-1">Field Activities (comma-separated)</label>
+                <input
+                  type="text"
+                  placeholder="Hydrogeology ground survey, Tube drilling & piping installation"
+                  value={projectForm.activities}
+                  onChange={(e) => setProjectForm({ ...projectForm, activities: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="projectFeatured"
+                    checked={projectForm.featured}
+                    onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                    className="w-4 h-4 text-brand-purple rounded border-content-border focus:ring-brand-purple"
+                  />
+                  <label htmlFor="projectFeatured" className="text-xs font-semibold text-content-primary cursor-pointer">
+                    Feature on Website Homepage
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="projectUrgent"
+                    checked={projectForm.urgent}
+                    onChange={(e) => setProjectForm({ ...projectForm, urgent: e.target.checked })}
+                    className="w-4 h-4 text-brand-pink rounded border-content-border focus:ring-brand-pink"
+                  />
+                  <label htmlFor="projectUrgent" className="text-xs font-semibold text-content-primary cursor-pointer">
+                    Mark as Urgent Relief Priority
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-content-border">
                 <button
                   type="button"
-                  onClick={() => setShowNewProjectModal(false)}
+                  onClick={() => setShowProjectModal(false)}
                   className="btn-outline !py-2 !px-4 text-xs font-bold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary !py-2 !px-4 text-xs font-bold"
+                  className="btn-primary !py-2 !px-6 text-xs font-bold shadow-pink-glow"
                 >
-                  Publish Project
+                  {editingProject ? 'Save Project Changes' : 'Publish Project'}
                 </button>
               </div>
             </form>

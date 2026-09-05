@@ -94,29 +94,15 @@ export const App: React.FC = () => {
 
   // Determine which page to render
   const renderCurrentPage = () => {
-    // Admin Routes - Stealth protection: Completely hidden as 404 to the public
+    // Admin Routes - Direct access to Admin Authentication Gate
     if (currentRoute.startsWith('/admin')) {
-      const isStaffKeyPresent =
-        typeof window !== 'undefined' &&
-        (window.location.search.includes('staff=asfjk') ||
-          window.location.search.includes('access=staff') ||
-          window.sessionStorage.getItem('asfjk_staff_gate_unlocked') === 'true');
-
       if (user && isAdmin && twoFactorVerified) {
         const parts = currentRoute.split('/');
         const tab = parts[2] || 'dashboard';
         return <AdminPortal initialTab={tab} onNavigate={navigate} />;
       }
 
-      if (isStaffKeyPresent) {
-        try {
-          window.sessionStorage.setItem('asfjk_staff_gate_unlocked', 'true');
-        } catch (e) {}
-        return <AdminAuthGate onSuccess={() => navigate('/admin/dashboard')} onNavigate={navigate} />;
-      }
-
-      // Public visitors attempting to access /admin see standard 404 Page Not Found
-      return <NotFoundPage onNavigate={navigate} />;
+      return <AdminAuthGate onSuccess={() => navigate('/admin/dashboard')} onNavigate={navigate} />;
     }
 
     // Donor Routes

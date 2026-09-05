@@ -67,8 +67,8 @@ export const AdminAuthGate: React.FC<AdminAuthGateProps> = ({ onSuccess, onNavig
       {/* Security Header Shield */}
       <div className="max-w-md w-full space-y-6">
         <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-brand-purple/20 border border-brand-purple/40 text-brand-pink flex items-center justify-center mx-auto shadow-pink-glow">
-            <Shield className="w-8 h-8" />
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 admin-brand-logo p-1 sm:p-1.5 flex items-center justify-center mx-auto shadow-xl border border-white/30">
+            <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white uppercase">
             RESTRICTED ADMIN PORTAL

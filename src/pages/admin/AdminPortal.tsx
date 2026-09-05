@@ -355,7 +355,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
       {/* Fixed/Sticky Sidebar Navigation */}
       <aside className="w-full lg:w-72 bg-brand-purple-dark text-white flex-shrink-0 p-4 lg:p-6 space-y-6 lg:h-screen lg:overflow-y-auto lg:sticky lg:top-0">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white p-1.5 flex-shrink-0 shadow-lg flex items-center justify-center border-2 border-white/20">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 admin-brand-logo p-1 sm:p-1.5 flex-shrink-0 shadow-md sm:shadow-xl flex items-center justify-center border border-white/30">
             <img src="/images/logo.png" alt="ASFJK Logo" className="w-full h-full object-contain" />
           </div>
           <div>

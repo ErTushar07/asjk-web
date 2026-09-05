@@ -125,19 +125,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentRoute, onOpen
             className="flex items-center gap-2.5 sm:gap-4 cursor-pointer select-none group min-w-0 flex-shrink"
             onClick={() => onNavigate('/')}
           >
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full flex-shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full bg-white/95 navbar-brand-logo p-1 sm:p-1.5 flex-shrink-0 shadow-md sm:shadow-xl flex items-center justify-center border border-content-border/60 dark:border-white/30 group-hover:scale-105 transition-transform">
               <img 
                 src="/images/logo.png" 
                 alt="Al Shujaiat Foundation Jammu & Kashmir Logo" 
                 loading="lazy"
                 width="72"
                 height="72"
-                className="w-full h-full object-contain drop-shadow-sm"
+                className="w-full h-full object-contain"
               />
             </div>
             <div className="flex flex-col justify-center min-w-0">
-              <span className="font-black text-sm sm:text-lg lg:text-xl tracking-tight text-brand-purple leading-tight truncate block">
-                {t('brand.name', 'Al Shujaiat Foundation')}
+              <span className="font-black text-sm sm:text-lg lg:text-xl tracking-tight text-brand-purple navbar-brand-title dark:!text-white leading-tight truncate block">
+                {t('brand.name', 'AL SHUJAIAT FOUNDATION')}
               </span>
               <span className="text-[9px] sm:text-xs lg:text-sm font-extrabold tracking-wider text-brand-pink uppercase truncate block">
                 {t('brand.region', 'Jammu & Kashmir · India')}

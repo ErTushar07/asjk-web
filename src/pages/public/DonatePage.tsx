@@ -8,7 +8,7 @@ import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
   CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
-  Copy, Check, AlertCircle, ExternalLink
+  Copy, Check, AlertCircle, ExternalLink, RefreshCw
 } from 'lucide-react';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -61,20 +61,8 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       return;
     }
 
-    // Strict check: For Razorpay and Bank Wire, verify payment was taken / reference is provided
-    if (paymentMethod === 'razorpay_upi') {
-      if (!paymentReference.trim()) {
-        const url = settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk';
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setHasOpenedRazorpay(true);
-        setErrorMessage(`Payment window opened on Razorpay (${url}). Please complete your payment of ${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} on Razorpay, then enter your Razorpay Payment ID or UPI Ref (UTR) below to generate your official Section 80G tax receipt.`);
-        return;
-      }
-      if (paymentReference.trim().length < 4) {
-        setErrorMessage('Please enter a valid Razorpay Payment ID (e.g. pay_...) or UPI Reference (UTR) from your payment confirmation.');
-        return;
-      }
-    } else if (paymentMethod === 'bank_wire') {
+    // Strict check: For Bank Wire, manual UTR reference is required
+    if (paymentMethod === 'bank_wire') {
       if (!paymentReference.trim()) {
         setErrorMessage('Please enter your Bank Transfer Reference / UTR Number to confirm your donation and issue your official Section 80G tax receipt.');
         return;
@@ -431,101 +419,40 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               </label>
             </div>
 
-            {/* Razorpay Direct Link & Instant UPI Card */}
+            {/* Razorpay Seamless Integration Info Box */}
             {paymentMethod === 'razorpay_upi' && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-4 animate-fadeIn">
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-3.5 animate-fadeIn">
                 <div className="flex items-center justify-between border-b border-content-border pb-2.5">
                   <div className="flex items-center gap-2">
                     <Smartphone className="w-4 h-4 text-brand-pink" />
                     <span className="text-xs font-extrabold text-content-primary">
-                      {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Direct Payment')}
+                      {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Card Gateway')}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-purple/10 text-brand-purple border border-brand-purple/20">
-                    Official Handle: @asfjk
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    Automated & Verified
                   </span>
                 </div>
 
-                {/* Step 1: Open Razorpay to Pay */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-content-primary flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-brand-purple text-white text-[10px] flex items-center justify-center font-bold">1</span>
-                      {t('donate.step1_title', 'Complete Payment of')} {currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {t('donate.on_razorpay', 'on Razorpay')}
-                    </span>
-                    <span className="text-[10px] text-content-muted">GPay, PhonePe, Paytm, Cards</span>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white rounded-xl border border-content-border shadow-sm">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <span className="text-xs text-content-muted font-medium">Link:</span>
-                      <a
-                        href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono font-bold text-xs text-brand-purple hover:underline truncate"
-                        dir="ltr"
-                      >
-                        {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'rzp_direct')}
-                        className="px-3 py-1.5 rounded-lg border border-content-border text-content-primary hover:bg-surface-soft text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                      >
-                        {copiedKey === 'rzp_direct' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedKey === 'rzp_direct' ? 'Copied' : 'Copy Link'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const url = settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk';
-                          window.open(url, '_blank', 'noopener,noreferrer');
-                          setHasOpenedRazorpay(true);
-                        }}
-                        className="btn-primary !py-1.5 !px-3 text-xs font-bold flex items-center gap-1.5 shadow-sm"
-                      >
-                        <span>{t('donate.pay_via_razorpay', 'Pay via Razorpay')}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {hasOpenedRazorpay && (
-                    <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>Razorpay payment page opened. After completing payment, paste your Payment ID or UPI Ref below.</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Step 2: Enter Transaction ID / Reference */}
-                <div className="p-3.5 sm:p-4 bg-white rounded-xl border border-brand-purple/20 space-y-2 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-content-primary flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-brand-pink text-white text-[10px] flex items-center justify-center font-bold">2</span>
-                      {t('donate.razorpay_ref_label', 'Enter Razorpay Payment ID or UPI Ref (UTR) *')}
-                    </label>
-                    <span className="text-[10px] font-bold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded-full">
-                      Required for 80G Receipt
-                    </span>
-                  </div>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. pay_Q123456789 or 12-digit UPI UTR"
-                    value={paymentReference}
-                    onChange={(e) => {
-                      setPaymentReference(e.target.value);
-                      if (errorMessage) setErrorMessage(null);
-                    }}
-                    className="w-full px-3.5 py-2.5 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border focus:border-brand-purple outline-none bg-surface-soft/40"
-                  />
-                  <p className="text-[10px] text-content-muted leading-relaxed">
-                    💡 {t('donate.razorpay_ref_hint', 'Receipts are strictly issued after payment confirmation. Once you complete the payment on razorpay.me/@asfjk, paste your Razorpay Payment ID (starts with pay_) or UPI UTR reference above.')}
+                  <p className="text-xs text-content-secondary leading-relaxed">
+                    Click <strong className="text-brand-purple">Proceed to Pay & Verify</strong> below to launch the official Razorpay Checkout window. Your payment will be cryptographically verified server-side before your Section 80G tax receipt is generated.
                   </p>
+                  <ul className="text-[11px] text-content-muted space-y-1.5 pl-1">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                      <span>Instant UPI intent (Google Pay, PhonePe, Paytm, BHIM, CRED)</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                      <span>Domestic & International Cards (RuPay, Visa, Mastercard, Amex) & Netbanking</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                      <span>No manual reference copying needed — 100% automated receipt dispatch</span>
+                    </li>
+                  </ul>
                 </div>
 
                 {/* Supported Apps & Rails */}
@@ -695,30 +622,21 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
           <button
             type="submit"
             disabled={isProcessing}
-            className="btn-secondary w-full !py-4 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow"
+            className="btn-secondary w-full !py-4 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isProcessing ? (
-              <span>Verifying and Authorizing Transaction...</span>
-            ) : paymentMethod === 'razorpay_upi' && !paymentReference.trim() ? (
-              <>
-                <ExternalLink className="w-5 h-5" />
-                <span>
-                  {hasOpenedRazorpay 
-                    ? `Enter Payment ID / UTR above to Issue 80G Receipt (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()})`
-                    : `Proceed to Pay via Razorpay (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} ${currentCurrency.code})`}
-                </span>
-              </>
+              <span className="flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                {paymentMethod === 'razorpay_upi'
+                  ? 'Opening Razorpay & Verifying Signature...'
+                  : 'Verifying and Authorizing Transaction...'}
+              </span>
             ) : paymentMethod === 'razorpay_upi' ? (
               <>
-                <ShieldCheck className="w-5 h-5 text-emerald-300" />
+                <Smartphone className="w-5 h-5 text-brand-pink" />
                 <span>
-                  Verify Payment & Issue Official 80G Receipt ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})
+                  Proceed to Pay & Verify ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code})
                 </span>
-              </>
-            ) : paymentMethod === 'bank_wire' && !paymentReference.trim() ? (
-              <>
-                <Building className="w-5 h-5" />
-                <span>Enter Bank UTR to Issue 80G Receipt ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
               </>
             ) : paymentMethod === 'bank_wire' ? (
               <>
@@ -729,7 +647,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               <>
                 <Heart className="w-5 h-5 fill-white" />
                 <span>
-                  Complete Donation of {currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} {currentCurrency.code}
+                  Complete Donation of {currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code}
                 </span>
               </>
             )}

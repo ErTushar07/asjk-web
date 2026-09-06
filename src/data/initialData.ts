@@ -1167,7 +1167,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   phone: '+91 1933 351585',
   emergencyPhone: '+91 94193 01319',
   websiteUrl: 'https://www.asfjk.org',
-  defaultCurrency: 'USD',
+  defaultCurrency: 'INR',
   supportedCurrencies: ['USD', 'INR', 'EUR', 'GBP', 'AED', 'SAR', 'CAD', 'AUD'],
   presetAmounts: [25, 50, 100, 250, 500],
   donationGoalExceededPolicy: 'continue_support',

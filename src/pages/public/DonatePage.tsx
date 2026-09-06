@@ -18,9 +18,27 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const { currentCurrency, convertUSDToCurrency, convertCurrencyToUSD } = useCurrency();
   const { t } = useLanguage();
 
+  // Currency-aware preset amounts for natural local currency denominations
+  const getCurrencyPresets = (code: string): number[] => {
+    switch (code) {
+      case 'INR':
+        return [500, 1000, 2500, 5000, 10000];
+      case 'GBP':
+        return [20, 50, 100, 250, 500];
+      case 'EUR':
+        return [25, 50, 100, 250, 500];
+      case 'AED':
+      case 'SAR':
+        return [100, 200, 500, 1000, 2500];
+      default:
+        return [25, 50, 100, 250, 500];
+    }
+  };
+
+  const currentPresets = getCurrencyPresets(currentCurrency.code);
   const [frequency, setFrequency] = useState<DonationFrequency>('monthly');
-  const [selectedPresetUSD, setSelectedPresetUSD] = useState<number>(50);
-  const [customAmountUSD, setCustomAmountUSD] = useState<string>('');
+  const [selectedPreset, setSelectedPreset] = useState<number>(() => currentPresets[1] || 1000);
+  const [customAmount, setCustomAmount] = useState<string>('');
   const [selectedTargetType, setSelectedTargetType] = useState<'general' | 'project' | 'campaign'>('general');
   const [targetId, setTargetId] = useState<string>('');
 
@@ -32,7 +50,10 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const [address, setAddress] = useState('');
   const [anonymous, setAnonymous] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe_card');
+  // Default payment method: Razorpay UPI for INR, Card for international
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(() =>
+    currentCurrency.code === 'INR' ? 'razorpay_upi' : 'stripe_card'
+  );
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [hasOpenedRazorpay, setHasOpenedRazorpay] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -40,19 +61,27 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
+  // Update preset when user changes currency
+  React.useEffect(() => {
+    if (!customAmount) {
+      const p = getCurrencyPresets(currentCurrency.code);
+      setSelectedPreset(p[1] || 1000);
+    }
+  }, [currentCurrency.code]);
+
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard?.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const effectiveAmountUSD = customAmountUSD ? parseFloat(customAmountUSD) || 0 : selectedPresetUSD;
-  const effectiveLocalAmount = convertUSDToCurrency(effectiveAmountUSD);
+  // The effective donation amount directly in the selected currency
+  const effectiveLocalAmount = customAmount ? parseFloat(customAmount) || 0 : selectedPreset;
 
   const handleDonateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    if (effectiveAmountUSD <= 0) {
+    if (effectiveLocalAmount <= 0) {
       setErrorMessage('Please enter a valid donation amount.');
       return;
     }
@@ -262,16 +291,15 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               {t('donate.select_amount', '2. Select Donation Amount')} ({currentCurrency.code})
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
-              {settings.presetAmounts.map((amtUSD) => {
-                const localAmt = convertUSDToCurrency(amtUSD);
-                const isSelected = selectedPresetUSD === amtUSD && !customAmountUSD;
+              {currentPresets.map((amt) => {
+                const isSelected = selectedPreset === amt && !customAmount;
                 return (
                   <button
-                    key={amtUSD}
+                    key={amt}
                     type="button"
                     onClick={() => {
-                      setSelectedPresetUSD(amtUSD);
-                      setCustomAmountUSD('');
+                      setSelectedPreset(amt);
+                      setCustomAmount('');
                     }}
                     className={`py-3 rounded-2xl text-xs font-bold border transition-all ${
                       isSelected
@@ -279,20 +307,28 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                         : 'border-content-border bg-white text-content-primary hover:border-brand-purple'
                     }`}
                   >
-                    {currentCurrency.symbol}{localAmt.toLocaleString()}
+                    {currentCurrency.symbol}{amt.toLocaleString()}
                   </button>
                 );
               })}
             </div>
 
-            <div>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-content-muted">
+                {currentCurrency.symbol}
+              </span>
               <input
                 type="number"
                 min="1"
-                placeholder={t('donate.custom_amount', 'Or enter custom amount...')}
-                value={customAmountUSD}
-                onChange={(e) => setCustomAmountUSD(e.target.value)}
-                className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                placeholder={t('donate.custom_amount_placeholder', `Or enter custom amount in ${currentCurrency.code} (${currentCurrency.symbol})...`)}
+                value={customAmount}
+                onChange={(e) => {
+                  setCustomAmount(e.target.value);
+                  if (e.target.value) {
+                    setSelectedPreset(0);
+                  }
+                }}
+                className="w-full pl-9 pr-4 py-2.5 text-xs font-semibold rounded-xl border border-content-border focus:border-brand-purple outline-none"
               />
             </div>
           </div>

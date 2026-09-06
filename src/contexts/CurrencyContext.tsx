@@ -32,10 +32,14 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 
 export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currencyCode, setCurrencyCode] = useState<string>(() => {
-    return localStorage.getItem('asfjk_currency') || 'USD';
+    const saved = localStorage.getItem('asfjk_currency');
+    if (saved && SUPPORTED_CURRENCIES[saved]) {
+      return saved;
+    }
+    return 'INR';
   });
 
-  const currentCurrency = SUPPORTED_CURRENCIES[currencyCode] || SUPPORTED_CURRENCIES.USD;
+  const currentCurrency = SUPPORTED_CURRENCIES[currencyCode] || SUPPORTED_CURRENCIES.INR;
 
   useEffect(() => {
     localStorage.setItem('asfjk_currency', currentCurrency.code);

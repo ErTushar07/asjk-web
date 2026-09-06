@@ -29,9 +29,28 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const { currentCurrency, formatOriginal, convertUSDToCurrency, convertCurrencyToUSD } = useCurrency();
   const { projects, campaigns, processDonation, settings } = useDatabase();
 
+  // Currency-aware preset amounts for natural local currency denominations
+  const getCurrencyPresets = (code: string): number[] => {
+    switch (code) {
+      case 'INR':
+        return [500, 1000, 2500, 5000, 10000];
+      case 'GBP':
+        return [20, 50, 100, 250, 500];
+      case 'EUR':
+        return [25, 50, 100, 250, 500];
+      case 'AED':
+      case 'SAR':
+        return [100, 200, 500, 1000, 2500];
+      default:
+        return [25, 50, 100, 250, 500];
+    }
+  };
+
+  const modalPresets = getCurrencyPresets(currentCurrency.code);
+
   // Form State
   const [frequency, setFrequency] = useState<DonationFrequency>('one_time');
-  const [amountUSD, setAmountUSD] = useState<number>(50);
+  const [selectedLocalAmount, setSelectedLocalAmount] = useState<number>(() => modalPresets[1] || 1000);
   const [isCustomAmount, setIsCustomAmount] = useState<boolean>(false);
   const [customAmountInput, setCustomAmountInput] = useState<string>('');
   
@@ -43,19 +62,29 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const [donorName, setDonorName] = useState<string>('');
   const [donorEmail, setDonorEmail] = useState<string>('');
   const [donorPhone, setDonorPhone] = useState<string>('');
-  const [donorCountry, setDonorCountry] = useState<string>('United States');
+  const [donorCountry, setDonorCountry] = useState<string>('India');
   const [donorTaxId, setDonorTaxId] = useState<string>('');
   const [donorAddress, setDonorAddress] = useState<string>('');
   const [anonymous, setAnonymous] = useState<boolean>(false);
 
-  // Payment Method
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe_card');
+  // Payment Method: Default to Razorpay for INR, Card for international
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(() =>
+    currentCurrency.code === 'INR' ? 'razorpay_upi' : 'stripe_card'
+  );
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [hasOpenedRazorpay, setHasOpenedRazorpay] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [successReceipt, setSuccessReceipt] = useState<Receipt | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // Update preset when currency changes
+  useEffect(() => {
+    if (!isCustomAmount) {
+      const p = getCurrencyPresets(currentCurrency.code);
+      setSelectedLocalAmount(p[1] || 1000);
+    }
+  }, [currentCurrency.code]);
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard?.writeText(text);
@@ -90,19 +119,17 @@ export const DonationModal: React.FC<DonationModalProps> = ({
 
   const currentConvertedAmount = isCustomAmount
     ? parseFloat(customAmountInput) || 0
-    : convertUSDToCurrency(amountUSD);
+    : selectedLocalAmount;
 
-  const handlePresetClick = (usdValue: number) => {
+  const handlePresetClick = (val: number) => {
     setIsCustomAmount(false);
-    setAmountUSD(usdValue);
+    setSelectedLocalAmount(val);
     setCustomAmountInput('');
   };
 
   const handleCustomChange = (val: string) => {
     setIsCustomAmount(true);
     setCustomAmountInput(val);
-    const numeric = parseFloat(val) || 0;
-    setAmountUSD(convertCurrencyToUSD(numeric, currentCurrency.code));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -312,21 +339,20 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   {t('donate.select_amount', 'Select Donation Amount')} ({currentCurrency.code})
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[25, 50, 100, 250, 500].map((presetUSD) => {
-                    const converted = convertUSDToCurrency(presetUSD);
-                    const isSelected = !isCustomAmount && amountUSD === presetUSD;
+                  {modalPresets.map((presetAmt) => {
+                    const isSelected = !isCustomAmount && selectedLocalAmount === presetAmt;
                     return (
                       <button
                         type="button"
-                        key={presetUSD}
-                        onClick={() => handlePresetClick(presetUSD)}
+                        key={presetAmt}
+                        onClick={() => handlePresetClick(presetAmt)}
                         className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition-all ${
                           isSelected
                             ? 'bg-brand-pink text-white border-brand-pink shadow-pink-glow'
                             : 'bg-white border-content-border text-content-primary hover:border-brand-purple/40 hover:bg-surface-soft'
                         }`}
                       >
-                        {currentCurrency.symbol}{converted.toLocaleString()}
+                        {currentCurrency.symbol}{presetAmt.toLocaleString()}
                       </button>
                     );
                   })}
@@ -334,7 +360,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     type="button"
                     onClick={() => {
                       setIsCustomAmount(true);
-                      setCustomAmountInput(currentConvertedAmount.toString());
+                      setCustomAmountInput(currentConvertedAmount ? currentConvertedAmount.toString() : '');
                     }}
                     className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition-all ${
                       isCustomAmount
@@ -354,7 +380,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     <input
                       type="number"
                       min="1"
-                      placeholder="Enter custom amount"
+                      placeholder={`Enter custom amount in ${currentCurrency.code} (${currentCurrency.symbol})`}
                       value={customAmountInput}
                       onChange={(e) => handleCustomChange(e.target.value)}
                       className="w-full pl-9 pr-4 py-2.5 text-sm font-semibold rounded-xl border border-content-border focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20 outline-none"

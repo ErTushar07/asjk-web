@@ -37,9 +37,9 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
         donorEmail: 'james.anderson@example.org',
         donorCountry: 'United Kingdom',
         donorAddress: 'London, UK',
-        paymentMethod: 'stripe_card',
+        paymentMethod: 'sandbox_card',
       });
-      showToast(`Verified $150 donation for Clean Water! Project Raised updated. Receipt #${res.receipt.receiptNumber}`);
+      showToast(`Verified $150 donation for Clean Water! Project Raised updated. Receipt #${res.receipt?.receiptNumber || 'SIMULATED'}`);
     } catch (e) {
       showToast('Simulation error');
     }
@@ -94,7 +94,7 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
       donorName: 'Lucas Martin',
       donorEmail: 'lucas.martin@test.com',
       donorCountry: 'USA',
-      paymentMethod: 'stripe_card',
+      paymentMethod: 'sandbox_card',
     });
     const p2 = processDonation({
       amount: 200,
@@ -118,7 +118,7 @@ export const DemoControlBar: React.FC<{ onOpenDonateModal?: () => void }> = ({ o
       donorName: 'Henry Walker',
       donorEmail: 'henry.walker@test.com',
       donorCountry: 'UK',
-      paymentMethod: 'stripe_card',
+      paymentMethod: 'sandbox_card',
     });
 
     await Promise.all([p1, p2, p3]);

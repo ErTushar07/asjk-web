@@ -163,20 +163,33 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
           <div className="space-y-2">
             <h3 className="text-2xl font-extrabold text-content-primary">
-              {t('donate.success_title', 'Thank You for Your Generous Support!')}
+              {successResult.receipt
+                ? t('donate.success_title', 'Thank You for Your Generous Support!')
+                : 'Bank Transfer Reference Submitted!'}
             </h3>
             <p className="text-xs sm:text-sm text-content-secondary max-w-md mx-auto">
-              Your donation of <span className="font-bold text-brand-purple">{currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code}</span> has been processed and allocated.
+              {successResult.receipt
+                ? `Your donation of ${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} ${currentCurrency.code} has been verified and allocated.`
+                : `Your transfer of ${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} ${currentCurrency.code} has been registered for reconciliation.`}
             </p>
           </div>
 
-          <div className="p-4 bg-surface-soft rounded-2xl border border-content-border max-w-md mx-auto space-y-1.5 text-xs">
+          <div className="p-4 bg-surface-soft rounded-2xl border border-content-border max-w-md mx-auto space-y-2 text-xs text-left">
+            {successResult.receipt ? (
+              <div className="flex justify-between">
+                <span className="text-content-muted">{t('receipt.number', 'Receipt Number')}:</span>
+                <span className="font-mono font-bold text-brand-purple">{successResult.receipt.receiptNumber}</span>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <span className="text-content-muted">Verification Status:</span>
+                <span className="font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px]">
+                  Pending Account Reconciliation
+                </span>
+              </div>
+            )}
             <div className="flex justify-between">
-              <span className="text-content-muted">{t('receipt.number', 'Receipt Number')}:</span>
-              <span className="font-mono font-bold text-brand-purple">{successResult.receipt.receiptNumber}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-content-muted">{t('receipt.transaction_id', 'Transaction ID')}:</span>
+              <span className="text-content-muted">{t('receipt.transaction_id', 'Transaction / UTR ID')}:</span>
               <span className="font-mono text-content-primary">{successResult.payment.transactionId}</span>
             </div>
             <div className="flex justify-between">
@@ -185,18 +198,29 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             </div>
           </div>
 
+          {!successResult.receipt && (
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-xs max-w-md mx-auto text-left leading-relaxed">
+              <p className="font-bold mb-1">📋 Section 80G Tax Receipt Notice:</p>
+              <p className="text-[11px] text-amber-800">
+                Because bank wire transfers require manual bank statement reconciliation, our finance desk will verify the credit in our statutory J&K Bank account. Your official Section 80G tax receipt will be issued and emailed to <strong className="underline">{email}</strong> within 24–48 business hours.
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button
-              onClick={() => {
-                import('../../services/receiptService').then(({ ReceiptService }) => {
-                  ReceiptService.downloadReceipt(successResult.receipt, settings);
-                });
-              }}
-              className="btn-primary w-full sm:w-auto !py-3 !px-6 text-xs font-bold flex items-center justify-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              <span>{t('donate.download_receipt', 'Download Official PDF Tax Receipt')}</span>
-            </button>
+            {successResult.receipt && (
+              <button
+                onClick={() => {
+                  import('../../services/receiptService').then(({ ReceiptService }) => {
+                    ReceiptService.downloadReceipt(successResult.receipt, settings);
+                  });
+                }}
+                className="btn-primary w-full sm:w-auto !py-3 !px-6 text-xs font-bold flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>{t('donate.download_receipt', 'Download Official PDF Tax Receipt')}</span>
+              </button>
+            )}
 
             <button
               onClick={() => onNavigate('/dashboard')}
@@ -587,50 +611,20 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                     </div>
                     <span className="font-mono font-bold text-sm text-brand-pink" dir="ltr">{settings.bankDetails?.upiId || 'asfjk@jksbi'}</span>
                   </div>
-                  <div className="sm:col-span-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-content-muted font-semibold">
-                        {t('donate.razorpay_direct_link', 'Razorpay Instant Payment Handle')}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'wire_rzp')}
-                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
-                        >
-                          {copiedKey === 'wire_rzp' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                          {copiedKey === 'wire_rzp' ? 'Copied' : 'Copy'}
-                        </button>
-                        <a
-                          href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-0.5 font-bold"
-                        >
-                          <span>Open</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    </div>
-                    <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">
-                      {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
-                    </span>
-                  </div>
-
                   {/* Bank Transfer Reference Input */}
                   <div className="sm:col-span-2 pt-2 border-t border-content-border space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs font-bold text-content-primary">
                         {t('donate.bank_wire_ref_label', 'Bank Transfer Reference / UTR Number *')}
                       </label>
-                      <span className="text-[10px] font-bold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded-full">
-                        Required for 80G Receipt
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                        Manual Verification
                       </span>
                     </div>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. 12-digit UTR from your bank transfer or UPI app"
+                      placeholder="e.g. 12-digit UTR from your NEFT, RTGS or IMPS bank transfer"
                       value={paymentReference}
                       onChange={(e) => {
                         setPaymentReference(e.target.value);
@@ -639,7 +633,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                       className="w-full px-3.5 py-2.5 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
                     />
                     <p className="text-[10px] text-content-muted leading-relaxed">
-                      💡 {t('donate.bank_wire_ref_hint', 'Enter the reference/UTR number from your NEFT/RTGS/IMPS transfer to verify and issue your Section 80G tax receipt.')}
+                      💡 {t('donate.bank_wire_ref_hint', 'Enter the 12-digit reference/UTR number from your bank transfer. Our accounts desk will verify the deposit in the foundation account before issuing your Section 80G tax receipt.')}
                     </p>
                   </div>
                 </div>

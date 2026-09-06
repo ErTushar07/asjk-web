@@ -61,10 +61,30 @@ export class PaymentService {
     if ((window as any).Razorpay) return true;
 
     return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
       const existing = document.querySelector('script[src*="checkout.razorpay.com"]');
       if (existing) {
+        if ((window as any).Razorpay) {
+          resolve(true);
+          return;
+        }
         existing.addEventListener('load', () => resolve(true));
         existing.addEventListener('error', () => resolve(false));
+        // Fallback check in case load event already fired before listener was attached
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if ((window as any).Razorpay) {
+            clearInterval(interval);
+            resolve(true);
+          } else if (attempts > 30) {
+            clearInterval(interval);
+            resolve(false);
+          }
+        }, 100);
         return;
       }
       const script = document.createElement('script');
@@ -81,10 +101,10 @@ export class PaymentService {
    */
   public static async processPayment(params: CreatePaymentParams): Promise<PaymentProcessResult> {
     const amountUSD = this.calculateUSD(params.amount, params.currency);
-    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TYpzYNn5HlrzCF';
 
-    // 1. Production Full-Stack Flow via Supabase Edge Function & Razorpay Checkout.js
-    if (isSupabaseConfigured && params.method.startsWith('razorpay')) {
+    // 1. All Online Payments (UPI, Cards, Netbanking) must go through Razorpay Checkout & Edge Function Verification
+    if (params.method.startsWith('razorpay') || params.method === 'stripe_card') {
       // A. Create Order on Server via Supabase Edge Function
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
@@ -194,33 +214,47 @@ export class PaymentService {
       };
     }
 
-    // 2. Verified Standard Engine (Local / Development / Direct fallback)
-    const timestamp = Date.now();
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    let provider: 'stripe' | 'razorpay' | 'bank' = 'razorpay';
-    if (params.method === 'stripe_card') provider = 'stripe';
-    else if (params.method === 'bank_wire') provider = 'bank';
+    // 2. Bank Wire Transfer (Manual UTR submission - records pending request only, NO instant receipt)
+    if (params.method === 'bank_wire') {
+      const cleanRef = params.paymentReference?.trim();
+      if (!cleanRef || cleanRef.length < 4) {
+        throw new Error('Please enter a valid bank transfer UTR or transaction reference number.');
+      }
+      const timestamp = Date.now();
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      return {
+        success: true,
+        paymentId: cleanRef,
+        transactionId: cleanRef,
+        donationId: `don_${timestamp}_${randomSuffix}`,
+        receiptNumber: '', // Strictly NO instant receipt for manual wire transfers!
+        amountUSD,
+        status: 'pending',
+        provider: 'bank',
+        providerPaymentId: cleanRef,
+        message: 'Bank transfer recorded for verification. Section 80G receipt will be generated once verified by accounting.',
+      };
+    }
 
-    const cleanRef = params.paymentReference?.trim();
-    const transactionId = cleanRef || `txn_${provider.slice(0, 3)}_${timestamp}_${randomSuffix}`;
-    const paymentId = cleanRef || `pay_${timestamp}_${randomSuffix}`;
-    const donationId = `don_${timestamp}_${randomSuffix}`;
-    const receiptNumber = `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`;
-    const providerPaymentId = cleanRef || `ch_${provider}_${timestamp}`;
-    const providerSubscriptionId = params.frequency !== 'one_time' ? `sub_${provider}_${timestamp}` : undefined;
+    // 3. Fallback sandbox simulation ONLY for explicit sandbox testing
+    if (params.method === 'sandbox_card') {
+      const timestamp = Date.now();
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      return {
+        success: true,
+        paymentId: `pay_sandbox_${timestamp}`,
+        transactionId: `txn_sandbox_${timestamp}`,
+        donationId: `don_${timestamp}_${randomSuffix}`,
+        receiptNumber: `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`,
+        amountUSD,
+        status: 'successful',
+        provider: 'sandbox',
+        providerPaymentId: `sandbox_${timestamp}`,
+        message: 'Sandbox test donation recorded',
+      };
+    }
 
-    return {
-      success: true,
-      paymentId,
-      transactionId,
-      donationId,
-      receiptNumber,
-      amountUSD,
-      status: 'successful',
-      provider,
-      providerPaymentId,
-      providerSubscriptionId,
-      message: 'Donation recorded and verified successfully',
-    };
+    // Absolutely NO other path can generate a receipt without verified payment!
+    throw new Error('Payment was not completed. No receipt can be issued without verified payment confirmation.');
   }
 }

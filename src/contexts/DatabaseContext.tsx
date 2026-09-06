@@ -36,7 +36,7 @@ interface ProcessDonationInput {
 
 interface ProcessDonationResult {
   donation: Donation;
-  receipt: Receipt;
+  receipt?: Receipt;
   payment: Payment;
   recurringDonation?: RecurringDonation;
 }
@@ -380,10 +380,10 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       currency: input.currency,
       amountUSD: paymentResult.amountUSD,
       exchangeRate: input.amount > 0 ? paymentResult.amountUSD / input.amount : 1,
-      status: 'successful',
+      status: paymentResult.status === 'successful' ? 'successful' : paymentResult.status === 'failed' ? 'failed' : paymentResult.status === 'cancelled' ? 'cancelled' : 'pending',
       paymentMethod: input.paymentMethod,
       paymentId: paymentResult.paymentId,
-      receiptNumber: paymentResult.receiptNumber,
+      receiptNumber: paymentResult.receiptNumber || undefined,
       notes: cleanInput.paymentReference ? `Payment Ref: ${cleanInput.paymentReference}` : undefined,
       createdAt: now,
       updatedAt: now,
@@ -401,36 +401,39 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       amountUSD: paymentResult.amountUSD,
       feeAmountUSD: parseFloat((paymentResult.amountUSD * 0.025).toFixed(2)),
       netAmountUSD: parseFloat((paymentResult.amountUSD * 0.975).toFixed(2)),
-      status: 'successful',
+      status: paymentResult.status || 'successful',
       method: input.paymentMethod,
       idempotencyKey: `idem_${Date.now()}`,
       createdAt: now,
       updatedAt: now,
     };
 
-    // 3. Create Receipt Record
-    const newReceipt: Receipt = {
-      id: `rec_doc_${Date.now()}`,
-      receiptNumber: paymentResult.receiptNumber,
-      donationId: paymentResult.donationId,
-      transactionId: paymentResult.transactionId,
-      donationDate: now,
-      donorName: input.donorName,
-      donorEmail: input.donorEmail,
-      donorAddress: input.donorAddress || `${input.donorCountry}`,
-      donorTaxId: input.donorTaxId,
-      projectName: input.targetName,
-      amount: input.amount,
-      currency: input.currency,
-      amountUSD: paymentResult.amountUSD,
-      paymentMethod: input.paymentMethod,
-      language: 'en',
-      taxExemptionText: settings.taxExemptionNumber80G
-        ? `Donations are 50% tax exempt under Section 80G (Reg: ${settings.taxExemptionNumber80G}). 501(c)(3) equivalent for international donors.`
-        : 'Official Charitable Tax Receipt',
-      issuedAt: now,
-      pdfGenerated: true,
-    };
+    // 3. Create Receipt Record ONLY IF payment was successful and verified
+    let newReceipt: Receipt | undefined;
+    if (paymentResult.status === 'successful' && paymentResult.receiptNumber) {
+      newReceipt = {
+        id: `rec_doc_${Date.now()}`,
+        receiptNumber: paymentResult.receiptNumber,
+        donationId: paymentResult.donationId,
+        transactionId: paymentResult.transactionId,
+        donationDate: now,
+        donorName: input.donorName,
+        donorEmail: input.donorEmail,
+        donorAddress: input.donorAddress || `${input.donorCountry}`,
+        donorTaxId: input.donorTaxId,
+        projectName: input.targetName,
+        amount: input.amount,
+        currency: input.currency,
+        amountUSD: paymentResult.amountUSD,
+        paymentMethod: input.paymentMethod,
+        language: 'en',
+        taxExemptionText: settings.taxExemptionNumber80G
+          ? `Donations are 50% tax exempt under Section 80G (Reg: ${settings.taxExemptionNumber80G}). 501(c)(3) equivalent for international donors.`
+          : 'Official Charitable Tax Receipt',
+        issuedAt: now,
+        pdfGenerated: true,
+      };
+    }
 
     // 4. Create Recurring Subscription if applicable
     let newRecurring: RecurringDonation | undefined;
@@ -503,7 +506,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // 6. Commit to state
     setDonations((prev) => [newDonation, ...prev]);
     setPayments((prev) => [newPayment, ...prev]);
-    setReceipts((prev) => [newReceipt, ...prev]);
+    if (newReceipt) {
+      setReceipts((prev) => [newReceipt, ...prev]);
+    }
 
     // 7. Audit Log
     recordAudit(

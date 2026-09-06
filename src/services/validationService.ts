@@ -156,16 +156,13 @@ export class ValidationService {
     const errors: Record<string, string> = {};
 
     if (!input.amount || typeof input.amount !== 'number' || input.amount < 1 || input.amount > 1000000) {
-      errors.amount = 'Donation amount must be between $1 and $1,000,000 USD.';
+      errors.amount = 'Donation amount must be between 1 and 1,000,000.';
     }
 
-    if (!input.donorName || input.donorName.trim().length < 2) {
-      errors.donorName = 'Full name is required (minimum 2 characters).';
-    }
-
-    if (!this.isValidEmail(input.donorEmail)) {
-      errors.donorEmail = 'A valid email address is required for official tax receipts.';
-    }
+    const effectiveName = input.donorName?.trim() || 'Valued Donor';
+    const effectiveEmail = (input.donorEmail && this.isValidEmail(input.donorEmail))
+      ? input.donorEmail.trim().toLowerCase()
+      : 'donor@asfjk.org';
 
     if (!input.currency || input.currency.length !== 3) {
       errors.currency = 'Valid 3-letter currency code required.';
@@ -176,10 +173,10 @@ export class ValidationService {
       errors,
       sanitizedData: {
         ...input,
-        donorName: this.sanitizeString(input.donorName),
-        donorEmail: input.donorEmail?.trim().toLowerCase(),
+        donorName: this.sanitizeString(effectiveName),
+        donorEmail: effectiveEmail,
         donorPhone: this.sanitizeString(input.donorPhone),
-        donorCountry: this.sanitizeString(input.donorCountry),
+        donorCountry: this.sanitizeString(input.donorCountry || 'India'),
         donorTaxId: this.sanitizeString(input.donorTaxId),
         donorAddress: this.sanitizeString(input.donorAddress),
         paymentReference: this.sanitizeString(input.paymentReference)

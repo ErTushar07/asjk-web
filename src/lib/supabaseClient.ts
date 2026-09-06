@@ -16,9 +16,4 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   },
-  global: {
-    headers: {
-      'x-application-name': 'asfjk-web-platform',
-    },
-  },
 });

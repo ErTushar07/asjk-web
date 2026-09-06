@@ -3,7 +3,8 @@
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-application-name, *',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 interface CreateOrderPayload {
@@ -11,8 +12,8 @@ interface CreateOrderPayload {
   currency: string;
   targetId?: string;
   targetName: string;
-  donorName: string;
-  donorEmail: string;
+  donorName?: string;
+  donorEmail?: string;
   donorPhone?: string;
   donorTaxId?: string;
   turnstileToken?: string;
@@ -41,12 +42,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (!body.donorEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.donorEmail)) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Valid donor email is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const donorEmail = (body.donorEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.donorEmail))
+      ? body.donorEmail
+      : 'donor@asfjk.org';
+    const donorName = body.donorName?.trim() || 'Valued Donor';
 
     // 2. Cloudflare Turnstile Verification (if provided)
     if (body.turnstileToken && turnstileSecret) {
@@ -106,8 +105,8 @@ Deno.serve(async (req: Request) => {
         receipt: donationNumber,
         notes: {
           targetName: (body.targetName || 'General Humanitarian Fund').slice(0, 40),
-          donorEmail: body.donorEmail.slice(0, 40),
-          donorName: (body.donorName || 'Valued Donor').slice(0, 40),
+          donorEmail: donorEmail.slice(0, 40),
+          donorName: donorName.slice(0, 40),
           donorPhone: (body.donorPhone || '').slice(0, 20),
         },
       }),
@@ -132,8 +131,8 @@ Deno.serve(async (req: Request) => {
         await supabase.from('donations').insert([
           {
             donation_number: donationNumber,
-            donor_email: body.donorEmail.trim().toLowerCase(),
-            donor_name: body.donorName.trim(),
+            donor_email: donorEmail.trim().toLowerCase(),
+            donor_name: donorName.trim(),
             donor_phone: body.donorPhone,
             donor_tax_id: body.donorTaxId,
             target_name: body.targetName,

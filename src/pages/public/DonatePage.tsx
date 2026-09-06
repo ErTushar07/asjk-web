@@ -85,15 +85,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       setErrorMessage('Please enter a valid donation amount.');
       return;
     }
-    if (!email) {
-      setErrorMessage('Please provide a valid email address for your official Section 80G tax receipt.');
-      return;
-    }
 
     // Strict check: For Bank Wire, manual UTR reference is required
     if (paymentMethod === 'bank_wire') {
       if (!paymentReference.trim()) {
-        setErrorMessage('Please enter your Bank Transfer Reference / UTR Number to confirm your donation and issue your official Section 80G tax receipt.');
+        setErrorMessage('Please enter your Bank Transfer Reference / UTR Number to confirm your donation.');
         return;
       }
       if (paymentReference.trim().length < 4) {
@@ -101,6 +97,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
         return;
       }
     }
+
+    const effectiveDonorEmail = email.trim() || (anonymous ? 'anonymous@asfjk.org' : 'donor@asfjk.org');
+    const effectiveDonorName = anonymous ? 'Anonymous Donor' : (fullName.trim() || 'Valued Donor');
 
     setIsProcessing(true);
     try {
@@ -120,15 +119,14 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
         donationType: selectedTargetType,
         targetId: targetId || undefined,
         targetName,
-        donorName: anonymous ? 'Anonymous Donor' : fullName || 'Valued Donor',
-        donorEmail: email,
-        donorPhone: phone,
-        donorCountry: country,
-        donorTaxId: taxId,
-        donorAddress: address,
+        donorName: effectiveDonorName,
+        donorEmail: effectiveDonorEmail,
+        donorPhone: phone.trim() || undefined,
+        donorCountry: country.trim() || 'India',
+        donorTaxId: taxId.trim() || undefined,
+        donorAddress: address.trim() || undefined,
         anonymous,
         paymentMethod,
-        paymentReference: paymentReference.trim() || undefined,
       });
 
       setSuccessResult(result);
@@ -365,11 +363,10 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.full_legal_name', 'Full Legal Name *')}
+                  {t('donate.full_legal_name', 'Full Legal Name')} <span className="text-[10px] text-content-muted font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
-                  required
                   placeholder="e.g. David Thompson"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -378,11 +375,10 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.email_address', 'Email Address *')}
+                  {t('donate.email_address', 'Email Address')} <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
                 </label>
                 <input
                   type="email"
-                  required
                   placeholder="e.g. david.thompson@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -478,54 +474,6 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 </span>
               </label>
             </div>
-
-            {/* Razorpay Seamless Integration Info Box */}
-            {paymentMethod === 'razorpay_upi' && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-3.5 animate-fadeIn">
-                <div className="flex items-center justify-between border-b border-content-border pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="w-4 h-4 text-brand-pink" />
-                    <span className="text-xs font-extrabold text-content-primary">
-                      {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Card Gateway')}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    Automated & Verified
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs text-content-secondary leading-relaxed">
-                    Click <strong className="text-brand-purple">Proceed to Pay & Verify</strong> below to launch the official Razorpay Checkout window. Your payment will be cryptographically verified server-side before your Section 80G tax receipt is generated.
-                  </p>
-                  <ul className="text-[11px] text-content-muted space-y-1.5 pl-1">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                      <span>Instant UPI intent (Google Pay, PhonePe, Paytm, BHIM, CRED)</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                      <span>Domestic & International Cards (RuPay, Visa, Mastercard, Amex) & Netbanking</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                      <span>No manual reference copying needed — 100% automated receipt dispatch</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Supported Apps & Rails */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px] text-content-muted">
-                  <span className="font-semibold text-content-secondary">{t('donate.supported_apps', 'Supported:')}</span>
-                  {['Google Pay', 'PhonePe', 'Paytm', 'BHIM UPI', 'RuPay / Cards', 'Netbanking'].map((badge) => (
-                    <span key={badge} className="px-2 py-0.5 rounded-md bg-white border border-content-border font-medium text-content-secondary">
-                      {badge}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Official Bank Account Details Box when Bank Wire is selected */}
             {paymentMethod === 'bank_wire' && (

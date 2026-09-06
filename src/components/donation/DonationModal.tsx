@@ -137,14 +137,6 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!donorName.trim()) {
-      setErrorMsg('Please enter your full name');
-      return;
-    }
-    if (!donorEmail.trim() || !donorEmail.includes('@')) {
-      setErrorMsg('Please enter a valid email address for receipt delivery');
-      return;
-    }
     if (currentConvertedAmount <= 0) {
       setErrorMsg('Please enter a valid donation amount');
       return;
@@ -153,7 +145,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     // Strict check: For Bank Wire, manual UTR reference is required
     if (paymentMethod === 'bank_wire') {
       if (!paymentReference.trim()) {
-        setErrorMsg('Please enter your Bank Transfer Reference / UTR Number to confirm your donation and issue your official Section 80G tax receipt.');
+        setErrorMsg('Please enter your Bank Transfer Reference / UTR Number to confirm your donation.');
         return;
       }
       if (paymentReference.trim().length < 4) {
@@ -161,6 +153,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({
         return;
       }
     }
+
+    const effectiveDonorName = donorName.trim() || 'Valued Donor';
+    const effectiveDonorEmail = donorEmail.trim() || (anonymous ? 'anonymous@asfjk.org' : 'donor@asfjk.org');
 
     setIsProcessing(true);
     try {
@@ -171,12 +166,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
         donationType: targetType,
         targetId,
         targetName,
-        donorName,
-        donorEmail,
-        donorPhone,
-        donorCountry,
-        donorTaxId,
-        donorAddress,
+        donorName: effectiveDonorName,
+        donorEmail: effectiveDonorEmail,
+        donorPhone: donorPhone.trim() || undefined,
+        donorCountry: donorCountry.trim() || 'India',
+        donorTaxId: donorTaxId.trim() || undefined,
+        donorAddress: donorAddress.trim() || undefined,
         anonymous,
         paymentMethod,
         paymentReference: paymentReference.trim() || undefined,
@@ -520,11 +515,10 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.full_name', 'Full Name')} *
+                      {t('donate.full_name', 'Full Name')} <span className="text-[10px] text-content-muted font-normal">(Optional)</span>
                     </label>
                     <input
                       type="text"
-                      required
                       placeholder="e.g. David Thompson"
                       value={donorName}
                       onChange={(e) => setDonorName(e.target.value)}
@@ -533,11 +527,10 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.email', 'Email Address')} * ({t('For PDF Receipt', 'For PDF Receipt')})
+                      {t('donate.email', 'Email Address')} <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
                     </label>
                     <input
                       type="email"
-                      required
                       placeholder="e.g. david.thompson@example.com"
                       value={donorEmail}
                       onChange={(e) => setDonorEmail(e.target.value)}
@@ -673,53 +666,6 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </label>
                 </div>
 
-                {/* Razorpay Direct Link & Seamless Checkout Card */}
-                {paymentMethod === 'razorpay_upi' && (
-                  <div className="mt-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-3 animate-fadeIn">
-                    <div className="flex items-center justify-between border-b border-content-border pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <Smartphone className="w-4 h-4 text-brand-pink" />
-                        <span className="text-xs font-bold text-content-primary">
-                          {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Card Gateway')}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                        Automated & Verified
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <p className="text-xs text-content-secondary leading-relaxed">
-                        Click <strong className="text-brand-purple">Proceed to Pay</strong> below to launch the official Razorpay payment window. No manual copying or pasting required!
-                      </p>
-                      <ul className="text-[11px] text-content-muted space-y-1.5 pl-1">
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                          <span>Supports all UPI apps (Google Pay, PhonePe, Paytm, BHIM, CRED)</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                          <span>All Indian & International Debit/Credit Cards & Netbanking supported</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                          <span>Server cryptographically verifies payment before issuing your 80G tax receipt</span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px] text-content-muted">
-                      <span className="font-semibold text-content-secondary">{t('donate.supported_apps', 'Payment Rails:')}</span>
-                      {['Google Pay', 'PhonePe', 'Paytm', 'BHIM', 'Cards', 'Netbanking'].map((b) => (
-                        <span key={b} className="px-2 py-0.5 rounded-md bg-white border border-content-border font-medium text-content-secondary">
-                          {b}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Bank Account Details Box when Bank Wire selected in Modal */}
                 {paymentMethod === 'bank_wire' && (
                   <div className="mt-3 p-3.5 sm:p-4 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-2.5 animate-fadeIn">
@@ -812,6 +758,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({
 
               {/* Submit Button */}
               <div className="pt-4">
+                {errorMsg && (
+                  <div className="mb-3 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+                    <X className="w-4 h-4 flex-shrink-0 text-rose-600" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isProcessing}

@@ -16,6 +16,7 @@ export interface CreatePaymentParams {
   turnstileToken?: string;
   razorpayKeyId?: string;
   razorpayPaymentUrl?: string;
+  paymentReference?: string;
 }
 
 export interface PaymentProcessResult {
@@ -170,11 +171,12 @@ export class PaymentService {
     if (params.method === 'stripe_card') provider = 'stripe';
     else if (params.method === 'bank_wire') provider = 'bank';
 
-    const transactionId = `txn_${provider.slice(0, 3)}_${timestamp}_${randomSuffix}`;
-    const paymentId = `pay_${timestamp}_${randomSuffix}`;
+    const cleanRef = params.paymentReference?.trim();
+    const transactionId = cleanRef || `txn_${provider.slice(0, 3)}_${timestamp}_${randomSuffix}`;
+    const paymentId = cleanRef || `pay_${timestamp}_${randomSuffix}`;
     const donationId = `don_${timestamp}_${randomSuffix}`;
     const receiptNumber = `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`;
-    const providerPaymentId = `ch_${provider}_${timestamp}`;
+    const providerPaymentId = cleanRef || `ch_${provider}_${timestamp}`;
     const providerSubscriptionId = params.frequency !== 'one_time' ? `sub_${provider}_${timestamp}` : undefined;
 
     return {

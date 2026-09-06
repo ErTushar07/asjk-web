@@ -31,6 +31,7 @@ interface ProcessDonationInput {
   donorAddress?: string;
   anonymous?: boolean;
   paymentMethod: PaymentMethod;
+  paymentReference?: string;
 }
 
 interface ProcessDonationResult {
@@ -356,6 +357,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       idempotencyKey: `idem_${Date.now()}`,
       razorpayKeyId: settings.paymentGateways?.razorpayKeyId,
       razorpayPaymentUrl: settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk',
+      paymentReference: cleanInput.paymentReference,
     });
 
     const now = new Date().toISOString();
@@ -382,6 +384,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       paymentMethod: input.paymentMethod,
       paymentId: paymentResult.paymentId,
       receiptNumber: paymentResult.receiptNumber,
+      notes: cleanInput.paymentReference ? `Payment Ref: ${cleanInput.paymentReference}` : undefined,
       createdAt: now,
       updatedAt: now,
     };

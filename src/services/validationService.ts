@@ -181,7 +181,8 @@ export class ValidationService {
         donorPhone: this.sanitizeString(input.donorPhone),
         donorCountry: this.sanitizeString(input.donorCountry),
         donorTaxId: this.sanitizeString(input.donorTaxId),
-        donorAddress: this.sanitizeString(input.donorAddress)
+        donorAddress: this.sanitizeString(input.donorAddress),
+        paymentReference: this.sanitizeString(input.paymentReference)
       }
     };
   }

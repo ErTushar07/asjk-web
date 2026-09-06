@@ -424,6 +424,7 @@ export interface SystemSettings {
     stripePublishableKey?: string;
     razorpayEnabled: boolean;
     razorpayKeyId?: string;
+    razorpayPaymentUrl?: string;
     sandboxEnabled: boolean;
     bankTransferEnabled: boolean;
   };
@@ -434,6 +435,7 @@ export interface SystemSettings {
     ifscCode?: string;
     branch?: string;
     upiId?: string;
+    razorpayMeUrl?: string;
   };
   notificationThresholds: {
     largeDonationUSD: number;

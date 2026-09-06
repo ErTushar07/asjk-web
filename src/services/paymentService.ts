@@ -15,6 +15,7 @@ export interface CreatePaymentParams {
   idempotencyKey: string;
   turnstileToken?: string;
   razorpayKeyId?: string;
+  razorpayPaymentUrl?: string;
 }
 
 export interface PaymentProcessResult {

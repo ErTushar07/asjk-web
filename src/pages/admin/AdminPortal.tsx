@@ -20,7 +20,7 @@ import {
   Languages, Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
   Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight,
-  Building, Sun, Moon
+  Building, Sun, Moon, ExternalLink
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -1055,24 +1055,55 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                     {settings.paymentGateways?.razorpayEnabled ? 'Active (Click to Disable)' : 'Disabled (Click to Enable)'}
                   </button>
                 </div>
-                <div className="space-y-2 text-xs">
-                  <label className="block text-[11px] font-bold text-content-muted">Razorpay Key ID (Public)</label>
-                  <input
-                    type="text"
-                    placeholder="rzp_live_... or rzp_test_..."
-                    value={settings.paymentGateways?.razorpayKeyId || ''}
-                    onChange={(e) =>
-                      updateSettings({
-                        paymentGateways: {
-                          ...settings.paymentGateways,
-                          razorpayKeyId: e.target.value.trim(),
-                        },
-                      })
-                    }
-                    className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
-                  />
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] font-bold text-content-muted mb-1">Razorpay Key ID (Public)</label>
+                    <input
+                      type="text"
+                      placeholder="rzp_live_... or rzp_test_..."
+                      value={settings.paymentGateways?.razorpayKeyId || ''}
+                      onChange={(e) =>
+                        updateSettings({
+                          paymentGateways: {
+                            ...settings.paymentGateways,
+                            razorpayKeyId: e.target.value.trim(),
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-content-muted">Razorpay Direct Payment Link (razorpay.me)</label>
+                      <a
+                        href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand-purple hover:underline text-[10px] font-bold inline-flex items-center gap-0.5"
+                      >
+                        <Eye className="w-3 h-3" /> Test Link
+                      </a>
+                    </div>
+                    <input
+                      type="url"
+                      placeholder="https://razorpay.me/@asfjk"
+                      value={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                      onChange={(e) =>
+                        updateSettings({
+                          paymentGateways: {
+                            ...settings.paymentGateways,
+                            razorpayPaymentUrl: e.target.value.trim(),
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white text-brand-pink font-bold focus:border-brand-purple outline-none"
+                    />
+                  </div>
+
                   <p className="text-[10px] text-content-muted leading-relaxed">
-                    💡 <strong>Where to find:</strong> Razorpay Dashboard &rarr; <em>Account & Settings</em> &rarr; <em>API Keys</em>. Generate a Key ID to start receiving live UPI, QR code, and netbanking donations.
+                    💡 <strong>Official Razorpay Handle:</strong> <code>https://razorpay.me/@asfjk</code>. Donors can pay directly through any UPI app (GPay, PhonePe, Paytm, BHIM), Indian & International cards, or Netbanking.
                   </p>
                 </div>
               </div>
@@ -1224,6 +1255,34 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       })
                     }
                     className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-pink rounded-xl border border-content-border bg-white"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-bold text-content-muted">Razorpay Handle (razorpay.me)</label>
+                    <a
+                      href={settings.bankDetails?.razorpayMeUrl || 'https://razorpay.me/@asfjk'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      <span>Open Link</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <input
+                    type="text"
+                    value={settings.bankDetails?.razorpayMeUrl || 'https://razorpay.me/@asfjk'}
+                    onChange={(e) =>
+                      updateSettings({
+                        bankDetails: {
+                          ...settings.bankDetails,
+                          razorpayMeUrl: e.target.value.trim(),
+                        },
+                      })
+                    }
+                    className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border bg-white"
                   />
                 </div>
 

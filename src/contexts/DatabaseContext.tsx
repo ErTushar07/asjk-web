@@ -209,6 +209,16 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         emergencyPhone: parsed.emergencyPhone && !parsed.emergencyPhone.includes('94190 00000') ? parsed.emergencyPhone : '+91 94193 01319',
         email: !parsed.email || parsed.email.includes('alshujaiat.org') || parsed.email.includes('asjk.org') ? 'info@asfjk.org' : parsed.email,
         websiteUrl: !parsed.websiteUrl || parsed.websiteUrl.includes('alshujaiat.org') || parsed.websiteUrl.includes('asjk.org') ? 'https://www.asfjk.org' : parsed.websiteUrl,
+        paymentGateways: {
+          ...INITIAL_SYSTEM_SETTINGS.paymentGateways,
+          ...parsed.paymentGateways,
+          razorpayPaymentUrl: parsed.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk',
+        },
+        bankDetails: {
+          ...INITIAL_SYSTEM_SETTINGS.bankDetails,
+          ...parsed.bankDetails,
+          razorpayMeUrl: parsed.bankDetails?.razorpayMeUrl || 'https://razorpay.me/@asfjk',
+        },
       };
     } catch {
       return INITIAL_SYSTEM_SETTINGS;
@@ -345,6 +355,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       targetName: cleanInput.targetName,
       idempotencyKey: `idem_${Date.now()}`,
       razorpayKeyId: settings.paymentGateways?.razorpayKeyId,
+      razorpayPaymentUrl: settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk',
     });
 
     const now = new Date().toISOString();

@@ -7,7 +7,7 @@ import { ReceiptService } from '../../services/receiptService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
   CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
-  Copy, AlertCircle
+  Copy, AlertCircle, ExternalLink
 } from 'lucide-react';
 
 interface DonationModalProps {
@@ -559,6 +559,67 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </label>
                 </div>
 
+                {/* Razorpay Direct Link & Instant UPI Card */}
+                {paymentMethod === 'razorpay_upi' && (
+                  <div className="mt-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-2.5 animate-fadeIn">
+                    <div className="flex items-center justify-between border-b border-content-border pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <Smartphone className="w-4 h-4 text-brand-pink" />
+                        <span className="text-xs font-bold text-content-primary">
+                          {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Direct Payment')}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-purple/10 text-brand-purple border border-brand-purple/20">
+                        @asfjk
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-content-secondary leading-snug">
+                      {t('donate.razorpay_desc_modal', 'Pay instantly using Google Pay, PhonePe, Paytm, BHIM UPI, or cards via our official link:')}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-content-border shadow-sm">
+                      <a
+                        href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono font-bold text-xs text-brand-purple hover:underline truncate"
+                        dir="ltr"
+                      >
+                        {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                      </a>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'modal_rzp')}
+                          className="px-2.5 py-1 rounded-lg border border-content-border text-content-primary hover:bg-surface-soft text-[11px] font-semibold flex items-center gap-1"
+                        >
+                          {copiedKey === 'modal_rzp' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedKey === 'modal_rzp' ? 'Copied' : 'Copy'}</span>
+                        </button>
+                        <a
+                          href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary !py-1 !px-2.5 text-[11px] font-bold flex items-center gap-1 shadow-sm"
+                        >
+                          <span>{t('donate.pay_via_razorpay', 'Pay Now')}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1 text-[9px] text-content-muted">
+                      <span className="font-semibold text-content-secondary">{t('donate.supported_apps', 'Supports:')}</span>
+                      {['Google Pay', 'PhonePe', 'Paytm', 'BHIM', 'Cards', 'Netbanking'].map((b) => (
+                        <span key={b} className="px-1.5 py-0.5 rounded bg-white border border-content-border">
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Bank Account Details Box when Bank Wire selected in Modal */}
                 {paymentMethod === 'bank_wire' && (
                   <div className="mt-3 p-3.5 sm:p-4 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-2.5 animate-fadeIn">
@@ -619,10 +680,39 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                         </div>
                         <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
                       </div>
+                      <div className="sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-content-muted">
+                            {t('donate.razorpay_direct_link', 'Razorpay Instant Payment Handle')}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'modal_wire_rzp')}
+                              className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                            >
+                              {copiedKey === 'modal_wire_rzp' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                              {copiedKey === 'modal_wire_rzp' ? 'Copied' : 'Copy'}
+                            </button>
+                            <a
+                              href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] text-brand-purple hover:underline flex items-center gap-0.5 font-bold"
+                            >
+                              <span>Open</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </div>
+                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">
+                          {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-[10px] text-content-secondary border-t border-content-border pt-1 leading-snug">
-                      💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> {t('Transfer the amount via your banking app. Your instant Section 80G tax receipt will be issued upon transaction confirmation.', 'Transfer the amount via your banking app. Your instant Section 80G tax receipt will be issued upon transaction confirmation.')}
+                      💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> {t('Transfer the amount via your banking app or Razorpay. Your instant Section 80G tax receipt will be issued upon transaction confirmation.', 'Transfer the amount via your banking app or Razorpay. Your instant Section 80G tax receipt will be issued upon transaction confirmation.')}
                     </p>
                   </div>
                 )}

@@ -1175,6 +1175,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
     stripeEnabled: true,
     stripePublishableKey: 'pk_test_sample_asfjk',
     razorpayEnabled: true,
+    razorpayPaymentUrl: 'https://razorpay.me/@asfjk',
     sandboxEnabled: false,
     bankTransferEnabled: true,
   },
@@ -1185,6 +1186,7 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
     ifscCode: 'JAKA0LURGAM',
     branch: 'Luragam Tral, Pulwama, J&K - 192123',
     upiId: 'asfjk@jksbi',
+    razorpayMeUrl: 'https://razorpay.me/@asfjk',
   },
   notificationThresholds: {
     largeDonationUSD: 1000,

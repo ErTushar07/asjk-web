@@ -8,7 +8,7 @@ import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
   CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
-  Copy, Check, AlertCircle
+  Copy, Check, AlertCircle, ExternalLink
 } from 'lucide-react';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -404,6 +404,75 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               </label>
             </div>
 
+            {/* Razorpay Direct Link & Instant UPI Card */}
+            {paymentMethod === 'razorpay_upi' && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-brand-purple/5 via-surface-soft to-brand-pink/5 border border-brand-purple/30 space-y-3.5 animate-fadeIn">
+                <div className="flex items-center justify-between border-b border-content-border pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="w-4 h-4 text-brand-pink" />
+                    <span className="text-xs font-extrabold text-content-primary">
+                      {t('donate.razorpay_direct_title', 'Razorpay Instant UPI & Direct Payment')}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-purple/10 text-brand-purple border border-brand-purple/20">
+                    Official Handle: @asfjk
+                  </span>
+                </div>
+
+                <p className="text-xs text-content-secondary leading-relaxed">
+                  {t('donate.razorpay_desc', 'You can pay instantly using Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Visa, Mastercard, or Netbanking directly through our official verified Razorpay link:')}
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white rounded-xl border border-content-border shadow-sm">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <span className="text-xs text-content-muted font-medium">Link:</span>
+                    <a
+                      href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono font-bold text-xs text-brand-purple hover:underline truncate"
+                      dir="ltr"
+                    >
+                      {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'rzp_direct')}
+                      className="px-3 py-1.5 rounded-lg border border-content-border text-content-primary hover:bg-surface-soft text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    >
+                      {copiedKey === 'rzp_direct' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === 'rzp_direct' ? 'Copied' : 'Copy Link'}</span>
+                    </button>
+                    <a
+                      href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-primary !py-1.5 !px-3 text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                    >
+                      <span>{t('donate.pay_via_razorpay', 'Pay via Razorpay')}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Supported Apps & Rails */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px] text-content-muted">
+                  <span className="font-semibold text-content-secondary">{t('donate.supported_apps', 'Supported:')}</span>
+                  {['Google Pay', 'PhonePe', 'Paytm', 'BHIM UPI', 'RuPay / Cards', 'Netbanking'].map((badge) => (
+                    <span key={badge} className="px-2 py-0.5 rounded-md bg-white border border-content-border font-medium text-content-secondary">
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-[11px] text-content-secondary border-t border-content-border pt-2 leading-relaxed">
+                  💡 <strong>{t('donate.note', 'Note:')}</strong> Complete your payment using the link above and click <strong>&quot;Complete Donation&quot;</strong> below to register your contribution and download your official Section 80G tax receipt immediately.
+                </p>
+              </div>
+            )}
+
             {/* Official Bank Account Details Box when Bank Wire is selected */}
             {paymentMethod === 'bank_wire' && (
               <div className="p-4 sm:p-5 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-3.5 animate-fadeIn">
@@ -488,10 +557,39 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                     </div>
                     <span className="font-mono font-bold text-sm text-brand-pink" dir="ltr">{settings.bankDetails?.upiId || 'asfjk@jksbi'}</span>
                   </div>
+                  <div className="sm:col-span-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-content-muted font-semibold">
+                        {t('donate.razorpay_direct_link', 'Razorpay Instant Payment Handle')}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk', 'wire_rzp')}
+                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                        >
+                          {copiedKey === 'wire_rzp' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === 'wire_rzp' ? 'Copied' : 'Copy'}
+                        </button>
+                        <a
+                          href={settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-0.5 font-bold"
+                        >
+                          <span>Open</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                    <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">
+                      {settings.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk'}
+                    </span>
+                  </div>
                 </div>
 
                 <p className="text-[11px] text-content-secondary pt-1 border-t border-content-border leading-relaxed">
-                  💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> Complete your NEFT/RTGS/IMPS transfer and submit the form below. Your official Section 80G tax receipt will be issued immediately with your verification reference.
+                  💡 <strong>{t('donate.instructions_title', 'Instructions:')}</strong> Complete your NEFT/RTGS/IMPS transfer or online payment via Razorpay, then submit the form below. Your official Section 80G tax receipt will be issued immediately with your verification reference.
                 </p>
               </div>
             )}

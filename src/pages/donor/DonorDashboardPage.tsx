@@ -5,7 +5,6 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { useCountUp } from '../../hooks/useCountUp';
-import { ReceiptService } from '../../services/receiptService';
 import { 
   Heart, DollarSign, RefreshCw, FileText, Download, 
   ArrowRight, ShieldCheck, User, Calendar, CheckCircle2 
@@ -181,9 +180,12 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                     <td className="py-3.5 text-right">
                       {d.receiptNumber && (
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             const r = receipts.find((x) => x.receiptNumber === d.receiptNumber);
-                            if (r) ReceiptService.downloadReceipt(r, settings);
+                            if (r) {
+                              const { ReceiptService } = await import('../../services/receiptService');
+                              ReceiptService.downloadReceipt(r, settings);
+                            }
                           }}
                           className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"
                           title="Download PDF"

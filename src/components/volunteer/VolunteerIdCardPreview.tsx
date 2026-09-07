@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { VolunteerApplication, SystemSettings } from '../../types';
-import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   Download, Printer, RotateCw, User, 
@@ -16,12 +15,14 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
   const { t } = useLanguage();
   const [showBackSide, setShowBackSide] = useState(false);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
+    const { VolunteerIdCardService } = await import('../../services/volunteerIdCardService');
     const doc = VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
     doc.save(`${volunteer.fullName.replace(/\s+/g, '_')}_ASFJK_Volunteer_ID_Card.pdf`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { VolunteerIdCardService } = await import('../../services/volunteerIdCardService');
     const doc = VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);

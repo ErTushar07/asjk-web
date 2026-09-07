@@ -1,9 +1,10 @@
-const CACHE_NAME = 'asfjk-v1';
+// Increment this version string on every production deployment to bust stale caches
+const CACHE_NAME = 'asfjk-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
-  '/favicon.ico',
+  '/images/logo.png',
 ];
 
 self.addEventListener('install', (event) => {

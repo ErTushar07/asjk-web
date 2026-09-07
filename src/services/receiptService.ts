@@ -1,8 +1,8 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { Receipt, NgoMembership, SystemSettings } from '../types';
-import { ASFJK_LOGO_BASE64 } from './logoAsset';
-import { ASFJK_SEAL_BASE64, ASFJK_SIGNATURE_BASE64 } from './stampAsset';
+import { LOGO_ASSET_URL } from './logoAsset';
+import { STAMP_ASSET_URL, SIGNATURE_ASSET_URL } from './stampAsset';
 
 export class ReceiptService {
   /**
@@ -27,10 +27,12 @@ export class ReceiptService {
     doc.rect(0, 8, 210, 2, 'F');
 
     // NGO Official Brand Logo
-    try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 18, 13, 20, 20);
-    } catch (e) {
-      // Fallback
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(LOGO_ASSET_URL, 'PNG', 18, 13, 20, 20);
+      } catch (e) {
+        // Fallback
+      }
     }
 
     // Foundation Header
@@ -196,15 +198,16 @@ export class ReceiptService {
     // Signatures & Official Stamp
     const stampY = complianceY + 28;
 
-    // Real Signature
-    try {
-      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 20, stampY - 14, 26, 13);
-    } catch (e) {}
+    // Real Signature & Seal
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 20, stampY - 14, 26, 13);
+      } catch (e) {}
 
-    // Real Seal
-    try {
-      doc.addImage(ASFJK_SEAL_BASE64, 'PNG', 142, stampY - 18, 22, 22);
-    } catch (e) {}
+      try {
+        doc.addImage(STAMP_ASSET_URL, 'PNG', 142, stampY - 18, 22, 22);
+      } catch (e) {}
+    }
 
     doc.setDrawColor(200, 200, 210);
     doc.line(20, stampY, 75, stampY);
@@ -263,9 +266,11 @@ export class ReceiptService {
     doc.rect(0, 8, 210, 2, 'F');
 
     // NGO Brand Logo
-    try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 18, 13, 20, 20);
-    } catch {}
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(LOGO_ASSET_URL, 'PNG', 18, 13, 20, 20);
+      } catch {}
+    }
 
     // Foundation Header
     doc.setFont('helvetica', 'bold');
@@ -449,12 +454,14 @@ export class ReceiptService {
 
     // Signatures & Official Stamp
     const stampY = complianceY + 28;
-    try {
-      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 20, stampY - 14, 26, 13);
-    } catch {}
-    try {
-      doc.addImage(ASFJK_SEAL_BASE64, 'PNG', 142, stampY - 18, 22, 22);
-    } catch {}
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 20, stampY - 14, 26, 13);
+      } catch {}
+      try {
+        doc.addImage(STAMP_ASSET_URL, 'PNG', 142, stampY - 18, 22, 22);
+      } catch {}
+    }
 
     doc.setDrawColor(200, 200, 210);
     doc.line(20, stampY, 75, stampY);

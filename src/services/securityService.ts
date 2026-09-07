@@ -42,12 +42,12 @@ export class SecurityService {
    */
   public static generateSalt(length = 16): string {
     const bytes = new Uint8Array(length);
-    if (typeof window !== 'undefined' && window.crypto) {
+    if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
       window.crypto.getRandomValues(bytes);
+    } else if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
+      globalThis.crypto.getRandomValues(bytes);
     } else {
-      const crypto = require('crypto');
-      const buf = crypto.randomBytes(length);
-      return buf.toString('hex');
+      return Array.from({ length }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
     }
     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
   }

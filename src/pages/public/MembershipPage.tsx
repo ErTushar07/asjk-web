@@ -6,7 +6,6 @@ import { useToast } from '../../contexts/ToastContext';
 import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { PaymentService } from '../../services/paymentService';
-import { ReceiptService } from '../../services/receiptService';
 import { PayPalButton } from '../../components/payment/PayPalButton';
 import { 
   Crown, CheckCircle2, ShieldCheck, Download, Award, 
@@ -503,7 +502,10 @@ export const MembershipPage: React.FC = () => {
                   <MembershipCardPreview member={lookupResult} settings={settings} />
                   <div className="flex justify-center gap-3 pt-2">
                     <button
-                      onClick={() => ReceiptService.downloadMembershipReceipt(lookupResult, settings)}
+                      onClick={async () => {
+                        const { ReceiptService } = await import('../../services/receiptService');
+                        ReceiptService.downloadMembershipReceipt(lookupResult, settings);
+                      }}
                       className="btn-primary !py-2.5 !px-5 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -558,7 +560,10 @@ export const MembershipPage: React.FC = () => {
 
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             <button
-              onClick={() => ReceiptService.downloadMembershipReceipt(confirmedMember, settings)}
+              onClick={async () => {
+                const { ReceiptService } = await import('../../services/receiptService');
+                ReceiptService.downloadMembershipReceipt(confirmedMember, settings);
+              }}
               className="btn-primary !py-2.5 !px-6 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
             >
               <Download className="w-4 h-4" />

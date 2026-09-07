@@ -4,15 +4,16 @@ import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
-import { ReceiptService } from '../../services/receiptService';
-import { ReportService } from '../../services/reportService';
-import { VolunteerIdCardService } from '../../services/volunteerIdCardService';
-import { VolunteerIdCardPreview } from '../../components/volunteer/VolunteerIdCardPreview';
-import { MembershipCardService } from '../../services/membershipCardService';
-import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { NgoMembership, LeadershipMember, LeadershipCategory, Project } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SecurityService } from '../../services/securityService';
+
+const VolunteerIdCardPreview = React.lazy(() =>
+  import('../../components/volunteer/VolunteerIdCardPreview').then((m) => ({ default: m.VolunteerIdCardPreview }))
+);
+const MembershipCardPreview = React.lazy(() =>
+  import('../../components/membership/MembershipCardPreview').then((m) => ({ default: m.MembershipCardPreview }))
+);
 import { 
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
@@ -57,6 +58,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
   const { supportedLanguages } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const toast = useToast();
+
+  const handleExportCSV = async (data: any[], filename: string) => {
+    const { ReportService } = await import('../../services/reportService');
+    ReportService.exportToCSV(data, filename);
+  };
+
+  const handleExportExcel = async (data: any[], filename: string) => {
+    const { ReportService } = await import('../../services/reportService');
+    ReportService.exportToExcel(data, filename);
+  };
+
+  const handleDownloadReceipt = async (r: any) => {
+    const { ReceiptService } = await import('../../services/receiptService');
+    ReceiptService.downloadReceipt(r, settings);
+  };
+
+  const handleDownloadMembershipReceipt = async (m: any) => {
+    const { ReceiptService } = await import('../../services/receiptService');
+    ReceiptService.downloadMembershipReceipt(m, settings);
+  };
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
@@ -674,7 +695,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
 
               <button
-                onClick={() => ReportService.exportToCSV(donations, 'ASFJK_Donations_Ledger')}
+                onClick={() => handleExportCSV(donations, 'ASFJK_Donations_Ledger')}
                 className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" /> Export CSV
@@ -720,7 +741,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                             <button
                               onClick={() => {
                                 const r = receipts.find((x) => x.receiptNumber === d.receiptNumber);
-                                if (r) ReceiptService.downloadReceipt(r, settings);
+                                if (r) handleDownloadReceipt(r);
                               }}
                               className="text-brand-purple hover:underline font-bold text-[11px]"
                             >
@@ -762,7 +783,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 />
               </div>
               <button
-                onClick={() => ReportService.exportToCSV(uniqueDonorsList, 'ASFJK_Donors_Directory')}
+                onClick={() => handleExportCSV(uniqueDonorsList, 'ASFJK_Donors_Directory')}
                 className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" /> Export Donors CSV
@@ -1357,7 +1378,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                         <td className="py-3 px-4 font-mono">{r.donorTaxId || 'N/A'}</td>
                         <td className="py-3 px-4 text-right">
                           <button
-                            onClick={() => ReceiptService.downloadReceipt(r, settings)}
+                            onClick={() => handleDownloadReceipt(r)}
                             className="btn-outline !py-1.5 !px-3 text-xs font-bold inline-flex items-center gap-1"
                           >
                             <Download className="w-3.5 h-3.5" /> PDF
@@ -1433,13 +1454,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </div>
                 <div className="flex justify-center gap-2">
                   <button
-                    onClick={() => ReportService.exportToCSV(donations, 'ASFJK_Donations_Report')}
+                    onClick={() => handleExportCSV(donations, 'ASFJK_Donations_Report')}
                     className="btn-outline !py-1.5 !px-3 text-xs font-bold"
                   >
                     CSV
                   </button>
                   <button
-                    onClick={() => ReportService.exportToExcel(donations, 'ASFJK_Donations_Report')}
+                    onClick={() => handleExportExcel(donations, 'ASFJK_Donations_Report')}
                     className="btn-primary !py-1.5 !px-3 text-xs font-bold"
                   >
                     Excel
@@ -1455,13 +1476,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </div>
                 <div className="flex justify-center gap-2">
                   <button
-                    onClick={() => ReportService.exportToCSV(recurringDonations, 'ASFJK_Recurring_Report')}
+                    onClick={() => handleExportCSV(recurringDonations, 'ASFJK_Recurring_Report')}
                     className="btn-outline !py-1.5 !px-3 text-xs font-bold"
                   >
                     CSV
                   </button>
                   <button
-                    onClick={() => ReportService.exportToExcel(recurringDonations, 'ASFJK_Recurring_Report')}
+                    onClick={() => handleExportExcel(recurringDonations, 'ASFJK_Recurring_Report')}
                     className="btn-primary !py-1.5 !px-3 text-xs font-bold"
                   >
                     Excel
@@ -1477,13 +1498,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </div>
                 <div className="flex justify-center gap-2">
                   <button
-                    onClick={() => ReportService.exportToCSV(refunds, 'ASFJK_Refunds_Report')}
+                    onClick={() => handleExportCSV(refunds, 'ASFJK_Refunds_Report')}
                     className="btn-outline !py-1.5 !px-3 text-xs font-bold"
                   >
                     CSV
                   </button>
                   <button
-                    onClick={() => ReportService.exportToExcel(refunds, 'ASFJK_Refunds_Report')}
+                    onClick={() => handleExportExcel(refunds, 'ASFJK_Refunds_Report')}
                     className="btn-primary !py-1.5 !px-3 text-xs font-bold"
                   >
                     Excel
@@ -1532,7 +1553,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   </p>
                 </div>
                 <button
-                  onClick={() => ReportService.exportToCSV(volunteers, 'ASFJK_Volunteer_Applications')}
+                  onClick={() => handleExportCSV(volunteers, 'ASFJK_Volunteer_Applications')}
                   className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <Download className="w-3.5 h-3.5" /> Export Applications CSV
@@ -1725,7 +1746,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => ReportService.exportToCSV(memberships, 'ASFJK_NGO_Memberships')}
+                  onClick={() => handleExportCSV(memberships, 'ASFJK_NGO_Memberships')}
                   className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
                 >
                   <Download className="w-3.5 h-3.5" /> Export Members CSV
@@ -1801,7 +1822,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                           <Crown className="w-3 h-3 text-amber-300" /> Membership Card
                         </button>
                         <button
-                          onClick={() => ReceiptService.downloadMembershipReceipt(m, settings)}
+                          onClick={() => handleDownloadMembershipReceipt(m)}
                           title="Download Official 80G Tax Receipt (PDF)"
                           className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1 text-brand-purple"
                         >
@@ -1837,7 +1858,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => ReportService.exportToCSV(leadership, 'ASFJK_Leadership_Directory')}
+                  onClick={() => handleExportCSV(leadership, 'ASFJK_Leadership_Directory')}
                   className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
                 >
                   <Download className="w-3.5 h-3.5" /> Export CSV
@@ -2185,7 +2206,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </p>
               </div>
               <button
-                onClick={() => ReportService.exportToCSV(auditLogs, 'ASFJK_Audit_Trail_Log')}
+                onClick={() => handleExportCSV(auditLogs, 'ASFJK_Audit_Trail_Log')}
                 className="btn-outline !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" /> Export Audit Log
@@ -2966,7 +2987,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </button>
             </div>
 
-            <VolunteerIdCardPreview volunteer={idCardModalVolunteer} settings={settings} />
+            <React.Suspense fallback={<div className="p-8 text-center text-sm text-content-secondary">Loading preview...</div>}>
+              <VolunteerIdCardPreview volunteer={idCardModalVolunteer} settings={settings} />
+            </React.Suspense>
           </div>
         </div>
       )}
@@ -2997,7 +3020,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
               </button>
             </div>
 
-            <MembershipCardPreview member={selectedMembershipModal} settings={settings} />
+            <React.Suspense fallback={<div className="p-8 text-center text-sm text-content-secondary">Loading preview...</div>}>
+              <MembershipCardPreview member={selectedMembershipModal} settings={settings} />
+            </React.Suspense>
           </div>
         </div>
       )}

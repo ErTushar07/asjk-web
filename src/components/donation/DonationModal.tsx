@@ -4,7 +4,6 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { DonationFrequency, PaymentMethod, Project, Campaign, Receipt } from '../../types';
-import { ReceiptService } from '../../services/receiptService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
   CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
@@ -278,8 +277,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (successReceipt) {
+      const { ReceiptService } = await import('../../services/receiptService');
       ReceiptService.downloadReceipt(successReceipt, settings);
     }
   };

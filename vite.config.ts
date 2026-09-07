@@ -15,30 +15,29 @@ export default defineConfig({
     host: true,
   },
   build: {
-    // Raise warning threshold since shared context bundle is intentionally large
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 650,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react/') || id.includes('react-dom/')) {
-              return 'react-vendor';
-            }
             if (id.includes('jspdf') || id.includes('html2canvas')) {
               return 'pdf-libs';
             }
-            if (id.includes('dompurify')) {
-              return 'security';
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('otpauth') || id.includes('pbkdf2') || id.includes('hash.js') || id.includes('dompurify')) {
+              return 'crypto-vendor';
+            }
+            if (id.includes('xlsx')) {
+              return 'excel-vendor';
             }
             if (id.includes('lucide-react')) {
               return 'icons';
             }
-          }
-          if (id.includes('DatabaseContext')) {
-            return 'database-context';
-          }
-          if (id.includes('AuthContext')) {
-            return 'auth-context';
           }
         },
       },

@@ -9,6 +9,8 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { CookieConsent } from './components/common/CookieConsent';
 import { WhatsAppButton } from './components/common/WhatsAppButton';
+import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
+import { DemoControlBar } from './components/common/DemoControlBar';
 
 // 1. Code Splitting: Lazy-load all public pages
 const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
@@ -60,7 +62,7 @@ const PageSkeleton: React.FC = () => (
 
 export const App: React.FC = () => {
   const { isRTL } = useLanguage();
-  const { user, isAdmin, twoFactorVerified } = useAuth();
+  const { user, isAdmin, twoFactorVerified, isLoading } = useAuth();
 
   // Simple, robust client router that supports back/forward navigation and direct links
   const [currentRoute, setCurrentRoute] = useState<string>(() => {
@@ -167,8 +169,20 @@ export const App: React.FC = () => {
 
   const isAdminRoute = currentRoute.startsWith('/admin');
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-brand-purple/20 border-t-brand-purple animate-spin" />
+          <p className="text-content-secondary text-sm font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen flex flex-col w-full max-w-full overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
+      {import.meta.env.DEV && <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />}
       {!isAdminRoute && (
         <Navbar
           onNavigate={navigate}
@@ -207,6 +221,9 @@ export const App: React.FC = () => {
 
       {/* WhatsApp Floating Contact Button */}
       {!isAdminRoute && <WhatsAppButton />}
+
+      {/* Theme Keyboard Shortcut Indicator */}
+      {!isAdminRoute && <ThemeShortcutIndicator />}
 
       {/* Cookie Consent Banner */}
       {!isAdminRoute && <CookieConsent onNavigate={navigate} />}

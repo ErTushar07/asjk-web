@@ -3,7 +3,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { usePageMeta } from '../../hooks/usePageMeta';
-import { ReceiptService } from '../../services/receiptService';
 import { Download, Search, Filter, FileText, ArrowLeft, Copy, Check } from 'lucide-react';
 
 export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -162,9 +161,12 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
                     <td className="py-3.5 px-6 text-right">
                       {d.receiptNumber && (
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             const r = receipts.find((x) => x.receiptNumber === d.receiptNumber);
-                            if (r) ReceiptService.downloadReceipt(r, settings);
+                            if (r) {
+                              const { ReceiptService } = await import('../../services/receiptService');
+                              ReceiptService.downloadReceipt(r, settings);
+                            }
                           }}
                           className="btn-outline !py-1.5 !px-3 text-xs font-bold inline-flex items-center gap-1.5"
                         >

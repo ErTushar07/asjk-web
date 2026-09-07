@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { NgoMembership, SystemSettings } from '../types';
-import { ASFJK_LOGO_BASE64 } from './logoAsset';
-import { ASFJK_SEAL_BASE64, ASFJK_SIGNATURE_BASE64 } from './stampAsset';
+import { LOGO_ASSET_URL } from './logoAsset';
+import { STAMP_ASSET_URL, SIGNATURE_ASSET_URL } from './stampAsset';
 
 export class MembershipCardService {
   /**
@@ -61,10 +61,12 @@ export class MembershipCardService {
     doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
 
     // Logo & Header
-    try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 22.5, 6, 9, 9);
-    } catch {
-      // Fallback
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(LOGO_ASSET_URL, 'PNG', 22.5, 6, 9, 9);
+      } catch {
+        // Fallback
+      }
     }
 
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -174,10 +176,12 @@ export class MembershipCardService {
     doc.roundedRect(20, 2.5, 14, 2.5, 1.2, 1.2, 'F');
 
     // Header Logo & Text
-    try {
-      doc.addImage(ASFJK_LOGO_BASE64, 'PNG', 23, 6, 8, 8);
-    } catch {
-      // Fallback
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(LOGO_ASSET_URL, 'PNG', 23, 6, 8, 8);
+      } catch {
+        // Fallback
+      }
     }
 
     doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -236,10 +240,16 @@ export class MembershipCardService {
     doc.setLineWidth(0.2);
     doc.line(5, 64.5, 49, 64.5);
 
-    // Real Signature
-    try {
-      doc.addImage(ASFJK_SIGNATURE_BASE64, 'PNG', 7, 65, 12, 6);
-    } catch (e) {}
+    // Real Signature & Seal
+    if (typeof window !== 'undefined') {
+      try {
+        doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 7, 65, 12, 6);
+      } catch (e) {}
+
+      try {
+        doc.addImage(STAMP_ASSET_URL, 'PNG', 37, 64.8, 9.5, 9.5);
+      } catch (e) {}
+    }
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(3.8);
@@ -249,11 +259,6 @@ export class MembershipCardService {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
     doc.text('Founder & President', 13, 74.2, { align: 'center' });
-
-    // Real Seal
-    try {
-      doc.addImage(ASFJK_SEAL_BASE64, 'PNG', 37, 64.8, 9.5, 9.5);
-    } catch (e) {}
 
     // Footer Bar
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);

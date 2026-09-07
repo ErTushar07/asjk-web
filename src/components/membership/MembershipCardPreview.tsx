@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { NgoMembership, SystemSettings } from '../../types';
-import { MembershipCardService } from '../../services/membershipCardService';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   Download, Printer, RotateCw, User, 
@@ -16,12 +15,14 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
   const { t } = useLanguage();
   const [showBackSide, setShowBackSide] = useState(false);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
+    const { MembershipCardService } = await import('../../services/membershipCardService');
     const doc = MembershipCardService.generateMembershipCardPDF(member, settings);
     doc.save(`${member.fullName.replace(/\s+/g, '_')}_ASFJK_NGO_Membership_Card.pdf`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { MembershipCardService } = await import('../../services/membershipCardService');
     const doc = MembershipCardService.generateMembershipCardPDF(member, settings);
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);

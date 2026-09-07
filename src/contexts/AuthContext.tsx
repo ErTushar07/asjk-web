@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
-import { INITIAL_USERS } from '../data/initialData';
 import { SecurityService } from '../services/securityService';
-import { TOTPService } from '../services/totpService';
-import { EmailService } from '../services/emailService';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 interface LoginResult {
@@ -52,6 +49,7 @@ interface VerifiedDonorRecord {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   isAdmin: boolean;
   isDonor: boolean;
   role: UserRole | 'guest';
@@ -85,14 +83,14 @@ const SEED_CREDENTIALS: Record<string, { hash: string; salt: string; role: UserR
     hash: '10bbbefa3eb332fc5483cb0631be578ddb3a8346844baef78f4d126f7b183808',
     role: 'finance_admin',
     name: 'Michael Carter',
-    totpSecret: 'JBSWY3DPEHPK3PXP',
+    totpSecret: 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD',
   },
   'daniel.wilson@asfjk.org': {
     salt: '9c03f5eaf64d3208f7c45f30ae1d6c92',
     hash: 'b7518d77537910e5c6a98216319078bd3c92387eab763c602b5eecad1ef85cbe',
     role: 'project_manager',
     name: 'Daniel Wilson',
-    totpSecret: 'JBSWY3DPEHPK3PXP',
+    totpSecret: 'NATGP3ZQFJSSCMRWHUYQMFZWKY3DKRQQ',
   },
 };
 
@@ -124,6 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return null;
   });
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [twoFactorVerified, setTwoFactorVerified] = useState<boolean>(() => {
     const session = SecurityService.getActiveSession();
@@ -172,6 +172,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Supabase Auth State Listener
   useEffect(() => {
     if (isSupabaseConfigured) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (!data?.session && !SecurityService.getActiveSession()) {
+          setUser(null);
+        }
+      }).finally(() => {
+        setIsLoading(false);
+      });
+
       const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           const { data: profile } = await supabase
@@ -210,6 +218,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return () => {
         authListener?.subscription.unsubscribe();
       };
+    } else {
+      setIsLoading(false);
     }
   }, []);
 
@@ -291,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               };
             }
 
-            const is2FAValid = TOTPService.verifyTOTP(twoFactorCode, totpSecret);
+            const is2FAValid = SecurityService.verify2FACode(twoFactorCode, totpSecret);
             if (!is2FAValid) {
               SecurityService.recordFailedAttempt(rateLimitKey);
               return {
@@ -391,7 +401,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
 
-      const is2FAValid = TOTPService.verifyTOTP(twoFactorCode, totpSecret);
+      const is2FAValid = SecurityService.verify2FACode(twoFactorCode, totpSecret);
       if (!is2FAValid) {
         SecurityService.recordFailedAttempt(rateLimitKey);
         return {
@@ -484,6 +494,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Dispatch real email via EmailService
     try {
+      const { EmailService } = await import('../services/emailService');
       await EmailService.sendEmail({
         to: cleanEmail,
         subject: 'Verify Your Donor Account — Al Shujaiat Foundation',
@@ -525,6 +536,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Dispatch fresh email
     try {
+      const { EmailService } = await import('../services/emailService');
       await EmailService.sendEmail({
         to: cleanEmail,
         subject: 'New Verification Code — Al Shujaiat Foundation',
@@ -660,7 +672,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const verify2FA = (code: string): boolean => {
     if (!pending2FAUser) return false;
-    const isValid = TOTPService.verifyTOTP(code, activeTOTPSecret);
+    const isValid = SecurityService.verify2FACode(code, activeTOTPSecret);
     if (isValid) {
       SecurityService.createSession(pending2FAUser.id, pending2FAUser.role, true);
       setUser(pending2FAUser);
@@ -774,6 +786,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Dispatch transactional email via EmailService with 6-digit recovery code
     try {
+      const { EmailService } = await import('../services/emailService');
       await EmailService.sendEmail({
         to: cleanEmail,
         subject: `[ASFJK] Password Reset Code: ${resetCode}`,
@@ -903,6 +916,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isAuthenticated: !!user,
+        isLoading,
         isAdmin,
         isDonor,
         role,

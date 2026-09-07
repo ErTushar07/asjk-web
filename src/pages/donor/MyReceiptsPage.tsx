@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { usePageMeta } from '../../hooks/usePageMeta';
-import { ReceiptService } from '../../services/receiptService';
 import { FileText, Download, ShieldCheck, Search, ArrowLeft, Printer } from 'lucide-react';
 
 export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -109,7 +108,10 @@ export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> =
             <div className="flex items-center gap-2 pt-2">
               <button
                 type="button"
-                onClick={() => ReceiptService.downloadReceipt(r, settings)}
+                onClick={async () => {
+                  const { ReceiptService } = await import('../../services/receiptService');
+                  ReceiptService.downloadReceipt(r, settings);
+                }}
                 className="btn-primary flex-1 !py-2 text-xs font-bold flex items-center justify-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />

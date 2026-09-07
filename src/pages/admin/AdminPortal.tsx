@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
 import { NgoMembership, LeadershipMember, LeadershipCategory, Project } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -18,7 +17,7 @@ import {
   Shield, DollarSign, Users, FolderKanban, Flame, RefreshCw, 
   CreditCard, FileText, RotateCcw, BarChart3, UserCheck, ShieldAlert, 
   FileEdit, Newspaper, HeartHandshake, HelpCircle, Bell, Globe, 
-  Languages, Image, Settings, History, Download, Plus, Search, 
+  Image, Settings, History, Download, Plus, Search, 
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Eye, Edit3, Trash2,
   Mail, Phone, Send, Check, X, GraduationCap, Paperclip, IdCard, Award, Crown, ToggleLeft, ToggleRight,
   Building, Sun, Moon, ExternalLink
@@ -55,7 +54,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     createLeadershipMember, updateLeadershipMember, deleteLeadershipMember, toggleLeadershipStatus
   } = useDatabase();
   const { formatUSD } = useCurrency();
-  const { supportedLanguages } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const toast = useToast();
 
@@ -207,7 +205,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     { id: 'leadership', label: 'Leadership & Trustees', icon: Award },
     { id: 'partners', label: 'Partnership Requests', icon: Shield },
     { id: 'support', label: 'Support Tickets', icon: HelpCircle },
-    { id: 'languages', label: 'Languages & Translations', icon: Languages },
     { id: 'audit-logs', label: 'Audit Trail & Security', icon: History },
     { id: 'settings', label: 'Foundation Settings', icon: Settings },
   ];
@@ -2194,39 +2191,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
           </div>
         )}
 
-        {/* 14. LANGUAGES & TRANSLATIONS TAB */}
-        {activeTab === 'languages' && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
-            <h3 className="text-lg font-extrabold text-content-primary">
-              Supported International Languages & Dialects
-            </h3>
-            <p className="text-xs text-content-secondary">
-              All 8 registered languages with active RTL & LTR font rendering engines.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {supportedLanguages.map((l) => (
-                <div key={l.code} className="p-4 rounded-2xl bg-surface-soft border border-content-border space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">{l.name}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-purple/10 text-brand-purple uppercase">
-                      {l.code}
-                    </span>
-                  </div>
-                  <div className="text-xs text-content-muted flex justify-between items-center">
-                    <span>Native: <span className="text-content-primary font-medium">{l.nativeName}</span></span>
-                    <span className="uppercase text-[10px] font-bold text-brand-pink">{l.dir}</span>
-                  </div>
-                  <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 pt-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> 100% Dictionary Coverage
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 15. AUDIT LOGS TAB */}
+        {/* 14. AUDIT LOGS TAB */}
         {activeTab === 'audit-logs' && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-content-border shadow-brand-sm space-y-6">
             <div className="flex justify-between items-center">

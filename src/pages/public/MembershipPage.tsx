@@ -970,11 +970,11 @@ export const MembershipPage: React.FC = () => {
                   },
                   { 
                     id: 'card', 
-                    label: t('membership.card', 'Direct Stripe Card'), 
-                    gateway: 'Stripe International',
+                    label: t('membership.card', 'Credit / Debit Card'), 
+                    gateway: 'Cards (Visa, MC, RuPay)',
                     icon: CreditCard, 
-                    hint: 'Visa, Mastercard, Amex',
-                    active: false 
+                    hint: 'Visa, Mastercard, RuPay',
+                    active: true 
                   },
                   { 
                     id: 'paypal', 
@@ -990,7 +990,7 @@ export const MembershipPage: React.FC = () => {
                     gateway: 'NEFT / RTGS / IMPS',
                     icon: Building, 
                     hint: 'Direct Account Transfer',
-                    active: false 
+                    active: true 
                   },
                 ].map((m) => (
                   <button

@@ -831,39 +831,73 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </label>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
-                    {/* Stripe Card (In Development) */}
-                    <div
-                      className="flex items-start gap-3 p-3 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none"
+                    {/* Credit / Debit Card Gateway */}
+                    <label
+                      className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                        paymentMethod === 'stripe_card'
+                          ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
+                          : 'border-content-border hover:bg-surface-soft'
+                      }`}
                     >
-                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="stripe_card"
+                        checked={paymentMethod === 'stripe_card'}
+                        onChange={() => setPaymentMethod('stripe_card')}
+                        className="hidden"
+                      />
+                      <div className="w-8 h-8 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0 mt-0.5">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div className="text-xs flex-1">
-                        <p className="font-semibold text-content-secondary">
-                          {t('donate.card_stripe', 'International Card (Stripe)')}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-extrabold text-content-primary">
+                            {t('donate.card_stripe', 'Credit / Debit Card')}
+                          </p>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                            Active
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-content-secondary mt-0.5">
+                          Visa, Mastercard, RuPay, Amex
                         </p>
-                        <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                          In development phase · Will be back soon
-                        </span>
                       </div>
-                    </div>
+                    </label>
 
-                    {/* Bank Wire (In Development) */}
-                    <div
-                      className="flex items-start gap-3 p-3 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none"
+                    {/* Direct Bank Wire */}
+                    <label
+                      className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                        paymentMethod === 'bank_wire'
+                          ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
+                          : 'border-content-border hover:bg-surface-soft'
+                      }`}
                     >
-                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        value="bank_wire"
+                        checked={paymentMethod === 'bank_wire'}
+                        onChange={() => setPaymentMethod('bank_wire')}
+                        className="hidden"
+                      />
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Building className="w-4 h-4" />
                       </div>
                       <div className="text-xs flex-1">
-                        <p className="font-semibold text-content-secondary">
-                          {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-extrabold text-content-primary">
+                            {t('donate.bank_wire', 'Direct Bank Wire')}
+                          </p>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                            Active
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-content-secondary mt-0.5">
+                          NEFT, RTGS & IMPS Wire
                         </p>
-                        <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                          In development phase · Will be back soon
-                        </span>
                       </div>
-                    </div>
+                    </label>
                   </div>
                 </div>
 

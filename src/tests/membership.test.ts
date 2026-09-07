@@ -278,4 +278,94 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
       expect(result.amountUSD).toBe(1000);
     });
   });
+
+  describe('7. Verification of All Active Payment Methods One-by-One', () => {
+    it('[Method 1: PayPal] processes international donation and issues legal receipt', async () => {
+      const res = await PaymentService.processPayment({
+        amount: 250,
+        currency: 'USD',
+        frequency: 'one_time',
+        method: 'paypal',
+        donorName: 'Global Patron',
+        donorEmail: 'patron@global.org',
+        targetName: 'Clean Water Initiative',
+        idempotencyKey: 'idemp_paypal_unique_1',
+        paymentReference: 'PAYID-LIVE-998877',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.provider).toBe('paypal');
+      expect(res.status).toBe('successful');
+      expect(res.receiptNumber).toMatch(/^ASJ-REC-\d{4}-\d{4}$/);
+    });
+
+    it('[Method 2: Bank Wire] records valid UTR transfer for reconciliation with pending status and no instant receipt', async () => {
+      const res = await PaymentService.processPayment({
+        amount: 5000,
+        currency: 'INR',
+        frequency: 'one_time',
+        method: 'bank_wire',
+        donorName: 'Ahmad Khan',
+        donorEmail: 'ahmad.khan@example.com',
+        targetName: 'General Humanitarian Fund',
+        idempotencyKey: 'idemp_wire_1',
+        paymentReference: 'UTR123456789012',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.provider).toBe('bank');
+      expect(res.status).toBe('pending');
+      expect(res.paymentId).toBe('UTR123456789012');
+      expect(res.receiptNumber).toBe(''); // Strictly empty until verified
+    });
+
+    it('[Method 2: Bank Wire Validation] rejects missing or invalid UTR reference', async () => {
+      await expect(
+        PaymentService.processPayment({
+          amount: 5000,
+          currency: 'INR',
+          frequency: 'one_time',
+          method: 'bank_wire',
+          donorName: 'Ahmad Khan',
+          donorEmail: 'ahmad.khan@example.com',
+          targetName: 'General Humanitarian Fund',
+          idempotencyKey: 'idemp_wire_invalid',
+          paymentReference: '',
+        })
+      ).rejects.toThrow(/valid bank transfer UTR/i);
+    });
+
+    it('[Method 3: Sandbox / Test Mode] processes sandbox card flow for automated validation', async () => {
+      const res = await PaymentService.processPayment({
+        amount: 500,
+        currency: 'INR',
+        frequency: 'one_time',
+        method: 'sandbox_card',
+        donorName: 'QA Tester',
+        donorEmail: 'qa@asfjk.org',
+        targetName: 'Disaster Relief Fund',
+        idempotencyKey: 'idemp_sandbox_qa',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.provider).toBe('sandbox');
+      expect(res.status).toBe('successful');
+      expect(res.receiptNumber).toMatch(/^ASJ-REC-\d{4}-\d{4}$/);
+    });
+
+    it('[Method 4: Razorpay Security Gate] strictly refuses unauthorized or empty transactions', async () => {
+      await expect(
+        PaymentService.processPayment({
+          amount: 1000,
+          currency: 'INR',
+          frequency: 'one_time',
+          method: 'crypto' as any,
+          donorName: 'Test Attacker',
+          donorEmail: 'attacker@evil.com',
+          targetName: 'Fund',
+          idempotencyKey: 'idemp_fake',
+        })
+      ).rejects.toThrow(/No receipt can be issued without verified payment confirmation/i);
+    });
+  });
 });

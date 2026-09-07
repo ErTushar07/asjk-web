@@ -11,7 +11,15 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
-  const { login, register, verifyRegistrationOTP, resendRegistrationOTP, pendingOTPCode } = useAuth();
+  const { 
+    login, 
+    register, 
+    verifyRegistrationOTP, 
+    resendRegistrationOTP, 
+    pendingOTPCode,
+    forgotPassword,
+    resetPassword
+  } = useAuth();
   const { t } = useLanguage();
 
   const pageTitles = {
@@ -35,11 +43,39 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   const [otpCode, setOtpCode] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
 
+  // 2-Step Password Reset State
+  const [resetStep, setResetStep] = useState<'request' | 'verify'>('request');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [turnstileToken, setTurnstileToken] = useState('');
   const [submittedReset, setSubmittedReset] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+
+  // Prefill registration details from URL parameters or last guest donation
+  React.useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const qEmail = searchParams.get('email');
+      const qName = searchParams.get('name');
+      if (qEmail) setEmail(qEmail);
+      if (qName) setName(qName);
+
+      if (!qEmail) {
+        const lastGuest = localStorage.getItem('asfjk_last_guest_donation');
+        if (lastGuest) {
+          const parsed = JSON.parse(lastGuest);
+          if (parsed.donorEmail && !email) setEmail(parsed.donorEmail);
+          if (parsed.donorName && !name) setName(parsed.donorName);
+        }
+      }
+    } catch {
+      // ignore storage access errors
+    }
+  }, [mode]);
 
   // Password strength calculation
   const calculatePasswordStrength = (pass: string) => {
@@ -57,6 +93,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
   };
 
   const passwordStrength = calculatePasswordStrength(password);
+  const newPasswordStrength = calculatePasswordStrength(newPassword);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,9 +193,70 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
     }
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  // Dispatch 6-digit recovery code to email
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmittedReset(true);
+    setAuthError(null);
+    setAuthSuccessMsg(null);
+
+    if (!email || !email.includes('@')) {
+      setAuthError('Please enter a valid registered email address.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await forgotPassword(email.trim().toLowerCase());
+      if (res.success) {
+        setResetStep('verify');
+        setAuthSuccessMsg(res.message || `A 6-digit recovery code has been sent to ${email}.`);
+      } else {
+        setAuthError(res.error || 'Unable to send recovery email. Please check the address and retry.');
+      }
+    } catch (err: any) {
+      setAuthError('Password recovery service error: ' + (err.message || 'Please try again later.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify 6-digit recovery code and set new password
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSuccessMsg(null);
+
+    if (!resetCode || resetCode.trim().length !== 6) {
+      setAuthError('Please enter the 6-digit recovery code sent to your email.');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      setAuthError('New password must be at least 8 characters long.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setAuthError('Passwords do not match. Please re-enter your password.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await resetPassword(email.trim().toLowerCase(), resetCode.trim(), newPassword);
+      if (res.success) {
+        setAuthSuccessMsg('Your password has been successfully reset! Logging you in...');
+        setTimeout(() => {
+          onNavigate('/dashboard');
+        }, 1200);
+      } else {
+        setAuthError(res.error || 'Invalid or expired recovery code. Please check your email and retry.');
+      }
+    } catch (err: any) {
+      setAuthError('Password reset error: ' + (err.message || 'Please retry.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -434,36 +532,156 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
             </button>
           </form>
         ) : (
-          /* Forgot Password Form */
+          /* Forgot Password / Reset Flow */
           <div className="space-y-4">
-            {submittedReset ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs space-y-2">
-                <p className="font-bold flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Reset Instructions Dispatched
-                </p>
-                <p>If an account exists for {email}, a secure recovery link has been delivered to your inbox.</p>
-              </div>
-            ) : (
+            {resetStep === 'request' ? (
               <form onSubmit={handleForgotSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-content-secondary uppercase">Registered Email</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="donor@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
-                  />
+                  <label className="text-xs font-bold text-content-secondary uppercase">Registered Email Address</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="donor@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    />
+                  </div>
+                  <p className="text-[11px] text-content-muted">
+                    We'll email you a secure 6-digit recovery code to reset your account password.
+                  </p>
                 </div>
 
                 <button
                   type="submit"
-                  className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2"
+                  disabled={loading || !email}
+                  className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-brand-sm disabled:opacity-50"
                 >
-                  <span>Send Recovery Email</span>
+                  <span>{loading ? 'Dispatching Recovery Code...' : 'Send Recovery Code'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPasswordSubmit} className="space-y-4 animate-fadeIn">
+                <div className="p-3 bg-brand-purple/5 border border-brand-purple/20 rounded-2xl text-xs text-brand-purple flex items-center justify-between">
+                  <span className="truncate">Code sent to: <strong>{email}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetStep('request');
+                      setAuthError(null);
+                      setAuthSuccessMsg(null);
+                    }}
+                    className="text-[11px] font-bold text-brand-purple underline hover:text-brand-pink ml-2 flex-shrink-0"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase flex items-center justify-between">
+                    <span>6-Digit Recovery Code</span>
+                    <span className="text-[10px] text-content-muted font-normal">15 min expiry</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={6}
+                    placeholder="123456"
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full text-center font-mono text-2xl tracking-[0.5em] font-black py-2.5 rounded-xl border border-content-border focus:border-brand-purple outline-none bg-surface-soft"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">New Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="Minimum 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    />
+                  </div>
+                  {newPassword && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${newPasswordStrength.color} transition-all`}
+                          style={{ width: `${(newPasswordStrength.score / 4) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-content-muted">{newPasswordStrength.label}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-content-secondary uppercase">Confirm New Password</label>
+                  <div className="relative">
+                    <Key className="w-4 h-4 text-content-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="Re-enter new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || resetCode.length !== 6 || !newPassword || newPassword.length < 8}
+                  className="btn-primary w-full !py-3 text-xs font-bold flex items-center justify-center gap-2 shadow-brand-sm disabled:opacity-50"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{loading ? 'Updating Password...' : 'Update Password & Sign In'}</span>
+                </button>
+
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetStep('request');
+                      setResetCode('');
+                    }}
+                    className="text-content-muted hover:text-content-primary flex items-center gap-1 font-semibold text-[11px]"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" /> Back
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setAuthError(null);
+                      setResending(true);
+                      try {
+                        const res = await forgotPassword(email.trim().toLowerCase());
+                        if (res.success) {
+                          setAuthSuccessMsg(`A fresh recovery code was sent to ${email}.`);
+                        } else {
+                          setAuthError(res.error || 'Failed to resend code.');
+                        }
+                      } finally {
+                        setResending(false);
+                      }
+                    }}
+                    disabled={resending}
+                    className="text-brand-purple hover:underline font-bold flex items-center gap-1 text-[11px] disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
+                    <span>{resending ? 'Resending...' : 'Resend Code'}</span>
+                  </button>
+                </div>
               </form>
             )}
           </div>

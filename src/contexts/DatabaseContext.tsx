@@ -15,6 +15,8 @@ import {
 import { PaymentService } from '../services/paymentService';
 import { ValidationService } from '../services/validationService';
 import { SecurityService } from '../services/securityService';
+import { useAuth } from './AuthContext';
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 interface ProcessDonationInput {
   amount: number;
@@ -95,11 +97,15 @@ interface DatabaseContextType {
   lookupVolunteerStatus: (email: string) => VolunteerApplication | null;
   lookupMembership: (query: string) => NgoMembership | null;
   lookupDonationReceipt: (receiptNumber: string, donorEmail: string) => Receipt | null;
+
+  // Account Linking Action
+  linkDonationsToUser: (email: string, userId: string, name?: string) => Promise<number>;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
 
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>(() => {
     const saved = localStorage.getItem('asfjk_db_projects');
     return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
@@ -366,6 +372,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const newDonation: Donation = {
       id: paymentResult.donationId,
       donationNumber: `ASJ-DON-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+      donorId: user?.id,
       donorName: input.anonymous ? 'Anonymous Donor' : input.donorName,
       donorEmail: input.donorEmail,
       donorPhone: input.donorPhone,
@@ -509,6 +516,18 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (newReceipt) {
       setReceipts((prev) => [newReceipt, ...prev]);
     }
+
+    // Cache last donation details for seamless account linking after checkout
+    try {
+      localStorage.setItem('asfjk_last_guest_donation', JSON.stringify({
+        email: input.donorEmail,
+        name: input.donorName,
+        donationId: newDonation.id,
+        donationNumber: newDonation.donationNumber,
+        receiptNumber: paymentResult.receiptNumber,
+        timestamp: Date.now(),
+      }));
+    } catch (e) {}
 
     // 7. Audit Log
     recordAudit(
@@ -1104,6 +1123,183 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return found ? { ...found } : null;
   };
 
+  /**
+   * Reconciles past guest/anonymous donations with newly created donor accounts or logins
+   */
+  const linkDonationsToUser = async (email: string, userId: string, name?: string): Promise<number> => {
+    if (!email || !userId) return 0;
+    const cleanEmail = email.trim().toLowerCase();
+    let linkedCount = 0;
+
+    // Check if there was a guest donation completed in this browser session
+    let guestDonationId: string | null = null;
+    try {
+      const lastGuestStr = localStorage.getItem('asfjk_last_guest_donation');
+      if (lastGuestStr) {
+        const parsed = JSON.parse(lastGuestStr);
+        if (parsed?.donationId) {
+          guestDonationId = parsed.donationId;
+        }
+      }
+    } catch (e) {}
+
+    // 1. Update local donations in state
+    setDonations((prev) =>
+      prev.map((d) => {
+        const matchesEmail = d.donorEmail.trim().toLowerCase() === cleanEmail;
+        const matchesGuestId = guestDonationId && d.id === guestDonationId;
+
+        if (matchesEmail || matchesGuestId) {
+          linkedCount++;
+          return {
+            ...d,
+            donorId: userId,
+            donorEmail: cleanEmail,
+            donorName: name && (!d.donorName || d.donorName === 'Valued Donor' || d.donorName === 'Anonymous Donor') ? name : d.donorName,
+          };
+        }
+        return d;
+      })
+    );
+
+    // 2. Update local receipts in state
+    setReceipts((prev) =>
+      prev.map((r) => {
+        const matchesEmail = r.donorEmail.trim().toLowerCase() === cleanEmail;
+        const matchesGuestId = guestDonationId && r.donationId === guestDonationId;
+
+        if (matchesEmail || matchesGuestId) {
+          return {
+            ...r,
+            donorEmail: cleanEmail,
+            donorName: name && (!r.donorName || r.donorName === 'Valued Donor' || r.donorName === 'Anonymous Donor') ? name : r.donorName,
+          };
+        }
+        return r;
+      })
+    );
+
+    // 3. Update recurring subscriptions in state
+    setRecurringDonations((prev) =>
+      prev.map((rec) => {
+        if (rec.donorEmail.trim().toLowerCase() === cleanEmail) {
+          return {
+            ...rec,
+            donorId: userId,
+            donorEmail: cleanEmail,
+            donorName: name || rec.donorName,
+          };
+        }
+        return rec;
+      })
+    );
+
+    // 4. If Supabase is configured, pull historical donations from Supabase for this email
+    if (isSupabaseConfigured) {
+      try {
+        const { data: remoteDonations, error: donErr } = await supabase
+          .from('donations')
+          .select('*')
+          .eq('donor_email', cleanEmail);
+
+        if (!donErr && remoteDonations && remoteDonations.length > 0) {
+          setDonations((prev) => {
+            const existingIds = new Set(prev.map((d) => d.id));
+            const existingNums = new Set(prev.map((d) => d.donationNumber));
+            const newFromRemote: Donation[] = [];
+
+            for (const rem of remoteDonations) {
+              if (!existingIds.has(rem.id) && !existingNums.has(rem.donation_number)) {
+                newFromRemote.push({
+                  id: rem.id,
+                  donationNumber: rem.donation_number,
+                  donorId: userId,
+                  donorName: rem.donor_name || name || 'Valued Donor',
+                  donorEmail: cleanEmail,
+                  donorPhone: rem.donor_phone,
+                  donorCountry: rem.donor_country || 'India',
+                  donorTaxId: rem.donor_tax_id,
+                  anonymous: false,
+                  frequency: rem.frequency || 'one_time',
+                  donationType: 'general',
+                  targetName: rem.target_name || 'General Humanitarian Relief Fund',
+                  amount: rem.amount,
+                  currency: rem.currency || 'INR',
+                  amountUSD: rem.amount_usd || rem.amount * 0.012,
+                  exchangeRate: rem.amount_usd ? rem.amount_usd / rem.amount : 0.012,
+                  status: rem.status === 'successful' ? 'successful' : 'pending',
+                  paymentMethod: rem.payment_method || 'Razorpay',
+                  paymentId: rem.gateway_payment_id || rem.id,
+                  receiptNumber: rem.receipt_number,
+                  createdAt: rem.created_at || new Date().toISOString(),
+                  updatedAt: rem.updated_at || new Date().toISOString(),
+                });
+              }
+            }
+
+            return newFromRemote.length > 0 ? [...newFromRemote, ...prev] : prev;
+          });
+
+          // Also update donor_id in remote Supabase table
+          await supabase
+            .from('donations')
+            .update({ donor_id: userId })
+            .eq('donor_email', cleanEmail);
+        }
+
+        // Pull remote receipts from Supabase if missing
+        const { data: remoteReceipts } = await supabase
+          .from('receipts')
+          .select('*')
+          .eq('donor_email', cleanEmail);
+
+        if (remoteReceipts && remoteReceipts.length > 0) {
+          setReceipts((prev) => {
+            const existingRecNums = new Set(prev.map((r) => r.receiptNumber));
+            const newRecs: Receipt[] = [];
+
+            for (const rr of remoteReceipts) {
+              if (!existingRecNums.has(rr.receipt_number)) {
+                newRecs.push({
+                  id: rr.id || `rec_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+                  receiptNumber: rr.receipt_number,
+                  donationId: rr.donation_id,
+                  transactionId: rr.transaction_id,
+                  donationDate: rr.donation_date || rr.created_at || new Date().toISOString(),
+                  donorName: rr.donor_name || name || 'Valued Donor',
+                  donorEmail: cleanEmail,
+                  donorAddress: rr.donor_address || 'India',
+                  donorTaxId: rr.donor_tax_id,
+                  projectName: rr.project_name || 'General Humanitarian Relief Fund',
+                  amount: rr.amount,
+                  currency: rr.currency || 'INR',
+                  amountUSD: rr.amount_usd || rr.amount * 0.012,
+                  paymentMethod: rr.payment_method || 'Razorpay Online',
+                  language: 'en',
+                  taxExemptionText: rr.tax_exemption_text || 'Donations are tax deductible under Section 80G.',
+                  issuedAt: rr.issued_at || new Date().toISOString(),
+                  pdfGenerated: true,
+                });
+              }
+            }
+            return newRecs.length > 0 ? [...newRecs, ...prev] : prev;
+          });
+        }
+      } catch (sbSyncErr) {
+        console.warn('Supabase remote donation sync notice:', sbSyncErr);
+      }
+    }
+
+    return linkedCount;
+  };
+
+  // Automatically reconcile past donations whenever user logs in or registers
+  useEffect(() => {
+    if (user?.id && user?.email) {
+      linkDonationsToUser(user.email, user.id, user.name);
+    }
+  }, [user?.id, user?.email]);
+
   return (
     <DatabaseContext.Provider
       value={{
@@ -1156,6 +1352,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         lookupVolunteerStatus,
         lookupMembership,
         lookupDonationReceipt,
+        linkDonationsToUser,
       }}
     >
       {children}

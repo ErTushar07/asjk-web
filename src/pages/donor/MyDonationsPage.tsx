@@ -27,7 +27,7 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
   const donorEmail = (user?.email || '').toLowerCase().trim();
 
   const filtered = donations.filter((d) => {
-    const isOwner = d.donorEmail.toLowerCase().trim() === donorEmail;
+    const isOwner = d.donorEmail.toLowerCase().trim() === donorEmail || Boolean(user?.id && d.donorId === user.id);
     const matchesSearch =
       d.donationNumber.toLowerCase().includes(search.toLowerCase()) ||
       d.targetName.toLowerCase().includes(search.toLowerCase()) ||

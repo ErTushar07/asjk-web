@@ -8,7 +8,7 @@ import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
   CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
-  Copy, Check, AlertCircle, ExternalLink, RefreshCw
+  Copy, Check, AlertCircle, ExternalLink, RefreshCw, UserPlus
 } from 'lucide-react';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
@@ -227,6 +227,30 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               {t('donate.view_dashboard', 'Go to Donor Portal')}
             </button>
           </div>
+
+          {/* Guest account creation card to permanently save and link donation */}
+          {!user && (
+            <div className="bg-brand-purple/5 border border-brand-purple/20 rounded-2xl p-5 text-left max-w-md mx-auto space-y-3 mt-2">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-content-primary">Save This Donation to Your Donor Account</p>
+                  <p className="text-xs text-content-secondary mt-1">
+                    Create a free account with <span className="font-semibold text-brand-purple">{email || 'your email'}</span> to automatically link this payment, download 80G tax receipts at any time, and track your ongoing humanitarian impact.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => onNavigate(`/register?email=${encodeURIComponent(email)}&name=${encodeURIComponent(fullName)}`)}
+                className="btn-primary w-full !py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Create Donor Account & Link Donation</span>
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <form onSubmit={handleDonateSubmit} className="bg-white p-6 sm:p-10 rounded-3xl border border-content-border shadow-brand-md space-y-8">

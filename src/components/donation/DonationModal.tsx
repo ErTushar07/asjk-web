@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
@@ -7,7 +8,7 @@ import { ReceiptService } from '../../services/receiptService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
   CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
-  Copy, AlertCircle, ExternalLink
+  Copy, AlertCircle, ExternalLink, UserPlus
 } from 'lucide-react';
 
 interface DonationModalProps {
@@ -25,6 +26,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   initialCampaignId,
   onNavigate,
 }) => {
+  const { user } = useAuth();
   const { t, isRTL } = useLanguage();
   const { currentCurrency, formatOriginal, convertUSDToCurrency, convertCurrencyToUSD } = useCurrency();
   const { projects, campaigns, processDonation, settings } = useDatabase();
@@ -296,6 +298,33 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </button>
                 )}
               </div>
+
+              {/* Guest account creation prompt to permanently link donations */}
+              {!user && onNavigate && (
+                <div className="bg-brand-purple/5 border border-brand-purple/20 rounded-2xl p-4 text-left max-w-md mx-auto space-y-2.5 mt-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <UserPlus className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-content-primary">Save This Donation to Your Donor Account</p>
+                      <p className="text-[11px] text-content-secondary mt-0.5">
+                        Create an account with <span className="font-semibold text-brand-purple">{donorEmail || 'your email'}</span> to permanently link this donation, download 80G tax certificates anytime, and view your complete contribution history.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onNavigate(`/register?email=${encodeURIComponent(donorEmail)}&name=${encodeURIComponent(donorName)}`);
+                    }}
+                    className="btn-primary w-full !py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Create Donor Account & Link Past Donations</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : pendingTransferResult ? (
             /* Pending Bank Transfer View */
@@ -364,6 +393,33 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </button>
                 )}
               </div>
+
+              {/* Guest account creation prompt for bank transfer */}
+              {!user && onNavigate && (
+                <div className="bg-brand-purple/5 border border-brand-purple/20 rounded-2xl p-4 text-left max-w-md mx-auto space-y-2.5 mt-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <UserPlus className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-content-primary">Save This Donation to Your Donor Account</p>
+                      <p className="text-[11px] text-content-secondary mt-0.5">
+                        Create an account with <span className="font-semibold text-brand-purple">{donorEmail || 'your email'}</span> so this pledge and your future receipts appear automatically in your donor portal.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onNavigate(`/register?email=${encodeURIComponent(donorEmail)}&name=${encodeURIComponent(donorName)}`);
+                    }}
+                    className="btn-primary w-full !py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Create Donor Account & Link Past Donations</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* Donation Form Wizard */

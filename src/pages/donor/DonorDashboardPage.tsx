@@ -50,9 +50,9 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
   usePageMeta(t('donor.dashboard', 'Donor Dashboard'), undefined, { noindex: true });
 
   const donorEmail = (user?.email || '').toLowerCase().trim();
-  const userDonations = donations.filter((d) => d.donorEmail.toLowerCase().trim() === donorEmail);
-  const userRecurring = recurringDonations.filter((r) => r.donorEmail.toLowerCase().trim() === donorEmail);
-  const userReceipts = receipts.filter((rc) => rc.donorEmail.toLowerCase().trim() === donorEmail);
+  const userDonations = donations.filter((d) => d.donorEmail.toLowerCase().trim() === donorEmail || Boolean(user?.id && d.donorId === user.id));
+  const userRecurring = recurringDonations.filter((r) => r.donorEmail.toLowerCase().trim() === donorEmail || Boolean(user?.id && r.donorId === user.id));
+  const userReceipts = receipts.filter((rc) => rc.donorEmail.toLowerCase().trim() === donorEmail || (userDonations.some((ud) => ud.receiptNumber === rc.receiptNumber)));
 
   const myDonations = userDonations.slice(0, 5);
   const myRecurring = userRecurring.slice(0, 3);

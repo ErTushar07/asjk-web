@@ -61,6 +61,8 @@ interface AuthContextType {
   register: (params: RegisterParams) => Promise<LoginResult>;
   verifyRegistrationOTP: (email: string, token: string) => Promise<LoginResult>;
   resendRegistrationOTP: (email: string) => Promise<LoginResult>;
+  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string; message?: string; resetCode?: string }>;
+  resetPassword: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   verify2FA: (code: string) => boolean;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
@@ -151,6 +153,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('asfjk_verified_donors', JSON.stringify(verifiedDonors));
     } catch (e) {}
   }, [verifiedDonors]);
+
+  // Ephemeral/persistent store for pending password resets
+  const [pendingPasswordResets, setPendingPasswordResets] = useState<Record<string, { email: string; resetCode: string; expiresAt: number }>>(() => {
+    try {
+      const saved = localStorage.getItem('asfjk_pending_pwd_resets');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('asfjk_pending_pwd_resets', JSON.stringify(pendingPasswordResets));
+    } catch (e) {}
+  }, [pendingPasswordResets]);
 
   // Supabase Auth State Listener
   useEffect(() => {
@@ -726,6 +743,157 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  /**
+   * Request password reset code via Supabase Auth and transactional email
+   */
+  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string; message?: string; resetCode?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return { success: false, error: 'Please enter a valid email address.' };
+    }
+
+    // Generate single-use 6-digit recovery code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 15 * 60 * 1000;
+
+    setPendingPasswordResets((prev) => ({
+      ...prev,
+      [cleanEmail]: { email: cleanEmail, resetCode, expiresAt },
+    }));
+
+    // Dispatch Supabase Auth recovery if configured
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: `${window.location.origin}/forgot-password?mode=reset&email=${encodeURIComponent(cleanEmail)}`,
+        });
+      } catch (sbErr: any) {
+        console.warn('Supabase resetPasswordForEmail notice:', sbErr);
+      }
+    }
+
+    // Dispatch transactional email via EmailService with 6-digit recovery code
+    try {
+      await EmailService.sendEmail({
+        to: cleanEmail,
+        subject: `[ASFJK] Password Reset Code: ${resetCode}`,
+        template: 'password_reset',
+        data: {
+          name: verifiedDonors[cleanEmail]?.name || 'Valued Supporter',
+          resetCode,
+          otpCode: resetCode,
+        },
+      });
+    } catch (mailErr) {
+      console.warn('EmailService password reset dispatch notice:', mailErr);
+    }
+
+    return {
+      success: true,
+      message: `A secure 6-digit recovery code has been dispatched to ${cleanEmail}. Please check your inbox (and spam folder) to reset your password.`,
+      resetCode,
+    };
+  };
+
+  /**
+   * Verify recovery code and update password securely
+   */
+  const resetPassword = async (
+    email: string,
+    code: string,
+    newPassword: string
+  ): Promise<{ success: boolean; error?: string; message?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim().replace(/\s|-/g, '');
+
+    if (!cleanEmail || !cleanCode || cleanCode.length !== 6) {
+      return { success: false, error: 'Please enter a valid 6-digit recovery code.' };
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return { success: false, error: 'New password must be at least 8 characters long.' };
+    }
+
+    const pending = pendingPasswordResets[cleanEmail];
+    if (!pending) {
+      return { success: false, error: 'No active password reset request found. Please request a new code.' };
+    }
+
+    if (Date.now() > pending.expiresAt) {
+      setPendingPasswordResets((prev) => {
+        const next = { ...prev };
+        delete next[cleanEmail];
+        return next;
+      });
+      return { success: false, error: 'The recovery code has expired. Please request a new one.' };
+    }
+
+    if (pending.resetCode !== cleanCode) {
+      return { success: false, error: 'Invalid recovery code. Please check your email and retry.' };
+    }
+
+    // Update password in Supabase if configured
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.updateUser({ password: newPassword });
+      } catch (sbErr: any) {
+        console.warn('Supabase updateUser password notice:', sbErr);
+      }
+    }
+
+    // Update PBKDF2 hash in verified donor records
+    const hashRes = await SecurityService.hashPassword(newPassword);
+    const existingDonor = verifiedDonors[cleanEmail];
+
+    const updatedDonorRecord: VerifiedDonorRecord = existingDonor
+      ? {
+          ...existingDonor,
+          passwordHash: hashRes.hash,
+          salt: hashRes.salt,
+        }
+      : {
+          id: `usr_donor_${Date.now()}`,
+          name: cleanEmail.split('@')[0],
+          email: cleanEmail,
+          passwordHash: hashRes.hash,
+          salt: hashRes.salt,
+          createdAt: new Date().toISOString(),
+        };
+
+    setVerifiedDonors((prev) => ({
+      ...prev,
+      [cleanEmail]: updatedDonorRecord,
+    }));
+
+    // Clear pending reset
+    setPendingPasswordResets((prev) => {
+      const next = { ...prev };
+      delete next[cleanEmail];
+      return next;
+    });
+
+    // Auto-login to donor portal
+    const verifiedUser: User = {
+      id: updatedDonorRecord.id,
+      name: updatedDonorRecord.name,
+      email: updatedDonorRecord.email,
+      role: 'donor',
+      phone: updatedDonorRecord.phone,
+      preferredLanguage: 'en',
+      preferredCurrency: 'USD',
+      createdAt: updatedDonorRecord.createdAt,
+    };
+
+    SecurityService.createSession(verifiedUser.id, 'donor', false);
+    setUser(verifiedUser);
+    sessionStorage.setItem('asfjk_auth_user', JSON.stringify(verifiedUser));
+
+    return {
+      success: true,
+      message: 'Your password has been successfully updated! You are now logged in.',
+    };
+  };
+
   const role: UserRole | 'guest' = user ? user.role : 'guest';
   const isAdmin = user ? user.role !== 'donor' : false;
   const isDonor = user ? user.role === 'donor' : false;
@@ -744,6 +912,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         verifyRegistrationOTP,
         resendRegistrationOTP,
+        forgotPassword,
+        resetPassword,
         verify2FA,
         logout,
         hasPermission,

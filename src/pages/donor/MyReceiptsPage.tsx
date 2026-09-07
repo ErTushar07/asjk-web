@@ -8,14 +8,16 @@ import { FileText, Download, ShieldCheck, Search, ArrowLeft, Printer } from 'luc
 export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
   usePageMeta('Tax Exemption Receipts (80G)', undefined, { noindex: true });
   const { user } = useAuth();
-  const { receipts, settings } = useDatabase();
+  const { receipts, donations, settings } = useDatabase();
   const [search, setSearch] = useState('');
 
   const donorEmail = (user?.email || '').toLowerCase().trim();
+  const userDonations = donations.filter((d) => d.donorEmail.toLowerCase().trim() === donorEmail || Boolean(user?.id && d.donorId === user.id));
+  const userReceiptNumbers = new Set(userDonations.map((d) => d.receiptNumber).filter(Boolean));
 
   const filtered = receipts.filter(
     (r) =>
-      r.donorEmail.toLowerCase().trim() === donorEmail &&
+      (r.donorEmail.toLowerCase().trim() === donorEmail || userReceiptNumbers.has(r.receiptNumber)) &&
       (r.receiptNumber.toLowerCase().includes(search.toLowerCase()) ||
        r.projectName.toLowerCase().includes(search.toLowerCase()) ||
        r.donorName.toLowerCase().includes(search.toLowerCase()))

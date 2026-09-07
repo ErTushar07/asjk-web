@@ -86,6 +86,31 @@ serve(async (req: Request) => {
           </div>
         </div>
       `;
+    } else if (body.template === 'password_reset') {
+      const resetCode = body.data.resetCode || body.data.otpCode || '';
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
+          <div style="background: #393186; padding: 24px; text-align: center; color: #ffffff;">
+            <h1 style="margin: 0; font-size: 20px;">Al Shujaiat Foundation Jammu & Kashmir</h1>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #f472b6;">Account Security & Recovery</p>
+          </div>
+          <div style="padding: 32px; color: #1e293b;">
+            <h2 style="font-size: 18px; margin-top: 0;">Password Reset Verification Code</h2>
+            <p style="font-size: 14px; line-height: 1.6; color: #475569;">
+              We received a request to reset the password for your Al Shujaiat Foundation donor account. Use the 6-digit verification code below to complete the reset:
+            </p>
+            <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
+              <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #393186;">${resetCode}</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8;">
+              This code will expire in 15 minutes. If you did not request a password reset, your account is safe and you can safely ignore this email.
+            </p>
+          </div>
+          <div style="background: #f1f5f9; padding: 16px; text-align: center; font-size: 11px; color: #64748b;">
+            NGO DARPAN: JK/2018/0190361 · Official Non-Profit Trust · Srinagar, J&K
+          </div>
+        </div>
+      `;
     } else {
       htmlContent = `
         <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b;">

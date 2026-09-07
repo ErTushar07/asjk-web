@@ -49,34 +49,34 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
     tierSubColor = 'text-emerald-200';
     tierGold = 'text-amber-300';
     bannerColor = 'from-emerald-600 to-teal-500 text-white';
-  } else if (member.tier === 'associate_silver') {
+  } else if (member.tier === 'associate_member' || member.tier === 'associate_silver') {
     themeBg = '#1E293B'; // Slate Steel Charcoal
     themeBorder = 'border-slate-700/30';
-    tierLabel = 'ASSOCIATE SILVER MEMBER';
+    tierLabel = 'ASSOCIATE MEMBER';
     tierSubColor = 'text-slate-300';
     tierGold = 'text-slate-200';
     bannerColor = 'from-slate-300 via-slate-200 to-slate-400 text-slate-900';
-  } else if (member.tier === 'patron_gold') {
+  } else if (member.tier === 'supporting_member' || member.tier === 'founding_platinum') {
+    themeBg = '#1E3A8A'; // Royal Blue
+    themeBorder = 'border-blue-700/30';
+    tierLabel = 'SUPPORTING MEMBER';
+    tierSubColor = 'text-blue-200';
+    tierGold = 'text-amber-300';
+    bannerColor = 'from-blue-600 to-indigo-500 text-white';
+  } else if (member.tier === 'patron_member' || member.tier === 'patron_gold') {
     themeBg = '#78350F'; // Royal Amber & Gold
     themeBorder = 'border-amber-700/30';
-    tierLabel = 'PATRON GOLD MEMBER';
+    tierLabel = 'PATRON MEMBER';
     tierSubColor = 'text-amber-200';
     tierGold = 'text-amber-300';
     bannerColor = 'from-amber-500 to-yellow-400 text-amber-950';
-  } else if (member.tier === 'founding_platinum') {
-    themeBg = '#3B0764'; // Royal Velvet Purple (Logo Brand Tone)
+  } else if (member.tier === 'benefactor_member' || member.tier === 'benefactor_diamond') {
+    themeBg = '#3B0764'; // Royal Velvet Purple
     themeBorder = 'border-purple-800/30';
-    tierLabel = 'FOUNDING PLATINUM PATRON';
+    tierLabel = 'BENEFACTOR MEMBER';
     tierSubColor = 'text-purple-200';
     tierGold = 'text-fuchsia-300';
-    bannerColor = 'from-purple-400 to-fuchsia-300 text-purple-950';
-  } else if (member.tier === 'benefactor_diamond') {
-    themeBg = '#083344'; // Deep Sapphire & Cyan
-    themeBorder = 'border-cyan-800/30';
-    tierLabel = 'BENEFACTOR DIAMOND GOVERNOR';
-    tierSubColor = 'text-cyan-200';
-    tierGold = 'text-cyan-300';
-    bannerColor = 'from-cyan-400 to-sky-300 text-cyan-950';
+    bannerColor = 'from-purple-500 to-fuchsia-400 text-white';
   }
 
   // Fallback photo

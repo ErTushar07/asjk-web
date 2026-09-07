@@ -343,7 +343,16 @@ export interface PartnershipRequest {
   submittedAt: string;
 }
 
-export type MembershipTier = 'general_member' | 'associate_silver' | 'patron_gold' | 'founding_platinum' | 'benefactor_diamond';
+export type MembershipTier = 
+  | 'general_member' 
+  | 'associate_member' 
+  | 'supporting_member' 
+  | 'patron_member' 
+  | 'benefactor_member'
+  | 'associate_silver'
+  | 'patron_gold'
+  | 'founding_platinum'
+  | 'benefactor_diamond';
 
 export interface NgoMembership {
   id: string;
@@ -359,14 +368,18 @@ export interface NgoMembership {
   tier: MembershipTier;
   tierName: string;
   durationYears: number; // 1 to 10 years
-  annualAmountUSD: number;
-  totalAmountUSD: number;
+  annualAmount: number; // 100, 500, 1000, 5000, 10000
+  totalContribution: number; // annualAmount * durationYears
+  annualAmountUSD?: number;
+  totalAmountUSD?: number;
   currency: string;
   paidAmount: number;
   validFrom: string;
   validThru: string;
   paymentMethod: string;
   transactionId: string;
+  orderId?: string;
+  paymentId?: string;
   receiptNumber?: string;
   status: 'active' | 'pending_payment' | 'expired' | 'cancelled';
   createdAt: string;

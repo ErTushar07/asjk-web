@@ -87,8 +87,40 @@ Deno.serve(async (req: Request) => {
     const donationNumber = `ASJ-DON-${new Date().getFullYear()}-${randomSuffix}`;
     const idempotencyKey = `idemp_${timestamp}_${randomSuffix}`;
 
+    // 4B. Strict Server-Side Membership Level & Duration Verification (Anti-Tampering)
+    let finalPayableAmount = body.amount;
+    if (body.targetId?.startsWith('mbr_') || body.targetName?.includes('Membership')) {
+      const VALID_MEMBERSHIP_TIERS: Record<string, number> = {
+        mbr_general_member: 100,
+        general_member: 100,
+        mbr_associate_member: 500,
+        associate_member: 500,
+        mbr_supporting_member: 1000,
+        supporting_member: 1000,
+        mbr_patron_member: 5000,
+        patron_member: 5000,
+        mbr_benefactor_member: 10000,
+        benefactor_member: 10000,
+        // Legacy graceful mappings
+        mbr_associate_silver: 500,
+        mbr_founding_platinum: 1000,
+        mbr_patron_gold: 5000,
+        mbr_benefactor_diamond: 10000,
+      };
+
+      const tierKey = body.targetId?.toLowerCase() || '';
+      const baseAmount = VALID_MEMBERSHIP_TIERS[tierKey];
+      if (baseAmount) {
+        const durationMatch = body.targetName?.match(/(\d+)\s*Years?/i);
+        const durationYears = durationMatch ? parseInt(durationMatch[1], 10) : Math.round(body.amount / baseAmount);
+        const safeDuration = Math.min(Math.max(durationYears || 1, 1), 10);
+        finalPayableAmount = baseAmount * safeDuration;
+      }
+    }
+
     // Razorpay amounts are in smallest currency subunit (paise for INR, cents for USD)
-    const amountInSubunits = Math.round(body.amount * 100);
+    // Strict currency rule: exact numeric amount in chosen currency, zero conversion
+    const amountInSubunits = Math.round(finalPayableAmount * 100);
     const currency = (body.currency || 'INR').toUpperCase();
 
     // 5. Call official Razorpay Orders API

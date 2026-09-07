@@ -154,8 +154,23 @@ export const DonationModal: React.FC<DonationModalProps> = ({
       }
     }
 
-    const effectiveDonorName = donorName.trim() || 'Valued Donor';
-    const effectiveDonorEmail = donorEmail.trim() || (anonymous ? 'anonymous@asfjk.org' : 'donor@asfjk.org');
+    if (!donorName.trim()) {
+      setErrorMsg('Please enter your Full Legal Name.');
+      return;
+    }
+
+    if (!donorEmail.trim() || !donorEmail.includes('@')) {
+      setErrorMsg('Please enter a valid Email Address for your official tax receipt.');
+      return;
+    }
+
+    if (!donorCountry.trim()) {
+      setErrorMsg('Please enter your Country of Residence.');
+      return;
+    }
+
+    const effectiveDonorName = donorName.trim();
+    const effectiveDonorEmail = donorEmail.trim().toLowerCase();
 
     setIsProcessing(true);
     try {
@@ -569,10 +584,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.full_name', 'Full Name')} <span className="text-[10px] text-content-muted font-normal">(Optional)</span>
+                      {t('donate.full_name', 'Full Legal Name')} <span className="text-brand-purple font-bold">*</span>
                     </label>
                     <input
                       type="text"
+                      required
                       placeholder="e.g. David Thompson"
                       value={donorName}
                       onChange={(e) => setDonorName(e.target.value)}
@@ -581,10 +597,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.email', 'Email Address')} <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
+                      {t('donate.email', 'Email Address')} <span className="text-brand-purple font-bold">*</span> <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
                     </label>
                     <input
                       type="email"
+                      required
                       placeholder="e.g. david.thompson@example.com"
                       value={donorEmail}
                       onChange={(e) => setDonorEmail(e.target.value)}
@@ -596,10 +613,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.country', 'Country of Residence')}
+                      {t('donate.country', 'Country of Residence')} <span className="text-brand-purple font-bold">*</span>
                     </label>
                     <input
                       type="text"
+                      required
                       placeholder="e.g. India, United States, UK"
                       value={donorCountry}
                       onChange={(e) => setDonorCountry(e.target.value)}

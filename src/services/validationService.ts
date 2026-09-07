@@ -159,6 +159,10 @@ export class ValidationService {
       errors.amount = 'Donation amount must be between 1 and 1,000,000.';
     }
 
+    if (input.donorEmail && !this.isValidEmail(input.donorEmail)) {
+      errors.donorEmail = 'Valid donor email address is required.';
+    }
+
     const effectiveName = input.donorName?.trim() || 'Valued Donor';
     const effectiveEmail = (input.donorEmail && this.isValidEmail(input.donorEmail))
       ? input.donorEmail.trim().toLowerCase()
@@ -251,13 +255,33 @@ export class ValidationService {
       errors.email = 'Valid email address is required.';
     }
 
-    if (!input.tier && !input.tierId) {
-      errors.tier = 'Please select a valid membership tier.';
+    // Official 5 Membership Levels with strict base prices
+    const VALID_TIERS: Record<string, { name: string; baseAmount: number; officialId: string }> = {
+      general_member: { name: 'General Member', baseAmount: 100, officialId: 'general_member' },
+      associate_member: { name: 'Associate Member', baseAmount: 500, officialId: 'associate_member' },
+      supporting_member: { name: 'Supporting Member', baseAmount: 1000, officialId: 'supporting_member' },
+      patron_member: { name: 'Patron Member', baseAmount: 5000, officialId: 'patron_member' },
+      benefactor_member: { name: 'Benefactor Member', baseAmount: 10000, officialId: 'benefactor_member' },
+      // legacy mappings gracefully mapped to official level
+      associate_silver: { name: 'Associate Member', baseAmount: 500, officialId: 'associate_member' },
+      founding_platinum: { name: 'Supporting Member', baseAmount: 1000, officialId: 'supporting_member' },
+      patron_gold: { name: 'Patron Member', baseAmount: 5000, officialId: 'patron_member' },
+      benefactor_diamond: { name: 'Benefactor Member', baseAmount: 10000, officialId: 'benefactor_member' },
+    };
+
+    const rawTier = (input.tier || input.tierId || 'general_member').toString().toLowerCase();
+    const tierMeta = VALID_TIERS[rawTier];
+    if (!tierMeta) {
+      errors.tier = 'Please select a valid membership level.';
     }
 
-    if (!input.durationYears || input.durationYears < 1 || input.durationYears > 10) {
+    const durationYears = parseInt(input.durationYears, 10);
+    if (isNaN(durationYears) || durationYears < 1 || durationYears > 10) {
       errors.durationYears = 'Membership duration must be between 1 and 10 years.';
     }
+
+    const baseAmount = tierMeta ? tierMeta.baseAmount : 100;
+    const validatedTotal = baseAmount * (durationYears || 1);
 
     if (input.photoUrl && typeof input.photoUrl === 'string' && input.photoUrl.startsWith('data:')) {
       const photoCheck = this.validateFileBuffer(input.photoUrl, false);
@@ -271,7 +295,13 @@ export class ValidationService {
       errors,
       sanitizedData: {
         ...input,
-        tier: input.tier || input.tierId || 'general_member',
+        tier: tierMeta ? tierMeta.officialId : 'general_member',
+        tierName: tierMeta ? tierMeta.name : 'General Member',
+        annualAmount: baseAmount,
+        totalContribution: validatedTotal,
+        paidAmount: validatedTotal,
+        durationYears: durationYears || 1,
+        currency: (input.currency || 'INR').toUpperCase(),
         fullName: this.sanitizeString(input.fullName),
         email: input.email?.trim().toLowerCase(),
         phone: input.phone ? this.sanitizeString(input.phone) : '',

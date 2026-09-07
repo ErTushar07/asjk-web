@@ -24,18 +24,18 @@ export class MembershipCardService {
     if (member.tier === 'general_member') {
       primaryColor = [6, 78, 59]; // Forest Green (#064E3B)
       tierTitle = 'GENERAL MEMBER';
-    } else if (member.tier === 'associate_silver') {
-      primaryColor = [30, 41, 59]; // Slate / Silver Charcoal (#1E293B)
-      tierTitle = 'ASSOCIATE SILVER';
-    } else if (member.tier === 'patron_gold') {
+    } else if (member.tier === 'associate_member' || member.tier === 'associate_silver') {
+      primaryColor = [30, 41, 59]; // Slate Charcoal (#1E293B)
+      tierTitle = 'ASSOCIATE MEMBER';
+    } else if (member.tier === 'supporting_member' || member.tier === 'founding_platinum') {
+      primaryColor = [29, 78, 216]; // Royal Blue (#1D4ED8)
+      tierTitle = 'SUPPORTING MEMBER';
+    } else if (member.tier === 'patron_member' || member.tier === 'patron_gold') {
       primaryColor = [120, 53, 15]; // Royal Amber (#78350F)
-      tierTitle = 'PATRON GOLD';
-    } else if (member.tier === 'founding_platinum') {
+      tierTitle = 'PATRON MEMBER';
+    } else if (member.tier === 'benefactor_member' || member.tier === 'benefactor_diamond') {
       primaryColor = [59, 7, 100]; // Royal Velvet Purple (#3B0764)
-      tierTitle = 'FOUNDING PLATINUM';
-    } else if (member.tier === 'benefactor_diamond') {
-      primaryColor = [8, 51, 68]; // Deep Sapphire Cyan (#083344)
-      tierTitle = 'BENEFACTOR DIAMOND';
+      tierTitle = 'BENEFACTOR MEMBER';
     }
 
     // ==========================================

@@ -96,8 +96,23 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       }
     }
 
-    const effectiveDonorEmail = email.trim() || (anonymous ? 'anonymous@asfjk.org' : 'donor@asfjk.org');
-    const effectiveDonorName = anonymous ? 'Anonymous Donor' : (fullName.trim() || 'Valued Donor');
+    if (!fullName.trim()) {
+      setErrorMessage('Please enter your Full Legal Name.');
+      return;
+    }
+
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMessage('Please enter a valid Email Address for your official tax receipt.');
+      return;
+    }
+
+    if (!country.trim()) {
+      setErrorMessage('Please enter your Country of Residence.');
+      return;
+    }
+
+    const effectiveDonorEmail = email.trim();
+    const effectiveDonorName = fullName.trim();
 
     setIsProcessing(true);
     try {
@@ -385,10 +400,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.full_legal_name', 'Full Legal Name')} <span className="text-[10px] text-content-muted font-normal">(Optional)</span>
+                  {t('donate.full_legal_name', 'Full Legal Name')} <span className="text-brand-purple font-bold">*</span>
                 </label>
                 <input
                   type="text"
+                  required
                   placeholder="e.g. David Thompson"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -397,10 +413,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.email_address', 'Email Address')} <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
+                  {t('donate.email_address', 'Email Address')} <span className="text-brand-purple font-bold">*</span> <span className="text-[10px] text-content-muted font-normal">({t('For PDF Receipt', 'For PDF Receipt')})</span>
                 </label>
                 <input
                   type="email"
+                  required
                   placeholder="e.g. david.thompson@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -424,10 +441,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.country_label', 'Country')}
+                  {t('donate.country_label', 'Country')} <span className="text-brand-purple font-bold">*</span>
                 </label>
                 <input
                   type="text"
+                  required
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"

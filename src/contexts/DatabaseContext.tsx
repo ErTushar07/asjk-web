@@ -314,6 +314,53 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     safeSetItem('asfjk_db_settings', settings);
   }, [settings]);
 
+  // Reconcile and load remote memberships from Supabase on mount (Permanent Storage)
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    supabase
+      .from('memberships')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn('Supabase memberships load notice:', error.message);
+          return;
+        }
+        if (data && data.length > 0) {
+          setMemberships((prev) => {
+            const existingIds = new Set(prev.map((m) => m.id));
+            const existingNums = new Set(prev.map((m) => m.membershipNumber));
+            const remote: NgoMembership[] = data.map((r: any) => ({
+              id: r.id || r.member_id,
+              membershipNumber: r.membership_number,
+              fullName: r.full_name,
+              email: r.email,
+              phone: r.phone || '',
+              city: r.city || '',
+              country: r.country || 'India',
+              tier: r.membership_tier || r.tier || 'general_member',
+              tierName: r.membership_level || 'General Member',
+              durationYears: r.membership_duration || r.duration_years || 1,
+              annualAmount: r.membership_amount || 100,
+              totalContribution: r.total_contribution || (r.membership_amount || 100) * (r.membership_duration || r.duration_years || 1),
+              currency: r.selected_currency || r.currency || 'INR',
+              paidAmount: r.total_contribution || r.fee_amount_usd || 100,
+              validFrom: r.membership_start_date || r.start_date || '',
+              validThru: r.membership_expiry_date || r.expiry_date || '',
+              paymentMethod: r.payment_method || 'Razorpay',
+              transactionId: r.payment_id || r.payment_transaction_id || '',
+              orderId: r.order_id,
+              paymentId: r.payment_id,
+              receiptNumber: r.receipt_id,
+              status: (r.payment_status === 'completed' || r.status === 'active') ? 'active' : 'pending_payment',
+              createdAt: r.created_at || r.registration_date || new Date().toISOString(),
+            }));
+            const toAdd = remote.filter((m) => !existingIds.has(m.id) && !existingNums.has(m.membershipNumber));
+            return toAdd.length > 0 ? [...toAdd, ...prev] : prev;
+          });
+        }
+      });
+  }, []);
+
   // Log Audit Helper
   const recordAudit = (
     userId: string,
@@ -943,18 +990,107 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const yearSuffix = now.getFullYear().toString().slice(-2);
     const randDigits = Math.floor(100 + Math.random() * 900);
     const membershipNumber = `ASFJK${yearSuffix}M${randDigits}`;
+    const receiptNumber = cleanData.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${randDigits}`;
 
     const newMbr: NgoMembership = {
       ...cleanData,
       id: `mbr_${Date.now()}`,
       membershipNumber,
+      receiptNumber,
       status: cleanData.status || 'active',
       validFrom: cleanData.validFrom || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       validThru: cleanData.validThru || validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       createdAt: now.toISOString(),
     };
     setMemberships((prev) => [newMbr, ...prev]);
-    recordAudit('sys_public', cleanData.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years)`);
+
+    // Generate and link official tax receipt if active
+    if (newMbr.status === 'active') {
+      const receiptObj: Receipt = {
+        id: `rec_mbr_${Date.now()}`,
+        receiptNumber,
+        donationId: newMbr.id,
+        transactionId: newMbr.transactionId,
+        donationDate: newMbr.createdAt,
+        donorName: newMbr.fullName,
+        donorEmail: newMbr.email,
+        donorAddress: `${newMbr.city}, ${newMbr.country}`,
+        projectName: `Al Shujaiat Foundation NGO Membership · ${newMbr.tierName} (${newMbr.durationYears} ${newMbr.durationYears === 1 ? 'Year' : 'Years'})`,
+        amount: newMbr.totalContribution || newMbr.paidAmount,
+        currency: newMbr.currency,
+        amountUSD: newMbr.totalContribution || newMbr.paidAmount,
+        paymentMethod: newMbr.paymentMethod,
+        language: 'en',
+        taxExemptionText: 'Voluntary charitable contribution eligible for 50% deduction under Section 80G and Section 12A of the Indian Income Tax Act, 1961.',
+        issuedAt: newMbr.createdAt,
+        pdfGenerated: true,
+      };
+      setReceipts((prev) => [receiptObj, ...prev]);
+
+      if (isSupabaseConfigured) {
+        supabase.from('receipts').insert({
+          id: receiptObj.id,
+          receipt_number: receiptObj.receiptNumber,
+          donation_id: receiptObj.donationId,
+          donor_id: user?.id,
+          transaction_id: receiptObj.transactionId,
+          donation_date: receiptObj.donationDate,
+          donor_name: receiptObj.donorName,
+          donor_email: receiptObj.donorEmail,
+          donor_address: receiptObj.donorAddress,
+          project_name: receiptObj.projectName,
+          amount: receiptObj.amount,
+          currency: receiptObj.currency,
+          payment_method: receiptObj.paymentMethod,
+          issued_at: receiptObj.issuedAt,
+          tax_exemption_text: receiptObj.taxExemptionText,
+          pdf_generated: true,
+        }).then(() => {});
+      }
+    }
+
+    // Permanent Supabase Storage as Source of Truth (Requirement 6)
+    if (isSupabaseConfigured) {
+      supabase.from('memberships').insert({
+        id: newMbr.id,
+        member_id: newMbr.id,
+        membership_number: newMbr.membershipNumber,
+        full_name: newMbr.fullName,
+        email: newMbr.email,
+        phone: newMbr.phone,
+        city: newMbr.city,
+        country: newMbr.country,
+        blood_group: newMbr.bloodGroup || 'O+',
+        tier: newMbr.tier,
+        membership_tier: newMbr.tier,
+        membership_level: newMbr.tierName,
+        duration_years: newMbr.durationYears,
+        membership_duration: newMbr.durationYears,
+        fee_amount_usd: newMbr.totalContribution || newMbr.paidAmount,
+        membership_amount: newMbr.annualAmount,
+        total_contribution: newMbr.totalContribution || newMbr.paidAmount,
+        currency: newMbr.currency,
+        selected_currency: newMbr.currency,
+        payment_id: newMbr.paymentId || newMbr.transactionId,
+        order_id: newMbr.orderId || newMbr.transactionId,
+        payment_status: newMbr.status === 'active' ? 'completed' : 'pending',
+        payment_method: newMbr.paymentMethod,
+        payment_transaction_id: newMbr.transactionId,
+        start_date: newMbr.validFrom,
+        expiry_date: newMbr.validThru,
+        membership_start_date: newMbr.validFrom,
+        membership_expiry_date: newMbr.validThru,
+        receipt_id: newMbr.receiptNumber || '',
+        registration_date: newMbr.createdAt,
+        created_at: newMbr.createdAt,
+      }).then(({ error }) => {
+        if (error) {
+          console.warn('Supabase memberships insert notice:', error.message);
+        }
+      });
+    }
+
+    recordAudit('sys_public', cleanData.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years, ${newMbr.currency} ${newMbr.totalContribution})`);
     return newMbr;
   };
 

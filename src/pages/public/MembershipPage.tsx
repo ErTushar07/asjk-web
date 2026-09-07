@@ -6,18 +6,19 @@ import { useToast } from '../../contexts/ToastContext';
 import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { PaymentService } from '../../services/paymentService';
+import { ReceiptService } from '../../services/receiptService';
 import { 
   Crown, CheckCircle2, ShieldCheck, Download, Award, 
   Sparkles, Heart, CreditCard, ArrowRight, Check, Search, 
   Globe, Clock, Users, Building, Shield, IdCard, UploadCloud,
-  AlertCircle, Copy
+  AlertCircle, Copy, FileText
 } from 'lucide-react';
 
 interface TierOption {
   id: MembershipTier;
   name: string;
   badge: string;
-  baseAnnualUSD: number;
+  baseAmount: number; // 100, 500, 1000, 5000, 10000
   description: string;
   benefits: string[];
   gradient: string;
@@ -34,14 +35,27 @@ export const MembershipPage: React.FC = () => {
     'Become an official member or patron of Al Shujaiat Foundation Jammu & Kashmir. Receive official membership credential and attend annual meetings.'
   );
   const { addMembership, lookupMembership, settings } = useDatabase();
-  const { currentCurrency, convertUSDToCurrency, formatOriginal } = useCurrency();
+  const { currentCurrency, setCurrency } = useCurrency();
   const { t } = useLanguage();
   const toast = useToast();
 
-  const formatAmount = (val: number) => formatOriginal(val, currentCurrency.code);
-  const convertFromUSD = (valUSD: number) => convertUSDToCurrency(valUSD);
+  // Strict currency display helper: DO NOT convert amounts or apply exchange rates.
+  // 100 INR -> 100 USD -> 100 EUR -> 100 GBP -> AED 100.
+  const formatMembershipCurrency = (amount: number, currencyCode: string = currentCurrency.code) => {
+    const code = (currencyCode || 'INR').toUpperCase();
+    const formatted = amount.toLocaleString('en-US');
+    if (code === 'AED') return `AED ${formatted}`;
+    if (code === 'INR') return `₹${formatted}`;
+    if (code === 'USD') return `$${formatted}`;
+    if (code === 'EUR') return `€${formatted}`;
+    if (code === 'GBP') return `£${formatted}`;
+    if (code === 'SAR') return `﷼${formatted}`;
+    if (code === 'CAD') return `CA$${formatted}`;
+    if (code === 'AUD') return `AU$${formatted}`;
+    return `${code} ${formatted}`;
+  };
 
-  const [selectedTier, setSelectedTier] = useState<MembershipTier>('patron_gold');
+  const [selectedTier, setSelectedTier] = useState<MembershipTier>('supporting_member');
   const [durationYears, setDurationYears] = useState<number>(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -84,105 +98,104 @@ export const MembershipPage: React.FC = () => {
     }
   };
 
+  // Official 5 Membership Levels with strictly defined base prices
   const tiers: TierOption[] = [
     {
       id: 'general_member',
-      name: t('membership.tier_general', 'General Member (Entry Tier)'),
-      badge: 'COMMUNITY ENTRY · ₹500',
-      baseAnnualUSD: 6,
-      description: t('membership.desc_general', 'Accessible community membership supporting local relief distribution and youth welfare.'),
+      name: 'General Member',
+      badge: 'COMMUNITY ENTRY',
+      baseAmount: 100,
+      description: 'Accessible community membership supporting local relief distribution and youth welfare.',
       benefits: [
-        t('membership.ben_card', 'Official Digital & Printable NGO Membership Card'),
-        t('membership.ben_newsletter', 'Foundation Newsletter & Relief Reports'),
-        t('membership.ben_tax', 'Section 80G & 12A Tax Exemption Certificate'),
-        t('membership.ben_volunteer', 'Invitation to community volunteer mobilization'),
+        'Official Digital & Printable NGO Membership Card',
+        'Foundation Newsletter & Relief Reports',
+        'Section 80G & 12A Tax Exemption Certificate',
+        'Invitation to community volunteer mobilization',
       ],
       gradient: 'from-emerald-950 via-slate-900 to-teal-950',
-      borderColor: 'border-emerald-400',
+      borderColor: 'border-emerald-500',
     },
     {
-      id: 'associate_silver',
-      name: t('membership.tier_silver', 'Associate Member (Silver Tier)'),
-      badge: 'SILVER TIER',
-      baseAnnualUSD: 50,
-      description: t('membership.desc_silver', 'Foundational membership supporting grassroots healthcare & school aid in Kashmir.'),
+      id: 'associate_member',
+      name: 'Associate Member',
+      badge: 'ASSOCIATE TIER',
+      baseAmount: 500,
+      description: 'Foundational membership supporting grassroots healthcare & school aid in Kashmir.',
       benefits: [
-        t('membership.ben_audit', 'Annual Audited Financial Transparency Report'),
-        t('membership.ben_card', 'Official Digital & Printable NGO Membership Card'),
-        t('membership.ben_voting', 'Voting rights in public community aid surveys'),
-        t('membership.ben_tax', 'Tax Exemption Certificate under Section 80G & 12A'),
+        'All General Member privileges included',
+        'Annual Audited Financial Transparency Report',
+        'Voting rights in public community aid surveys',
+        'Tax Exemption Certificate under Section 80G & 12A',
       ],
-      gradient: 'from-slate-700 via-slate-800 to-slate-900',
-      borderColor: 'border-slate-300',
+      gradient: 'from-slate-800 via-slate-900 to-slate-950',
+      borderColor: 'border-slate-400',
     },
     {
-      id: 'patron_gold',
-      name: t('membership.tier_gold', 'Sustaining Patron (Gold Tier)'),
-      badge: 'MOST POPULAR · GOLD TIER',
-      baseAnnualUSD: 150,
-      description: t('membership.desc_gold', 'Active patron empowering continuous clean water and winter relief logistics.'),
+      id: 'supporting_member',
+      name: 'Supporting Member',
+      badge: 'MOST POPULAR',
+      baseAmount: 1000,
+      description: 'Active patron empowering continuous clean water and winter relief logistics.',
       benefits: [
-        t('membership.desc_silver', 'Associate Silver Member privileges'),
-        t('membership.ben_milestones', 'Priority quarterly project milestones & field dispatches'),
-        t('membership.ben_roll', 'Recognition on Foundation Annual Donor Roll'),
-        t('membership.ben_webinars', 'Exclusive invitations to executive foundation webinars'),
-        t('membership.ben_gold_badge', 'Gold Metallic NGO Membership Badge (CR80)'),
+        'All Associate Member privileges included',
+        'Priority quarterly project milestones & field dispatches',
+        'Recognition on Foundation Annual Donor Roll',
+        'Exclusive invitations to executive foundation webinars',
+        'Supporting Member Metallic NGO Badge (CR80)',
       ],
-      gradient: 'from-amber-950 via-slate-900 to-amber-950',
-      borderColor: 'border-amber-400',
+      gradient: 'from-blue-950 via-indigo-950 to-slate-950',
+      borderColor: 'border-blue-400',
       popular: true,
     },
     {
-      id: 'founding_platinum',
-      name: t('membership.tier_platinum', 'Founding Council (Platinum Tier)'),
-      badge: 'PLATINUM TIER',
-      baseAnnualUSD: 500,
-      description: t('membership.desc_platinum', 'Strategic patron guiding emergency response, dialysis centers, and smart education.'),
+      id: 'patron_member',
+      name: 'Patron Member',
+      badge: 'HONORARY PATRON',
+      baseAmount: 5000,
+      description: 'Strategic patron guiding emergency response, dialysis centers, and smart education.',
       benefits: [
-        t('membership.desc_gold', 'Sustaining Patron privileges'),
-        t('membership.ben_advisory', 'Participation in Advisory Council strategic reviews'),
-        t('membership.ben_plaque', 'Permanent plaque acknowledgment at community centers'),
-        t('membership.ben_consultation', 'Direct consultation on new project site selections'),
-        t('membership.ben_platinum_badge', 'Platinum Prestige Membership Card & Certificate'),
+        'All Supporting Member privileges included',
+        'Participation in Advisory Council strategic reviews',
+        'Permanent plaque acknowledgment at community centers',
+        'Direct consultation on new project site selections',
+        'Patron Prestige Membership Card & Certificate',
+      ],
+      gradient: 'from-amber-950 via-slate-900 to-amber-950',
+      borderColor: 'border-amber-400',
+    },
+    {
+      id: 'benefactor_member',
+      name: 'Benefactor Member',
+      badge: 'PREMIER BENEFACTOR',
+      baseAmount: 10000,
+      description: 'Transformational philanthropist steering landmark infrastructure & multi-district relief.',
+      benefits: [
+        'All Patron Member privileges included',
+        'One-on-one executive briefings with Director General',
+        'Named sponsorship of emergency field convoys & medical camps',
+        'VIP delegation access during official field visits to J&K',
+        'Benefactor Metal Crest ID Emblem Badge',
       ],
       gradient: 'from-purple-950 via-slate-900 to-indigo-950',
       borderColor: 'border-purple-400',
     },
-    {
-      id: 'benefactor_diamond',
-      name: t('membership.tier_diamond', 'Benefactor Governor (Diamond Tier)'),
-      badge: 'DIAMOND CREST TIER',
-      baseAnnualUSD: 1500,
-      description: t('membership.desc_diamond', 'Transformational philanthropist steering landmark infrastructure & multi-district relief.'),
-      benefits: [
-        t('membership.desc_platinum', 'Founding Council privileges'),
-        t('membership.ben_briefings', 'One-on-one executive briefings with Director General'),
-        t('membership.ben_sponsorship', 'Named sponsorship of emergency field convoys & medical camps'),
-        t('membership.ben_vip', 'VIP delegation access during official field visits to J&K'),
-        t('membership.ben_diamond_badge', 'Diamond Governor Metal Emblem ID Badge'),
-      ],
-      gradient: 'from-cyan-950 via-slate-900 to-slate-950',
-      borderColor: 'border-cyan-400',
-    },
   ];
 
-  const currentTierObj = tiers.find((t) => t.id === selectedTier) || tiers[0];
-  const annualAmountLocal = currentCurrency.code === 'INR' && currentTierObj.id === 'general_member'
-    ? 500
-    : convertFromUSD(currentTierObj.baseAnnualUSD);
-  const totalAmountUSD = currentTierObj.baseAnnualUSD * durationYears;
-  const totalAmountLocal = annualAmountLocal * durationYears;
+  const currentTierObj = tiers.find((t) => t.id === selectedTier) || tiers[2];
+  // Strict rule: base amount multiplied by duration, absolutely no currency conversion
+  const annualAmount = currentTierObj.baseAmount;
+  const totalContribution = annualAmount * durationYears;
 
   const handleEnrollMembership = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!fullName.trim() || !email.trim()) {
-      setErrorMsg('Please provide your Full Name and Email address.');
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim()) {
+      setErrorMsg('Please provide all mandatory details: Full Name, Email, Phone Number, City, and Country.');
       return;
     }
 
-    if (totalAmountLocal <= 0) {
+    if (totalContribution <= 0) {
       setErrorMsg('Invalid contribution amount.');
       return;
     }
@@ -207,7 +220,7 @@ export const MembershipPage: React.FC = () => {
       if (paymentMethod === 'bank_wire') {
         const cleanRef = paymentReference.trim();
         await PaymentService.processPayment({
-          amount: totalAmountLocal,
+          amount: totalContribution,
           currency: currentCurrency.code,
           frequency: 'one_time',
           method: 'bank_wire',
@@ -231,10 +244,10 @@ export const MembershipPage: React.FC = () => {
           tier: selectedTier,
           tierName: currentTierObj.name,
           durationYears,
-          annualAmountUSD: currentTierObj.baseAnnualUSD,
-          totalAmountUSD,
+          annualAmount,
+          totalContribution,
+          paidAmount: totalContribution,
           currency: currentCurrency.code,
-          paidAmount: totalAmountLocal,
           validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           paymentMethod: 'Direct Bank Wire / NEFT (Manual Verification)',
@@ -251,7 +264,7 @@ export const MembershipPage: React.FC = () => {
       // 2. Online Razorpay Checkout (Cards, UPI, NetBanking, International)
       const mappedMethod = (paymentMethod === 'card' || paymentMethod === 'paypal') ? 'stripe_card' : 'razorpay_upi';
       const paymentResult = await PaymentService.processPayment({
-        amount: totalAmountLocal,
+        amount: totalContribution,
         currency: currentCurrency.code,
         frequency: 'one_time',
         method: mappedMethod,
@@ -284,14 +297,16 @@ export const MembershipPage: React.FC = () => {
         tier: selectedTier,
         tierName: currentTierObj.name,
         durationYears,
-        annualAmountUSD: currentTierObj.baseAnnualUSD,
-        totalAmountUSD,
+        annualAmount,
+        totalContribution,
+        paidAmount: totalContribution,
         currency: currentCurrency.code,
-        paidAmount: totalAmountLocal,
         validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         paymentMethod: methodLabel,
         transactionId: paymentResult.transactionId,
+        orderId: (paymentResult as any).orderId || paymentResult.transactionId,
+        paymentId: paymentResult.paymentId || paymentResult.transactionId,
         receiptNumber: paymentResult.receiptNumber,
         status: 'active',
       });
@@ -420,7 +435,18 @@ export const MembershipPage: React.FC = () => {
               </div>
 
               {lookupResult.status === 'active' ? (
-                <MembershipCardPreview member={lookupResult} settings={settings} />
+                <div className="space-y-4">
+                  <MembershipCardPreview member={lookupResult} settings={settings} />
+                  <div className="flex justify-center gap-3 pt-2">
+                    <button
+                      onClick={() => ReceiptService.downloadMembershipReceipt(lookupResult, settings)}
+                      className="btn-primary !py-2.5 !px-5 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Download Official 80G Tax Receipt (PDF)
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="p-6 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-center space-y-2">
                   <Clock className="w-8 h-8 text-amber-600 mx-auto" />
@@ -466,7 +492,14 @@ export const MembershipPage: React.FC = () => {
             <MembershipCardPreview member={confirmedMember} settings={settings} />
           </div>
 
-          <div className="flex justify-center gap-3 pt-2">
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <button
+              onClick={() => ReceiptService.downloadMembershipReceipt(confirmedMember, settings)}
+              className="btn-primary !py-2.5 !px-6 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
+            >
+              <Download className="w-4 h-4" />
+              Download Official 80G Tax Receipt (PDF)
+            </button>
             <button
               onClick={() => {
                 setConfirmedMember(null);
@@ -545,70 +578,94 @@ export const MembershipPage: React.FC = () => {
       ) : (
         /* STEP 1: TIER SELECTION & DURATION BUILDER */
         <div className="space-y-10">
-          {/* Tiers Grid */}
+          {/* Tiers Grid & Currency Selector */}
           <div className="space-y-4">
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <h2 className="text-xl sm:text-2xl font-black text-content-primary">
                 {t('membership.step1_title', '1. Select Your Membership Level')}
               </h2>
-              <p className="text-xs text-content-secondary">
-                {t('membership.step1_subtitle', 'All memberships directly sustain on-ground healthcare, emergency food packs, and clean water engineering.')}
+              <p className="text-xs text-content-secondary max-w-xl mx-auto">
+                {t('membership.step1_subtitle', 'All memberships directly sustain on-ground healthcare, emergency relief, and community welfare in Jammu & Kashmir.')}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Currency Selector Bar (Requirement 10) */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-soft p-3 sm:px-5 rounded-2xl border border-content-border max-w-4xl mx-auto">
+              <div className="flex items-center gap-2 text-xs font-bold text-content-primary">
+                <Globe className="w-4 h-4 text-brand-purple flex-shrink-0" />
+                <span>Select Currency (Numeric value is identical in all currencies):</span>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                {['INR', 'USD', 'EUR', 'GBP', 'AED'].map((cur) => (
+                  <button
+                    key={cur}
+                    type="button"
+                    onClick={() => setCurrency(cur)}
+                    className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
+                      currentCurrency.code === cur
+                        ? 'bg-brand-purple text-white shadow-sm ring-2 ring-brand-purple/30 scale-105'
+                        : 'bg-white text-content-secondary hover:text-content-primary border border-content-border hover:border-brand-purple/40'
+                    }`}
+                  >
+                    {cur}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 5 Membership Levels Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
               {tiers.map((tItem) => {
                 const isSelected = selectedTier === tItem.id;
-                const convertedAnnual = convertFromUSD(tItem.baseAnnualUSD);
 
                 return (
                   <div
                     key={tItem.id}
                     onClick={() => setSelectedTier(tItem.id)}
-                    className={`rounded-3xl border-2 p-5 cursor-pointer transition-all duration-300 relative flex flex-col justify-between ${
+                    className={`rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative flex flex-col justify-between ${
                       isSelected
-                        ? 'border-brand-pink bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 shadow-brand-lg scale-[1.02]'
+                        ? 'border-brand-pink bg-gradient-to-b from-white via-purple-50/40 to-pink-50/20 shadow-brand-lg scale-[1.02] ring-2 ring-brand-pink/20'
                         : 'border-content-border bg-white hover:border-brand-purple/40 hover:shadow-brand-sm'
                     }`}
                   >
                     {tItem.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-brand-pink text-white font-black text-[9px] px-3 py-0.5 rounded-full uppercase tracking-wider shadow">
-                        {t('membership.popular', 'POPULAR CHOICE')}
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-brand-pink text-white font-black text-[8.5px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
+                        POPULAR CHOICE
                       </span>
                     )}
 
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-content-muted">
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider text-content-muted">
                           {tItem.badge}
                         </span>
-                        {isSelected && <CheckCircle2 className="w-5 h-5 text-brand-pink" />}
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-brand-pink flex-shrink-0" />}
                       </div>
 
                       <div>
-                        <h3 className="text-base font-black text-content-primary leading-snug">
+                        <h3 className="text-sm sm:text-base font-black text-content-primary leading-snug">
                           {tItem.name}
                         </h3>
-                        <p className="text-[11px] text-content-secondary mt-1 leading-relaxed">
+                        <p className="text-[10.5px] text-content-secondary mt-1 leading-relaxed line-clamp-2">
                           {tItem.description}
                         </p>
                       </div>
 
                       <div className="py-2 border-y border-content-border/60">
-                        <div className="text-2xl font-black text-brand-purple font-mono">
-                          {formatAmount(convertedAnnual)}
-                          <span className="text-xs text-content-muted font-normal"> {t('membership.per_year', '/ year')}</span>
+                        <div className="text-xl sm:text-2xl font-black text-brand-purple font-mono">
+                          {formatMembershipCurrency(tItem.baseAmount)}
+                          <span className="text-[11px] text-content-muted font-normal"> / year</span>
                         </div>
-                        <p className="text-[9.5px] text-emerald-700 font-semibold mt-0.5">
-                          {t('membership.tax_deductible', '100% Tax Deductible (80G & 12A)')}
+                        <p className="text-[9px] text-emerald-700 font-semibold mt-0.5">
+                          100% Tax Deductible (80G & 12A)
                         </p>
                       </div>
 
-                      <ul className="space-y-1.5 text-[11px] text-content-secondary">
+                      <ul className="space-y-1 text-[10.5px] text-content-secondary">
                         {tItem.benefits.map((b, idx) => (
-                          <li key={idx} className="flex items-start gap-1.5 leading-tight">
-                            <Check className="w-3.5 h-3.5 text-brand-pink flex-shrink-0 mt-0.5" />
-                            <span>{b}</span>
+                          <li key={idx} className="flex items-start gap-1 leading-tight">
+                            <Check className="w-3 h-3 text-brand-pink flex-shrink-0 mt-0.5" />
+                            <span className="line-clamp-2">{b}</span>
                           </li>
                         ))}
                       </ul>
@@ -616,13 +673,13 @@ export const MembershipPage: React.FC = () => {
 
                     <button
                       type="button"
-                      className={`w-full mt-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      className={`w-full mt-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-brand-pink text-white shadow-pink-glow'
                           : 'bg-surface-soft text-content-primary hover:bg-brand-purple/10'
                       }`}
                     >
-                      {isSelected ? t('membership.selected_tier', 'Selected Tier') : t('membership.choose_level', 'Choose Level')}
+                      {isSelected ? 'Selected Level' : 'Select Level'}
                     </button>
                   </div>
                 );
@@ -669,24 +726,24 @@ export const MembershipPage: React.FC = () => {
               ))}
             </div>
 
-            {/* Contribution Calculation Summary Card */}
-            <div className="bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white p-5 rounded-2xl border border-amber-400/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-1 text-center sm:text-left">
-                <span className="text-[9.5px] font-mono text-amber-300 font-bold uppercase tracking-wider">
-                  {t('membership.summary_title', 'MEMBERSHIP CONTRIBUTION SUMMARY')}
+            {/* Contribution Calculation Summary Card (Requirement 8) */}
+            <div className="bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white p-5 sm:p-6 rounded-2xl border border-amber-400/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1.5 text-center sm:text-left">
+                <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider block">
+                  MEMBERSHIP CONTRIBUTION SUMMARY
                 </span>
-                <h4 className="text-base font-extrabold text-white">
-                  {currentTierObj.name} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}</span>
+                <h4 className="text-base sm:text-lg font-black text-white">
+                  {currentTierObj.name} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? 'Year' : 'Years'}</span>
                 </h4>
-                <p className="text-xs text-white/70">
-                  {formatAmount(annualAmountLocal)} × {durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}
+                <p className="text-xs text-white/80 font-mono">
+                  {formatMembershipCurrency(annualAmount)} × {durationYears} {durationYears === 1 ? 'Year' : 'Years'}
                 </p>
               </div>
 
-              <div className="text-center sm:text-right bg-white/10 px-5 py-3 rounded-xl border border-white/10">
-                <span className="text-[10px] text-amber-200 block uppercase font-bold">{t('membership.total_contribution', 'Total Contribution')}</span>
+              <div className="text-center sm:text-right bg-white/10 px-6 py-3.5 rounded-xl border border-white/10">
+                <span className="text-[10px] text-amber-200 block uppercase font-bold tracking-wider">TOTAL CONTRIBUTION</span>
                 <span className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
-                  {formatAmount(totalAmountLocal)}
+                  {formatMembershipCurrency(totalContribution)}
                 </span>
               </div>
             </div>
@@ -735,10 +792,11 @@ export const MembershipPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('membership.phone', 'Phone Number')}
+                  {t('membership.phone', 'Phone Number *')}
                 </label>
                 <input
                   type="tel"
+                  required
                   placeholder="+91 94190 12345"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -747,10 +805,11 @@ export const MembershipPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('membership.city', 'City / Region')}
+                  {t('membership.city', 'City / Region *')}
                 </label>
                 <input
                   type="text"
+                  required
                   placeholder="Srinagar / New Delhi / London"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -759,10 +818,11 @@ export const MembershipPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('membership.country', 'Country')}
+                  {t('membership.country', 'Country *')}
                 </label>
                 <input
                   type="text"
+                  required
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
@@ -1039,12 +1099,12 @@ export const MembershipPage: React.FC = () => {
                 ) : paymentMethod === 'bank_wire' ? (
                   <>
                     <Building className="w-4 h-4" />
-                    <span>Submit Bank Wire & Register: {formatAmount(totalAmountLocal)}</span>
+                    <span>Submit Bank Wire & Register: {formatMembershipCurrency(totalContribution)}</span>
                   </>
                 ) : (
                   <>
                     <Crown className="w-4 h-4" />
-                    <span>{t('membership.pay_btn', 'Pay & Activate Membership')}: {formatAmount(totalAmountLocal)}</span>
+                    <span>{t('membership.pay_btn', 'Pay & Activate Membership')}: {formatMembershipCurrency(totalContribution)}</span>
                   </>
                 )}
               </button>

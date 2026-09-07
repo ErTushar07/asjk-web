@@ -275,6 +275,7 @@ CREATE TABLE IF NOT EXISTS public.volunteers (
 
 CREATE TABLE IF NOT EXISTS public.memberships (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  member_id TEXT,
   user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   membership_number TEXT UNIQUE NOT NULL, -- e.g. ASJ-MEM-2026-0045
   full_name TEXT NOT NULL,
@@ -284,15 +285,29 @@ CREATE TABLE IF NOT EXISTS public.memberships (
   country TEXT NOT NULL DEFAULT 'India',
   blood_group TEXT DEFAULT 'O+',
   tier membership_tier_enum NOT NULL DEFAULT 'general_member',
+  membership_tier TEXT DEFAULT 'general_member',
+  membership_level TEXT DEFAULT 'General Member',
   duration_years INTEGER NOT NULL DEFAULT 1 CHECK (duration_years >= 1 AND duration_years <= 10),
-  fee_amount_usd NUMERIC(12, 2) NOT NULL,
+  membership_duration INTEGER DEFAULT 1,
+  membership_amount NUMERIC(12, 2) DEFAULT 100,
+  total_contribution NUMERIC(12, 2) DEFAULT 100,
+  fee_amount_usd NUMERIC(12, 2) NOT NULL DEFAULT 100,
   currency TEXT DEFAULT 'INR',
+  selected_currency TEXT DEFAULT 'INR',
   photo_storage_path TEXT,
   start_date DATE NOT NULL DEFAULT CURRENT_DATE,
   expiry_date DATE NOT NULL,
+  membership_start_date TEXT,
+  membership_expiry_date TEXT,
   status membership_status_enum NOT NULL DEFAULT 'active',
+  payment_status TEXT DEFAULT 'completed',
+  payment_method TEXT DEFAULT 'Razorpay',
+  payment_id TEXT,
+  order_id TEXT,
   payment_transaction_id TEXT,
+  receipt_id TEXT,
   card_pdf_path TEXT,
+  registration_date TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

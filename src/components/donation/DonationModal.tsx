@@ -921,29 +921,29 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                         <span className="text-[10px] text-content-muted block">
                           {t('donate.beneficiary_name', 'Beneficiary Name')}
                         </span>
-                        <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
+                        <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || 'M/S AL-SHUJAIAT FOUNDATION JAMMU & KASHMIR'}</span>
                       </div>
                       <div>
                         <span className="text-[10px] text-content-muted block">
                           {t('donate.bank_branch', 'Bank & Branch')}
                         </span>
-                        <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}</span>
+                        <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'Axis Bank Ltd'} ({settings.bankDetails?.branch || 'Larikpora, Awantipora, Pulwama'})</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-content-muted">
-                            {t('donate.account_number', 'Account Number')}
+                            {t('donate.account_number', 'Account Number')} ({settings.bankDetails?.accountType || 'Savings A/C'})
                           </span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'modal_acc')}
+                            onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '925010008902563', 'modal_acc')}
                             className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                           >
                             {copiedKey === 'modal_acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                             {copiedKey === 'modal_acc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '925010008902563'}</span>
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
@@ -952,14 +952,14 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                           </span>
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'modal_ifsc')}
+                            onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'UTIB0002378', 'modal_ifsc')}
                             className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                           >
                             {copiedKey === 'modal_ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                             {copiedKey === 'modal_ifsc' ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
+                        <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'UTIB0002378'}</span>
                       </div>
                       {/* Bank Transfer Reference Input in Modal */}
                       <div className="sm:col-span-2 pt-2 border-t border-content-border space-y-1">

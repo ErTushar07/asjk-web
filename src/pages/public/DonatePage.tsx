@@ -679,21 +679,21 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                     <span className="text-[10px] text-content-muted block font-semibold">
                       {t('donate.beneficiary_name', 'Beneficiary Name')}
                     </span>
-                    <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
+                    <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || 'M/S AL-SHUJAIAT FOUNDATION JAMMU & KASHMIR'}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-content-muted block font-semibold">
                       {t('donate.account_type', 'Account Type')}
                     </span>
                     <span className="font-bold text-content-primary">
-                      {t('donate.current_account', 'Current Account (Charitable Trust)')}
+                      {settings.bankDetails?.accountType || 'Saving Account'}
                     </span>
                   </div>
                   <div>
                     <span className="text-[10px] text-content-muted block font-semibold">
                       {t('donate.bank_branch', 'Bank & Branch')}
                     </span>
-                    <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral Pulwama'}</span>
+                    <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'Axis Bank Ltd'} ({settings.bankDetails?.branch || 'Larikpora, Awantipora, Pulwama'})</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
@@ -702,14 +702,14 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                       </span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'acc')}
+                        onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '925010008902563', 'acc')}
                         className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                       >
                         {copiedKey === 'acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                         {copiedKey === 'acc' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
+                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '925010008902563'}</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
@@ -718,14 +718,14 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                       </span>
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'ifsc')}
+                        onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'UTIB0002378', 'ifsc')}
                         className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
                       >
                         {copiedKey === 'ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                         {copiedKey === 'ifsc' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
+                    <span className="font-mono font-bold text-sm text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'UTIB0002378'}</span>
                   </div>
                   <div>
                     <div className="flex items-center justify-between">

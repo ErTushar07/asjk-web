@@ -1191,10 +1191,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-content-muted mb-1">Bank & Branch</label>
+                  <label className="block text-[11px] font-bold text-content-muted mb-1">Bank Name</label>
                   <input
                     type="text"
-                    value={settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}
+                    value={settings.bankDetails?.bankName || 'Axis Bank Ltd'}
                     onChange={(e) =>
                       updateSettings({
                         bankDetails: {
@@ -1211,7 +1211,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   <label className="block text-[11px] font-bold text-content-muted mb-1">Account Number</label>
                   <input
                     type="text"
-                    value={settings.bankDetails?.accountNumber || '0134010100008892'}
+                    value={settings.bankDetails?.accountNumber || '925010008902563'}
                     onChange={(e) =>
                       updateSettings({
                         bankDetails: {
@@ -1228,7 +1228,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   <label className="block text-[11px] font-bold text-content-muted mb-1">IFSC Code</label>
                   <input
                     type="text"
-                    value={settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}
+                    value={settings.bankDetails?.ifscCode || 'UTIB0002378'}
                     onChange={(e) =>
                       updateSettings({
                         bankDetails: {
@@ -1245,7 +1245,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   <label className="block text-[11px] font-bold text-content-muted mb-1">Direct UPI VPA ID</label>
                   <input
                     type="text"
-                    value={settings.bankDetails?.upiId || 'asfjk@jksbi'}
+                    value={settings.bankDetails?.upiId || 'asfjk@axisbank'}
                     onChange={(e) =>
                       updateSettings({
                         bankDetails: {
@@ -1290,7 +1290,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                   <label className="block text-[11px] font-bold text-content-muted mb-1">Branch Location</label>
                   <input
                     type="text"
-                    value={settings.bankDetails?.branch || 'Luragam Tral, Pulwama, J&K - 192123'}
+                    value={settings.bankDetails?.branch || 'Larikpora, Awantipora, Pulwama, J&K - 192122'}
                     onChange={(e) =>
                       updateSettings({
                         bankDetails: {

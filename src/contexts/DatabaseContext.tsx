@@ -224,6 +224,12 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         bankDetails: {
           ...INITIAL_SYSTEM_SETTINGS.bankDetails,
           ...parsed.bankDetails,
+          accountNumber: (!parsed.bankDetails?.accountNumber || parsed.bankDetails.accountNumber === '0134010100008892') ? '925010008902563' : parsed.bankDetails.accountNumber,
+          bankName: (!parsed.bankDetails?.bankName || parsed.bankDetails.bankName.includes('Jammu & Kashmir')) ? 'Axis Bank Ltd' : parsed.bankDetails.bankName,
+          ifscCode: (!parsed.bankDetails?.ifscCode || parsed.bankDetails.ifscCode === 'JAKA0LURGAM') ? 'UTIB0002378' : parsed.bankDetails.ifscCode,
+          branch: (!parsed.bankDetails?.branch || parsed.bankDetails.branch.includes('Luragam')) ? 'Larikpora, Awantipora, Pulwama, J&K - 192122' : parsed.bankDetails.branch,
+          accountName: (!parsed.bankDetails?.accountName || parsed.bankDetails.accountName === 'Al Shujaiat Foundation Jammu & Kashmir') ? 'M/S AL-SHUJAIAT FOUNDATION JAMMU & KASHMIR' : parsed.bankDetails.accountName,
+          accountType: parsed.bankDetails?.accountType || 'Savings Account',
           razorpayMeUrl: parsed.bankDetails?.razorpayMeUrl || 'https://razorpay.me/@asfjk',
         },
       };

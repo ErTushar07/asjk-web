@@ -447,6 +447,7 @@ export interface SystemSettings {
     bankName?: string;
     ifscCode?: string;
     branch?: string;
+    accountType?: string;
     upiId?: string;
     razorpayMeUrl?: string;
   };

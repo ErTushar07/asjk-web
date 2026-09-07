@@ -433,11 +433,13 @@ export interface SystemSettings {
   presetAmounts: number[];
   donationGoalExceededPolicy: 'continue_support' | 'redirect_general' | 'stop_recurring';
   paymentGateways: {
-    stripeEnabled: boolean;
+    stripeEnabled?: boolean;
     stripePublishableKey?: string;
     razorpayEnabled: boolean;
     razorpayKeyId?: string;
     razorpayPaymentUrl?: string;
+    paypalEnabled?: boolean;
+    paypalClientId?: string;
     sandboxEnabled: boolean;
     bankTransferEnabled: boolean;
   };

@@ -1,5 +1,4 @@
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import type { jsPDF as JsPDFType } from 'jspdf';
 import { Receipt, NgoMembership, SystemSettings } from '../types';
 import { LOGO_ASSET_URL } from './logoAsset';
 import { STAMP_ASSET_URL, SIGNATURE_ASSET_URL } from './stampAsset';
@@ -8,7 +7,9 @@ export class ReceiptService {
   /**
    * Generates a professional, legally compliant official tax receipt PDF
    */
-  public static generateReceiptPDF(receipt: Receipt, settings: SystemSettings): jsPDF {
+  public static async generateReceiptPDF(receipt: Receipt, settings: SystemSettings): Promise<JsPDFType> {
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -239,15 +240,17 @@ export class ReceiptService {
     return doc;
   }
 
-  public static downloadReceipt(receipt: Receipt, settings: SystemSettings): void {
-    const doc = this.generateReceiptPDF(receipt, settings);
+  public static async downloadReceipt(receipt: Receipt, settings: SystemSettings): Promise<void> {
+    const doc = await this.generateReceiptPDF(receipt, settings);
     doc.save(`${receipt.receiptNumber}.pdf`);
   }
 
   /**
    * Generates official membership tax receipt PDF displaying all required membership fields
    */
-  public static generateMembershipReceiptPDF(member: NgoMembership, settings: SystemSettings): jsPDF {
+  public static async generateMembershipReceiptPDF(member: NgoMembership, settings: SystemSettings): Promise<JsPDFType> {
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -493,8 +496,8 @@ export class ReceiptService {
     return doc;
   }
 
-  public static downloadMembershipReceipt(member: NgoMembership, settings: SystemSettings): void {
-    const doc = this.generateMembershipReceiptPDF(member, settings);
+  public static async downloadMembershipReceipt(member: NgoMembership, settings: SystemSettings): Promise<void> {
+    const doc = await this.generateMembershipReceiptPDF(member, settings);
     doc.save(`${member.receiptNumber || member.membershipNumber}_Receipt.pdf`);
   }
 }

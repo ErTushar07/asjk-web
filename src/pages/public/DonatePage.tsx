@@ -284,10 +284,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             {successResult.receipt && (
               <button
-                onClick={() => {
-                  import('../../services/receiptService').then(({ ReceiptService }) => {
-                    ReceiptService.downloadReceipt(successResult.receipt, settings);
-                  });
+                onClick={async () => {
+                  const { ReceiptService } = await import('../../services/receiptService');
+                  await ReceiptService.downloadReceipt(successResult.receipt, settings);
                 }}
                 className="btn-primary w-full sm:w-auto !py-3 !px-6 text-xs font-bold flex items-center justify-center gap-2"
               >
@@ -590,73 +589,38 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 </div>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
-                {/* Credit / Debit Card Gateway */}
-                <label
-                  className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                    paymentMethod === 'stripe_card'
-                      ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
-                      : 'border-content-border hover:bg-surface-soft'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === 'stripe_card'}
-                    onChange={() => setPaymentMethod('stripe_card')}
-                    className="text-brand-purple focus:ring-brand-purple mt-1"
-                  />
-                  <div className="w-9 h-9 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0">
-                    <CreditCard className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-extrabold text-content-primary">
-                        {t('donate.card_stripe', 'Credit / Debit Card')}
-                      </p>
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                        Active
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-content-secondary mt-0.5">
-                      Visa, Mastercard, RuPay, Amex
+              {/* Direct Bank Wire */}
+              <label
+                className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${
+                  paymentMethod === 'bank_wire'
+                    ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
+                    : 'border-content-border hover:bg-surface-soft'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'bank_wire'}
+                  onChange={() => setPaymentMethod('bank_wire')}
+                  className="text-brand-purple focus:ring-brand-purple"
+                />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <Building className="w-5 h-5" />
+                </div>
+                <div className="flex-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <p className="font-extrabold text-content-primary">
+                      {t('donate.bank_wire', 'Direct Bank Wire / NEFT / IMPS')}
                     </p>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                      Backend Reconciliation
+                    </span>
                   </div>
-                </label>
-
-                {/* Direct Bank Wire */}
-                <label
-                  className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                    paymentMethod === 'bank_wire'
-                      ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
-                      : 'border-content-border hover:bg-surface-soft'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === 'bank_wire'}
-                    onChange={() => setPaymentMethod('bank_wire')}
-                    className="text-brand-purple focus:ring-brand-purple mt-1"
-                  />
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                    <Building className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-extrabold text-content-primary">
-                        {t('donate.bank_wire', 'Direct Bank Wire')}
-                      </p>
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                        Active
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-content-secondary mt-0.5">
-                      NEFT, RTGS & IMPS Wire Transfer
-                    </p>
-                  </div>
-                </label>
-              </div>
+                  <p className="text-[11px] text-content-secondary mt-0.5">
+                    Direct transfer to statutory foundation bank account. Reconciled before tax receipt issuance.
+                  </p>
+                </div>
+              </label>
             </div>
 
             {/* Official Bank Account Details Box when Bank Wire is selected */}
@@ -824,7 +788,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
               ) : paymentMethod === 'bank_wire' ? (
                 <>
                   <ShieldCheck className="w-5 h-5 text-emerald-300" />
-                  <span>Confirm Transfer & Issue Official 80G Receipt ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
+                  <span>Submit Transfer for Accounting Reconciliation ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
                 </>
               ) : (
                 <>

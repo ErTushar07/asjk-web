@@ -214,7 +214,7 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
   });
 
   describe('5. Receipt Generation & Tax Declaration Compliance', () => {
-    it('generates an official PDF receipt with exact currency, member metadata and amounts', () => {
+    it('generates an official PDF receipt with exact currency, member metadata and amounts', async () => {
       const sampleMember: NgoMembership = {
         id: 'mbr_test_123',
         membershipNumber: 'ASFJK26M888',
@@ -241,7 +241,7 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
         createdAt: new Date().toISOString(),
       };
 
-      const doc = ReceiptService.generateMembershipReceiptPDF(sampleMember, INITIAL_SYSTEM_SETTINGS);
+      const doc = await ReceiptService.generateMembershipReceiptPDF(sampleMember, INITIAL_SYSTEM_SETTINGS);
       expect(doc).toBeDefined();
       expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
     });

@@ -1,13 +1,10 @@
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-
 export class ReportService {
   /**
    * Export any JSON dataset to CSV file
    */
-  public static exportToCSV(data: any[], filename: string): void {
+  public static async exportToCSV(data: any[], filename: string): Promise<void> {
     if (!data || !data.length) return;
+    const XLSX = await import('xlsx');
     const worksheet = XLSX.utils.json_to_sheet(data);
     const csvOutput = XLSX.utils.sheet_to_csv(worksheet);
     
@@ -23,8 +20,9 @@ export class ReportService {
   /**
    * Export dataset to Microsoft Excel (.xlsx)
    */
-  public static exportToExcel(data: any[], filename: string, sheetName: string = 'Report'): void {
+  public static async exportToExcel(data: any[], filename: string, sheetName: string = 'Report'): Promise<void> {
     if (!data || !data.length) return;
+    const XLSX = await import('xlsx');
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
@@ -34,7 +32,10 @@ export class ReportService {
   /**
    * Export financial summary or transaction table to formatted PDF
    */
-  public static exportTableToPDF(title: string, headers: string[], rows: any[][], filename: string): void {
+  public static async exportTableToPDF(title: string, headers: string[], rows: any[][], filename: string): Promise<void> {
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
+
     const doc = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',

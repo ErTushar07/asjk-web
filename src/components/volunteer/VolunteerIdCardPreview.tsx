@@ -17,13 +17,13 @@ export const VolunteerIdCardPreview: React.FC<VolunteerIdCardPreviewProps> = ({ 
 
   const handleDownloadPDF = async () => {
     const { VolunteerIdCardService } = await import('../../services/volunteerIdCardService');
-    const doc = VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
+    const doc = await VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
     doc.save(`${volunteer.fullName.replace(/\s+/g, '_')}_ASFJK_Volunteer_ID_Card.pdf`);
   };
 
   const handlePrint = async () => {
     const { VolunteerIdCardService } = await import('../../services/volunteerIdCardService');
-    const doc = VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
+    const doc = await VolunteerIdCardService.generateIdCardPDF(volunteer, settings);
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
     const iframe = document.createElement('iframe');

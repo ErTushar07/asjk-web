@@ -165,7 +165,7 @@ export const MyDonationsPage: React.FC<{ onNavigate: (route: string) => void }> 
                             const r = receipts.find((x) => x.receiptNumber === d.receiptNumber);
                             if (r) {
                               const { ReceiptService } = await import('../../services/receiptService');
-                              ReceiptService.downloadReceipt(r, settings);
+                              await ReceiptService.downloadReceipt(r, settings);
                             }
                           }}
                           className="btn-outline !py-1.5 !px-3 text-xs font-bold inline-flex items-center gap-1.5"

@@ -280,7 +280,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const handleDownloadPDF = async () => {
     if (successReceipt) {
       const { ReceiptService } = await import('../../services/receiptService');
-      ReceiptService.downloadReceipt(successReceipt, settings);
+      await ReceiptService.downloadReceipt(successReceipt, settings);
     }
   };
 
@@ -830,75 +830,39 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     </div>
                   </label>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
-                    {/* Credit / Debit Card Gateway */}
-                    <label
-                      className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
-                        paymentMethod === 'stripe_card'
-                          ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
-                          : 'border-content-border hover:bg-surface-soft'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment_method"
-                        value="stripe_card"
-                        checked={paymentMethod === 'stripe_card'}
-                        onChange={() => setPaymentMethod('stripe_card')}
-                        className="hidden"
-                      />
-                      <div className="w-8 h-8 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <CreditCard className="w-4 h-4" />
-                      </div>
-                      <div className="text-xs flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="font-extrabold text-content-primary">
-                            {t('donate.card_stripe', 'Credit / Debit Card')}
-                          </p>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                            Active
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-content-secondary mt-0.5">
-                          Visa, Mastercard, RuPay, Amex
+                  {/* Direct Bank Wire */}
+                  <label
+                    className={`flex items-center gap-3.5 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                      paymentMethod === 'bank_wire'
+                        ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
+                        : 'border-content-border hover:bg-surface-soft'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="bank_wire"
+                      checked={paymentMethod === 'bank_wire'}
+                      onChange={() => setPaymentMethod('bank_wire')}
+                      className="hidden"
+                    />
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <Building className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <p className="font-extrabold text-content-primary">
+                          {t('donate.bank_wire', 'Direct Bank Wire / NEFT / IMPS')}
                         </p>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                          Backend Reconciliation
+                        </span>
                       </div>
-                    </label>
-
-                    {/* Direct Bank Wire */}
-                    <label
-                      className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
-                        paymentMethod === 'bank_wire'
-                          ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
-                          : 'border-content-border hover:bg-surface-soft'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment_method"
-                        value="bank_wire"
-                        checked={paymentMethod === 'bank_wire'}
-                        onChange={() => setPaymentMethod('bank_wire')}
-                        className="hidden"
-                      />
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Building className="w-4 h-4" />
-                      </div>
-                      <div className="text-xs flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="font-extrabold text-content-primary">
-                            {t('donate.bank_wire', 'Direct Bank Wire')}
-                          </p>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                            Active
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-content-secondary mt-0.5">
-                          NEFT, RTGS & IMPS Wire
-                        </p>
-                      </div>
-                    </label>
-                  </div>
+                      <p className="text-[11px] text-content-secondary mt-0.5">
+                        Transfer directly to statutory foundation bank account. Reconciled before receipt issuance.
+                      </p>
+                    </div>
+                  </label>
                 </div>
 
                 {/* Bank Account Details Box when Bank Wire selected in Modal */}
@@ -1045,7 +1009,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     ) : paymentMethod === 'bank_wire' ? (
                       <>
                         <ShieldCheck className="w-4 h-4 text-emerald-300" />
-                        <span>Confirm Transfer & Issue 80G Receipt</span>
+                        <span>Submit Transfer for Accounting Reconciliation</span>
                       </>
                     ) : (
                       <>

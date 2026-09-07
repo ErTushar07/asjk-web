@@ -30,6 +30,14 @@ export const supabase: SupabaseClient = isSupabaseConfigured
               signOut: async () => ({ error: null }),
             };
           }
+          if (prop === 'functions') {
+            return {
+              invoke: async (functionName: string) => {
+                console.warn(`[SupabaseClient] functions.invoke('${functionName}') called but Supabase is not configured.`);
+                return { data: null, error: new Error('Supabase Edge Functions are not configured in this environment.') };
+              },
+            };
+          }
           return () => {
             console.warn(`[SupabaseClient] Method ${String(prop)} called but Supabase is not configured.`);
             return {

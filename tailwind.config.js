@@ -38,7 +38,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
         arabic: ['Noto Naskh Arabic', 'Scheherazade New', 'Amiri', 'serif'],
         urdu: ['Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'serif'],
         hindi: ['Noto Sans Devanagari', 'Mukta', 'sans-serif'],

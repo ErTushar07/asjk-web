@@ -28,6 +28,7 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   // Supported PayPal ISO currency code
   const isDirectCurrency = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'].includes(currency.toUpperCase());
@@ -39,13 +40,23 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({
     setIsLoading(true);
     setLoadError(null);
 
+    // Hard fallback timeout: stop spinner after 10s if script or buttons hang
+    const timer = setTimeout(() => {
+      if (isMounted && isLoading) {
+        setIsLoading(false);
+        if (!containerRef.current?.children.length) {
+          setLoadError('Connecting to PayPal timed out. Please verify your connection or click Retry.');
+        }
+      }
+    }, 10000);
+
     const initPayPal = async () => {
       try {
         const loaded = await PaymentService.loadPayPalScript(undefined, effectiveCurrency);
         if (!isMounted) return;
 
         if (!loaded || !(window as any).paypal) {
-          setLoadError('Unable to load PayPal checkout engine. Please check your internet connection or try another method.');
+          setLoadError('Unable to load PayPal checkout engine. Please check your internet connection or try again.');
           setIsLoading(false);
           return;
         }
@@ -116,7 +127,7 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({
             console.warn('PayPal button render catch:', renderErr);
             if (isMounted) {
               setIsLoading(false);
-              setLoadError('Failed to initialize PayPal buttons.');
+              setLoadError('Failed to initialize PayPal buttons. Click Retry to reload.');
             }
           });
       } catch (err: any) {
@@ -131,11 +142,12 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({
 
     return () => {
       isMounted = false;
+      clearTimeout(timer);
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }
     };
-  }, [effectiveAmount, effectiveCurrency, disabled]);
+  }, [effectiveAmount, effectiveCurrency, disabled, retryKey]);
 
   return (
     <div className="w-full space-y-2">
@@ -156,9 +168,18 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({
       )}
 
       {loadError && (
-        <div className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">
-          <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
-          <span>{loadError}</span>
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-2">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+            <span>{loadError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRetryKey((k) => k + 1)}
+            className="text-[11px] font-bold text-brand-purple hover:underline bg-white px-3 py-1 rounded-lg border border-brand-purple/20 shadow-xs"
+          >
+            ↻ Retry Connecting to PayPal
+          </button>
         </div>
       )}
 

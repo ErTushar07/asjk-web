@@ -110,7 +110,7 @@ export const MyReceiptsPage: React.FC<{ onNavigate: (route: string) => void }> =
                 type="button"
                 onClick={async () => {
                   const { ReceiptService } = await import('../../services/receiptService');
-                  ReceiptService.downloadReceipt(r, settings);
+                  await ReceiptService.downloadReceipt(r, settings);
                 }}
                 className="btn-primary flex-1 !py-2 text-xs font-bold flex items-center justify-center gap-1.5"
               >

@@ -64,6 +64,7 @@ interface DatabaseContextType {
   
   // Actions
   processDonation: (input: ProcessDonationInput) => Promise<ProcessDonationResult>;
+  verifyBankTransferDonation: (donationId: string) => void;
   updateRecurringStatus: (id: string, newStatus: 'active' | 'paused' | 'cancelled') => void;
   simulateFailedRecurringPayment: (recurringId: string) => void;
   simulateRetryRecurringPayment: (recurringId: string) => void;
@@ -1100,9 +1101,85 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return newMbr;
   };
 
+  const verifyBankTransferDonation = (donationId: string) => {
+    checkAdminAuth();
+    const d = donations.find((x) => x.id === donationId);
+    if (!d) return;
+
+    const receiptNumber = d.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const now = new Date().toISOString();
+
+    setDonations((prev) =>
+      prev.map((item) =>
+        item.id === donationId
+          ? { ...item, status: 'successful', receiptNumber, updatedAt: now }
+          : item
+      )
+    );
+
+    const receiptObj: Receipt = {
+      id: `rec_${Date.now()}`,
+      receiptNumber,
+      donationId: d.id,
+      transactionId: d.paymentId || d.notes || `BANK-${Date.now()}`,
+      donationDate: now,
+      donorName: d.donorName,
+      donorEmail: d.donorEmail,
+      donorAddress: d.donorCountry || 'India',
+      donorTaxId: d.donorTaxId,
+      projectName: d.targetName,
+      amount: d.amount,
+      currency: d.currency,
+      amountUSD: d.amountUSD,
+      paymentMethod: d.paymentMethod,
+      language: 'en',
+      taxExemptionText: 'Voluntary charitable contribution eligible for 50% deduction under Section 80G of the Indian Income Tax Act, 1961.',
+      issuedAt: now,
+      pdfGenerated: true,
+    };
+    setReceipts((prev) => [receiptObj, ...prev.filter((r) => r.receiptNumber !== receiptNumber)]);
+
+    setPayments((prev) =>
+      prev.map((p) =>
+        p.donationId === donationId ? { ...p, status: 'successful', updatedAt: now } : p
+      )
+    );
+
+    recordAudit('usr_admin', 'Administrator', 'super_admin', 'DONATION_VERIFIED', 'donation', donationId, `Verified bank wire transfer for donation ${d.donationNumber} and issued receipt ${receiptNumber}`);
+  };
+
   const updateMembershipStatus = (id: string, status: NgoMembership['status']) => {
     checkAdminAuth();
-    setMemberships((prev) => prev.map((m) => (m.id === id ? { ...m, status } : m)));
+    setMemberships((prev) =>
+      prev.map((m) => {
+        if (m.id !== id) return m;
+        const receiptNumber = m.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        if (status === 'active' && m.status !== 'active') {
+          const now = new Date().toISOString();
+          const receiptObj: Receipt = {
+            id: `rec_mbr_${Date.now()}`,
+            receiptNumber,
+            donationId: m.id,
+            transactionId: m.transactionId,
+            donationDate: now,
+            donorName: m.fullName,
+            donorEmail: m.email,
+            donorAddress: `${m.city}, ${m.country}`,
+            projectName: `Al Shujaiat Foundation NGO Membership · ${m.tierName} (${m.durationYears} ${m.durationYears === 1 ? 'Year' : 'Years'})`,
+            amount: m.totalContribution || m.paidAmount,
+            currency: m.currency,
+            amountUSD: m.totalContribution || m.paidAmount,
+            paymentMethod: m.paymentMethod,
+            language: 'en',
+            taxExemptionText: 'Voluntary charitable contribution eligible for 50% deduction under Section 80G and Section 12A of the Indian Income Tax Act, 1961.',
+            issuedAt: now,
+            pdfGenerated: true,
+          };
+          setReceipts((rPrev) => [receiptObj, ...rPrev.filter((r) => r.receiptNumber !== receiptNumber)]);
+        }
+        return { ...m, status, receiptNumber };
+      })
+    );
     recordAudit('usr_admin', 'Administrator', 'super_admin', 'MEMBERSHIP_STATUS_UPDATED', 'user', id, `Updated membership status to ${status}`);
   };
 
@@ -1463,6 +1540,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         auditLogs,
         settings,
         processDonation,
+        verifyBankTransferDonation,
         updateRecurringStatus,
         simulateFailedRecurringPayment,
         simulateRetryRecurringPayment,

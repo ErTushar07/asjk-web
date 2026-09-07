@@ -64,7 +64,7 @@ export const MembershipPage: React.FC = () => {
   const [country, setCountry] = useState('India');
   const [bloodGroup, setBloodGroup] = useState('O+');
   const [photoUrl, setPhotoUrl] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal' | 'bank_wire'>('upi');
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'paypal' | 'bank_wire'>('upi');
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -267,7 +267,7 @@ export const MembershipPage: React.FC = () => {
       }
 
       // 2. Online Razorpay Checkout (Cards, UPI, NetBanking, International)
-      const mappedMethod = (paymentMethod === 'card' || paymentMethod === 'paypal') ? 'stripe_card' : 'razorpay_upi';
+      const mappedMethod = 'razorpay_upi';
       const paymentResult = await PaymentService.processPayment({
         amount: totalContribution,
         currency: currentCurrency.code,
@@ -285,11 +285,9 @@ export const MembershipPage: React.FC = () => {
         throw new Error('Payment was not completed.');
       }
 
-      const methodLabel = paymentMethod === 'card'
-        ? 'Credit/Debit Card (Razorpay)'
-        : paymentMethod === 'paypal'
-        ? 'International Card (Razorpay)'
-        : 'UPI / NetBanking (Razorpay)';
+      const methodLabel = paymentMethod === 'paypal'
+        ? 'PayPal Checkout'
+        : 'UPI / Cards / NetBanking (Razorpay)';
 
       const newMbr = addMembership({
         fullName: fullName.trim(),
@@ -504,7 +502,7 @@ export const MembershipPage: React.FC = () => {
                     <button
                       onClick={async () => {
                         const { ReceiptService } = await import('../../services/receiptService');
-                        ReceiptService.downloadMembershipReceipt(lookupResult, settings);
+                        await ReceiptService.downloadMembershipReceipt(lookupResult, settings);
                       }}
                       className="btn-primary !py-2.5 !px-5 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
                     >
@@ -562,7 +560,7 @@ export const MembershipPage: React.FC = () => {
             <button
               onClick={async () => {
                 const { ReceiptService } = await import('../../services/receiptService');
-                ReceiptService.downloadMembershipReceipt(confirmedMember, settings);
+                await ReceiptService.downloadMembershipReceipt(confirmedMember, settings);
               }}
               className="btn-primary !py-2.5 !px-6 text-xs font-bold shadow-pink-glow flex items-center gap-1.5"
             >
@@ -963,38 +961,30 @@ export const MembershipPage: React.FC = () => {
               <label className="block text-xs font-semibold text-content-primary">
                 {t('membership.payment_method', 'Select Payment Method')}
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { 
                     id: 'upi', 
-                    label: t('membership.upi', 'UPI / NetBanking / Cards'), 
+                    label: t('membership.upi', 'UPI / Cards / NetBanking'), 
                     gateway: 'Razorpay Gateway',
                     icon: Sparkles, 
-                    hint: 'GPay, PhonePe, Paytm, RuPay, Cards',
-                    active: true 
-                  },
-                  { 
-                    id: 'card', 
-                    label: t('membership.card', 'Credit / Debit Card'), 
-                    gateway: 'Cards (Visa, MC, RuPay)',
-                    icon: CreditCard, 
-                    hint: 'Visa, Mastercard, RuPay',
+                    hint: 'GPay, PhonePe, Paytm, Indian & Global Cards',
                     active: true 
                   },
                   { 
                     id: 'paypal', 
-                    label: t('membership.paypal', 'PayPal / International'), 
+                    label: t('membership.paypal', 'PayPal / International Cards'), 
                     gateway: 'PayPal Global',
                     icon: Globe, 
-                    hint: 'Global USD / Cards',
+                    hint: 'Global USD / Cards via PayPal',
                     active: true 
                   },
                   { 
                     id: 'bank_wire', 
-                    label: t('membership.bank_wire', 'Direct Bank Wire'), 
+                    label: t('membership.bank_wire', 'Direct Bank Wire / NEFT'), 
                     gateway: 'NEFT / RTGS / IMPS',
                     icon: Building, 
-                    hint: 'Direct Account Transfer',
+                    hint: 'Backend Bank Reconciliation',
                     active: true 
                   },
                 ].map((m) => (
@@ -1185,7 +1175,7 @@ export const MembershipPage: React.FC = () => {
                   ) : paymentMethod === 'bank_wire' ? (
                     <>
                       <Building className="w-4 h-4" />
-                      <span>Submit Bank Wire & Register: {formatMembershipCurrency(totalContribution)}</span>
+                      <span>Submit Wire Details for Reconciliation: {formatMembershipCurrency(totalContribution)}</span>
                     </>
                   ) : (
                     <>

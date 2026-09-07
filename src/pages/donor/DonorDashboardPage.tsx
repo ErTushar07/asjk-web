@@ -184,7 +184,7 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                             const r = receipts.find((x) => x.receiptNumber === d.receiptNumber);
                             if (r) {
                               const { ReceiptService } = await import('../../services/receiptService');
-                              ReceiptService.downloadReceipt(r, settings);
+                              await ReceiptService.downloadReceipt(r, settings);
                             }
                           }}
                           className="btn-outline !py-1 !px-2 text-[10px] font-bold inline-flex items-center gap-1"

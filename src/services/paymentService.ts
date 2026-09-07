@@ -109,22 +109,41 @@ export class PaymentService {
     if ((window as any).paypal) return true;
 
     return new Promise((resolve) => {
+      let timeoutId: any;
+      const done = (result: boolean) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        resolve(result);
+      };
+
+      timeoutId = setTimeout(() => {
+        if ((window as any).paypal) {
+          done(true);
+        } else {
+          console.warn('[PaymentService] PayPal SDK load timed out after 10 seconds');
+          done(false);
+        }
+      }, 10000);
+
       const existing = document.querySelector('script[src*="paypal.com/sdk/js"]');
       if (existing) {
         if ((window as any).paypal) {
-          resolve(true);
+          done(true);
           return;
         }
-        existing.addEventListener('load', () => resolve(true));
-        existing.addEventListener('error', () => resolve(false));
-        return;
+        if (!existing.getAttribute('src')?.includes(`currency=${safeCurrency}`)) {
+          existing.remove();
+        } else {
+          existing.addEventListener('load', () => done(Boolean((window as any).paypal)));
+          existing.addEventListener('error', () => done(false));
+          return;
+        }
       }
 
       const script = document.createElement('script');
       script.src = `https://www.paypal.com/sdk/js?client-id=${effectiveClientId}&currency=${safeCurrency}&intent=capture`;
       script.async = true;
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
+      script.onload = () => done(Boolean((window as any).paypal));
+      script.onerror = () => done(false);
       document.body.appendChild(script);
     });
   }

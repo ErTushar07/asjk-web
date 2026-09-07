@@ -1176,8 +1176,8 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   presetAmounts: [25, 50, 100, 250, 500],
   donationGoalExceededPolicy: 'continue_support',
   paymentGateways: {
-    stripeEnabled: true,
-    stripePublishableKey: 'pk_test_sample_asfjk',
+    paypalEnabled: true,
+    paypalClientId: '',
     razorpayEnabled: true,
     razorpayPaymentUrl: 'https://razorpay.me/@asfjk',
     sandboxEnabled: false,

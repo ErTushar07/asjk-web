@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 // Vercel Serverless Function: /api/send-email
 // Universal transactional email dispatch engine for all public recipients
 
@@ -331,7 +333,6 @@ export default async function handler(req: any, res: any) {
 
     if (smtpHost && smtpUser && smtpPass) {
       try {
-        const nodemailer = require('nodemailer');
         const transporter = nodemailer.createTransport({
           host: smtpHost,
           port: Number(process.env.SMTP_PORT || 587),

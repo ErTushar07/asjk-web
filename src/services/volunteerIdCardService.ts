@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+import type { jsPDF as JsPDFType } from 'jspdf';
 import { VolunteerApplication, SystemSettings } from '../types';
 import { LOGO_ASSET_URL } from './logoAsset';
 import { STAMP_ASSET_URL, SIGNATURE_ASSET_URL } from './stampAsset';
@@ -7,7 +7,8 @@ export class VolunteerIdCardService {
   /**
    * Generates a high-resolution, print-ready official Volunteer Identity Card PDF (CR80 Standard Vertical Portrait: 54mm x 86mm)
    */
-  public static generateIdCardPDF(volunteer: VolunteerApplication, settings: SystemSettings): jsPDF {
+  public static async generateIdCardPDF(volunteer: VolunteerApplication, settings: SystemSettings): Promise<JsPDFType> {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -249,5 +250,10 @@ export class VolunteerIdCardService {
     doc.text('NGO-DARPAN: JK/2018/0190361 · 80G · 12A · LEI · /asfjkfoundation', 27, 82.5, { align: 'center' });
 
     return doc;
+  }
+
+  public static async downloadIdCard(volunteer: VolunteerApplication, settings: SystemSettings): Promise<void> {
+    const doc = await this.generateIdCardPDF(volunteer, settings);
+    doc.save(`${volunteer.fullName.replace(/\s+/g, '_')}_ASFJK_Volunteer_ID_Card.pdf`);
   }
 }

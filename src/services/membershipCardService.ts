@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+import type { jsPDF as JsPDFType } from 'jspdf';
 import { NgoMembership, SystemSettings } from '../types';
 import { LOGO_ASSET_URL } from './logoAsset';
 import { STAMP_ASSET_URL, SIGNATURE_ASSET_URL } from './stampAsset';
@@ -7,7 +7,8 @@ export class MembershipCardService {
   /**
    * Generates a high-resolution, print-ready official NGO Membership ID Card PDF (CR80 Standard Vertical: 54mm x 86mm)
    */
-  public static generateMembershipCardPDF(member: NgoMembership, settings: SystemSettings): jsPDF {
+  public static async generateMembershipCardPDF(member: NgoMembership, settings: SystemSettings): Promise<JsPDFType> {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -269,5 +270,10 @@ export class MembershipCardService {
     doc.text(`${settings.taxExemptionNumber80G} · /asfjkfoundation`, 27, 82.5, { align: 'center' });
 
     return doc;
+  }
+
+  public static async downloadMembershipCard(member: NgoMembership, settings: SystemSettings): Promise<void> {
+    const doc = await this.generateMembershipCardPDF(member, settings);
+    doc.save(`${member.fullName.replace(/\s+/g, '_')}_ASFJK_NGO_Membership_Card.pdf`);
   }
 }

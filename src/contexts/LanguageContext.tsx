@@ -28,8 +28,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     // Apply HTML document attributes for accessibility & bidirectional text rendering
+    const langCodeMap: Record<string, string> = {
+      en: 'en',
+      ar: 'ar',
+      ur: 'ur',
+      hi: 'hi',
+    };
     document.documentElement.dir = currentLanguage.dir;
-    document.documentElement.lang = currentLanguage.code;
+    document.documentElement.lang = langCodeMap[currentLanguage.code] || 'en';
     localStorage.setItem('asfjk_lang', currentLanguage.code);
   }, [currentLanguage]);
 

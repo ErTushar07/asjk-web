@@ -50,7 +50,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
     receipts, refunds, stories, news, volunteers, partnerships, memberships, leadership,
     supportTickets, auditLogs, settings, createProject, updateProject, 
     deleteProject, createCampaign, updateCampaign, deleteCampaign,
-    processRefund, updateRecurringStatus, simulateRetryRecurringPayment,
+    processRefund, verifyBankTransferDonation, updateRecurringStatus, simulateRetryRecurringPayment,
     updateSettings, updateSupportTicketStatus, updateVolunteerStatus, updatePartnershipStatus, updateMembershipStatus,
     createLeadershipMember, updateLeadershipMember, deleteLeadershipMember, toggleLeadershipStatus
   } = useDatabase();
@@ -61,22 +61,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
 
   const handleExportCSV = async (data: any[], filename: string) => {
     const { ReportService } = await import('../../services/reportService');
-    ReportService.exportToCSV(data, filename);
+    await ReportService.exportToCSV(data, filename);
   };
 
   const handleExportExcel = async (data: any[], filename: string) => {
     const { ReportService } = await import('../../services/reportService');
-    ReportService.exportToExcel(data, filename);
+    await ReportService.exportToExcel(data, filename);
   };
 
   const handleDownloadReceipt = async (r: any) => {
     const { ReceiptService } = await import('../../services/receiptService');
-    ReceiptService.downloadReceipt(r, settings);
+    await ReceiptService.downloadReceipt(r, settings);
   };
 
   const handleDownloadMembershipReceipt = async (m: any) => {
     const { ReceiptService } = await import('../../services/receiptService');
-    ReceiptService.downloadMembershipReceipt(m, settings);
+    await ReceiptService.downloadMembershipReceipt(m, settings);
   };
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -748,6 +748,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                               PDF Receipt
                             </button>
                           )}
+                          {d.status === 'pending' && (
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Verify bank transfer deposit for donation ${d.donationNumber} (${d.currency} ${d.amount}) and generate official 80G tax receipt?`)) {
+                                  verifyBankTransferDonation(d.id);
+                                  toast.success(`Bank transfer verified for ${d.donorName}. Section 80G receipt issued.`);
+                                }
+                              }}
+                              className="px-2 py-0.5 rounded-lg text-[10.5px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 inline-flex items-center gap-1 border border-emerald-300 shadow-xs"
+                              title="Verify Bank Statement Deposit & Issue Official 80G Tax Receipt"
+                            >
+                              <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Verify Deposit
+                            </button>
+                          )}
                           {d.status === 'successful' && (
                             <button
                               onClick={() => {
@@ -1129,14 +1143,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 </div>
               </div>
 
-              {/* Stripe (International Cards) */}
+              {/* PayPal (International & Global Cards) */}
               <div className="p-6 rounded-3xl bg-surface-soft border border-content-border space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <CreditCard className="w-6 h-6 text-brand-purple" />
+                    <Globe className="w-6 h-6 text-amber-500" />
                     <div>
-                      <h4 className="font-extrabold text-sm text-content-primary">Stripe Payments</h4>
-                      <p className="text-[11px] text-content-muted">Global Visa, Mastercard, AMEX, Apple Pay</p>
+                      <h4 className="font-extrabold text-sm text-content-primary">PayPal Global Checkout</h4>
+                      <p className="text-[11px] text-content-muted">Global PayPal balance & International Cards (USD, EUR, GBP)</p>
                     </div>
                   </div>
                   <button
@@ -1145,37 +1159,37 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                       updateSettings({
                         paymentGateways: {
                           ...settings.paymentGateways,
-                          stripeEnabled: !settings.paymentGateways?.stripeEnabled,
+                          paypalEnabled: !(settings.paymentGateways as any)?.paypalEnabled,
                         },
                       })
                     }
                     className={`px-3 py-1 rounded-full text-[10px] font-bold transition-colors ${
-                      settings.paymentGateways?.stripeEnabled
+                      (settings.paymentGateways as any)?.paypalEnabled !== false
                         ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
                         : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                     }`}
                   >
-                    {settings.paymentGateways?.stripeEnabled ? 'Active (Click to Disable)' : 'Disabled (Click to Enable)'}
+                    {(settings.paymentGateways as any)?.paypalEnabled !== false ? 'Active (Click to Disable)' : 'Disabled (Click to Enable)'}
                   </button>
                 </div>
                 <div className="space-y-2 text-xs">
-                  <label className="block text-[11px] font-bold text-content-muted">Stripe Publishable Key (Public)</label>
+                  <label className="block text-[11px] font-bold text-content-muted">PayPal Client ID (Public)</label>
                   <input
                     type="text"
-                    placeholder="pk_live_... or pk_test_..."
-                    value={settings.paymentGateways?.stripePublishableKey || ''}
+                    placeholder="client_id (default: 'sb' for sandbox)"
+                    value={(settings.paymentGateways as any)?.paypalClientId || ''}
                     onChange={(e) =>
                       updateSettings({
                         paymentGateways: {
                           ...settings.paymentGateways,
-                          stripePublishableKey: e.target.value.trim(),
+                          paypalClientId: e.target.value.trim(),
                         },
                       })
                     }
                     className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-content-border bg-white focus:border-brand-purple outline-none"
                   />
                   <p className="text-[10px] text-content-muted leading-relaxed">
-                    💡 <strong>Where to find:</strong> Stripe Dashboard &rarr; <em>Developers</em> &rarr; <em>API Keys</em> &rarr; <em>Publishable key</em>.
+                    💡 <strong>Where to find:</strong> PayPal Developer Dashboard &rarr; <em>My Apps &amp; Credentials</em> &rarr; <em>Client ID</em>.
                   </p>
                 </div>
               </div>
@@ -1815,6 +1829,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right space-x-1.5">
+                        {m.status !== 'active' && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Verify bank deposit for member ${m.fullName} (${m.currency} ${m.paidAmount}) and activate official membership?`)) {
+                                updateMembershipStatus(m.id, 'active');
+                                toast.success(`Bank transfer verified. ${m.fullName}'s membership activated.`);
+                              }
+                            }}
+                            className="px-2 py-0.5 rounded-lg text-[10.5px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 inline-flex items-center gap-1 border border-emerald-300 shadow-xs mr-1"
+                            title="Verify Bank Statement Deposit & Activate Official Membership"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Verify Deposit
+                          </button>
+                        )}
                         <button
                           onClick={() => setSelectedMembershipModal(m)}
                           className="btn-primary !py-1 !px-2.5 text-[10px] font-bold inline-flex items-center gap-1 shadow-pink-glow"

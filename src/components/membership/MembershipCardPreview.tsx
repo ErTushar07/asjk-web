@@ -17,13 +17,13 @@ export const MembershipCardPreview: React.FC<MembershipCardPreviewProps> = ({ me
 
   const handleDownloadPDF = async () => {
     const { MembershipCardService } = await import('../../services/membershipCardService');
-    const doc = MembershipCardService.generateMembershipCardPDF(member, settings);
+    const doc = await MembershipCardService.generateMembershipCardPDF(member, settings);
     doc.save(`${member.fullName.replace(/\s+/g, '_')}_ASFJK_NGO_Membership_Card.pdf`);
   };
 
   const handlePrint = async () => {
     const { MembershipCardService } = await import('../../services/membershipCardService');
-    const doc = MembershipCardService.generateMembershipCardPDF(member, settings);
+    const doc = await MembershipCardService.generateMembershipCardPDF(member, settings);
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
     const iframe = document.createElement('iframe');

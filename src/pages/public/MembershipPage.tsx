@@ -14,13 +14,21 @@ import {
   AlertCircle, Copy, FileText
 } from 'lucide-react';
 
+interface TierBenefit {
+  key: string;
+  defaultText: string;
+}
+
 interface TierOption {
   id: MembershipTier;
   name: string;
+  nameKey: string;
   badge: string;
+  badgeKey: string;
   baseAmount: number; // 100, 500, 1000, 5000, 10000
   description: string;
-  benefits: string[];
+  descKey: string;
+  benefits: TierBenefit[];
   gradient: string;
   borderColor: string;
   popular?: boolean;
@@ -103,14 +111,17 @@ export const MembershipPage: React.FC = () => {
     {
       id: 'general_member',
       name: 'General Member',
+      nameKey: 'membership.tier_name_general',
       badge: 'COMMUNITY ENTRY',
+      badgeKey: 'membership.badge_general',
       baseAmount: 100,
       description: 'Accessible community membership supporting local relief distribution and youth welfare.',
+      descKey: 'membership.desc_general',
       benefits: [
-        'Official Digital & Printable NGO Membership Card',
-        'Foundation Newsletter & Relief Reports',
-        'Section 80G & 12A Tax Exemption Certificate',
-        'Invitation to community volunteer mobilization',
+        { key: 'membership.ben_card', defaultText: 'Official Digital & Printable NGO Membership Card' },
+        { key: 'membership.ben_newsletter', defaultText: 'Foundation Newsletter & Relief Reports' },
+        { key: 'membership.ben_tax', defaultText: 'Section 80G & 12A Tax Exemption Certificate' },
+        { key: 'membership.ben_volunteer', defaultText: 'Invitation to community volunteer mobilization' },
       ],
       gradient: 'from-emerald-950 via-slate-900 to-teal-950',
       borderColor: 'border-emerald-500',
@@ -118,14 +129,17 @@ export const MembershipPage: React.FC = () => {
     {
       id: 'associate_member',
       name: 'Associate Member',
+      nameKey: 'membership.tier_name_associate',
       badge: 'ASSOCIATE TIER',
+      badgeKey: 'membership.badge_associate',
       baseAmount: 500,
       description: 'Foundational membership supporting grassroots healthcare & school aid in Kashmir.',
+      descKey: 'membership.desc_silver',
       benefits: [
-        'All General Member privileges included',
-        'Annual Audited Financial Transparency Report',
-        'Voting rights in public community aid surveys',
-        'Tax Exemption Certificate under Section 80G & 12A',
+        { key: 'membership.ben_inc_general', defaultText: 'All General Member privileges included' },
+        { key: 'membership.ben_audit', defaultText: 'Annual Audited Financial Transparency Report' },
+        { key: 'membership.ben_voting', defaultText: 'Voting rights in public community aid surveys' },
+        { key: 'membership.ben_tax', defaultText: 'Tax Exemption Certificate under Section 80G & 12A' },
       ],
       gradient: 'from-slate-800 via-slate-900 to-slate-950',
       borderColor: 'border-slate-400',
@@ -133,15 +147,18 @@ export const MembershipPage: React.FC = () => {
     {
       id: 'supporting_member',
       name: 'Supporting Member',
+      nameKey: 'membership.tier_name_supporting',
       badge: 'MOST POPULAR',
+      badgeKey: 'membership.badge_supporting',
       baseAmount: 1000,
       description: 'Active patron empowering continuous clean water and winter relief logistics.',
+      descKey: 'membership.desc_gold',
       benefits: [
-        'All Associate Member privileges included',
-        'Priority quarterly project milestones & field dispatches',
-        'Recognition on Foundation Annual Donor Roll',
-        'Exclusive invitations to executive foundation webinars',
-        'Supporting Member Metallic NGO Badge (CR80)',
+        { key: 'membership.ben_inc_associate', defaultText: 'All Associate Member privileges included' },
+        { key: 'membership.ben_milestones', defaultText: 'Priority quarterly project milestones & field dispatches' },
+        { key: 'membership.ben_roll', defaultText: 'Recognition on Foundation Annual Donor Roll' },
+        { key: 'membership.ben_webinars', defaultText: 'Exclusive invitations to executive foundation webinars' },
+        { key: 'membership.ben_gold_badge', defaultText: 'Supporting Member Metallic NGO Badge (CR80)' },
       ],
       gradient: 'from-blue-950 via-indigo-950 to-slate-950',
       borderColor: 'border-blue-400',
@@ -150,15 +167,18 @@ export const MembershipPage: React.FC = () => {
     {
       id: 'patron_member',
       name: 'Patron Member',
+      nameKey: 'membership.tier_name_patron',
       badge: 'HONORARY PATRON',
+      badgeKey: 'membership.badge_patron',
       baseAmount: 5000,
       description: 'Strategic patron guiding emergency response, dialysis centers, and smart education.',
+      descKey: 'membership.desc_platinum',
       benefits: [
-        'All Supporting Member privileges included',
-        'Participation in Advisory Council strategic reviews',
-        'Permanent plaque acknowledgment at community centers',
-        'Direct consultation on new project site selections',
-        'Patron Prestige Membership Card & Certificate',
+        { key: 'membership.ben_inc_supporting', defaultText: 'All Supporting Member privileges included' },
+        { key: 'membership.ben_advisory', defaultText: 'Participation in Advisory Council strategic reviews' },
+        { key: 'membership.ben_plaque', defaultText: 'Permanent plaque acknowledgment at community centers' },
+        { key: 'membership.ben_consultation', defaultText: 'Direct consultation on new project site selections' },
+        { key: 'membership.ben_platinum_badge', defaultText: 'Patron Prestige Membership Card & Certificate' },
       ],
       gradient: 'from-amber-950 via-slate-900 to-amber-950',
       borderColor: 'border-amber-400',
@@ -166,15 +186,18 @@ export const MembershipPage: React.FC = () => {
     {
       id: 'benefactor_member',
       name: 'Benefactor Member',
+      nameKey: 'membership.tier_name_benefactor',
       badge: 'PREMIER BENEFACTOR',
+      badgeKey: 'membership.badge_benefactor',
       baseAmount: 10000,
       description: 'Transformational philanthropist steering landmark infrastructure & multi-district relief.',
+      descKey: 'membership.desc_diamond',
       benefits: [
-        'All Patron Member privileges included',
-        'One-on-one executive briefings with Director General',
-        'Named sponsorship of emergency field convoys & medical camps',
-        'VIP delegation access during official field visits to J&K',
-        'Benefactor Metal Crest ID Emblem Badge',
+        { key: 'membership.ben_inc_patron', defaultText: 'All Patron Member privileges included' },
+        { key: 'membership.ben_briefings', defaultText: 'One-on-one executive briefings with Director General' },
+        { key: 'membership.ben_sponsorship', defaultText: 'Named sponsorship of emergency field convoys & medical camps' },
+        { key: 'membership.ben_vip', defaultText: 'VIP delegation access during official field visits to J&K' },
+        { key: 'membership.ben_diamond_badge', defaultText: 'Benefactor Metal Crest ID Emblem Badge' },
       ],
       gradient: 'from-purple-950 via-slate-900 to-indigo-950',
       borderColor: 'border-purple-400',
@@ -665,50 +688,52 @@ export const MembershipPage: React.FC = () => {
                   <div
                     key={tItem.id}
                     onClick={() => setSelectedTier(tItem.id)}
-                    className={`rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative flex flex-col justify-between ${
+                    className={`rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative flex flex-col justify-between text-start ${
                       isSelected
                         ? 'border-brand-pink bg-gradient-to-b from-white via-purple-50/40 to-pink-50/20 shadow-brand-lg scale-[1.02] ring-2 ring-brand-pink/20'
                         : 'border-content-border bg-white hover:border-brand-purple/40 hover:shadow-brand-sm'
                     }`}
                   >
                     {tItem.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-brand-pink text-white font-black text-[8.5px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
-                        POPULAR CHOICE
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-brand-pink text-white font-black text-[8.5px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow whitespace-nowrap">
+                        {t('membership.popular', 'POPULAR CHOICE')}
                       </span>
                     )}
 
                     <div className="space-y-2.5">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-1">
                         <span className="text-[9px] font-extrabold uppercase tracking-wider text-content-muted">
-                          {tItem.badge}
+                          {t(tItem.badgeKey, tItem.badge)}
                         </span>
                         {isSelected && <CheckCircle2 className="w-4 h-4 text-brand-pink flex-shrink-0" />}
                       </div>
 
                       <div>
                         <h3 className="text-sm sm:text-base font-black text-content-primary leading-snug">
-                          {tItem.name}
+                          {t(tItem.nameKey, tItem.name)}
                         </h3>
-                        <p className="text-[10.5px] text-content-secondary mt-1 leading-relaxed line-clamp-2">
-                          {tItem.description}
+                        <p className="text-[10.5px] text-content-secondary mt-1 leading-relaxed">
+                          {t(tItem.descKey, tItem.description)}
                         </p>
                       </div>
 
                       <div className="py-2 border-y border-content-border/60">
-                        <div className="text-xl sm:text-2xl font-black text-brand-purple font-mono">
-                          {formatMembershipCurrency(tItem.baseAmount)}
-                          <span className="text-[11px] text-content-muted font-normal"> / year</span>
+                        <div className="text-xl sm:text-2xl font-black text-brand-purple font-mono flex items-baseline gap-1">
+                          <span dir="ltr">{formatMembershipCurrency(tItem.baseAmount)}</span>
+                          <span className="text-[11px] text-content-muted font-normal font-sans">
+                            {t('membership.per_year', '/ year')}
+                          </span>
                         </div>
                         <p className="text-[9px] text-emerald-700 font-semibold mt-0.5">
-                          100% Tax Deductible (80G & 12A)
+                          {t('membership.tax_deductible', '100% Tax Deductible (80G & 12A)')}
                         </p>
                       </div>
 
-                      <ul className="space-y-1 text-[10.5px] text-content-secondary">
+                      <ul className="space-y-1.5 text-[10.5px] text-content-secondary">
                         {tItem.benefits.map((b, idx) => (
-                          <li key={idx} className="flex items-start gap-1 leading-tight">
-                            <Check className="w-3 h-3 text-brand-pink flex-shrink-0 mt-0.5" />
-                            <span className="line-clamp-2">{b}</span>
+                          <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                            <Check className="w-3.5 h-3.5 text-brand-pink flex-shrink-0 mt-0.5" />
+                            <span>{t(b.key, b.defaultText)}</span>
                           </li>
                         ))}
                       </ul>
@@ -722,7 +747,7 @@ export const MembershipPage: React.FC = () => {
                           : 'bg-surface-soft text-content-primary hover:bg-brand-purple/10'
                       }`}
                     >
-                      {isSelected ? 'Selected Level' : 'Select Level'}
+                      {isSelected ? t('membership.selected_tier', 'Selected Level') : t('membership.choose_level', 'Select Level')}
                     </button>
                   </div>
                 );
@@ -771,21 +796,21 @@ export const MembershipPage: React.FC = () => {
 
             {/* Contribution Calculation Summary Card (Requirement 8) */}
             <div className="bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white p-5 sm:p-6 rounded-2xl border border-amber-400/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-1.5 text-center sm:text-left">
+              <div className="space-y-1.5 text-center sm:text-start">
                 <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider block">
-                  MEMBERSHIP CONTRIBUTION SUMMARY
+                  {t('membership.summary_title', 'MEMBERSHIP CONTRIBUTION SUMMARY')}
                 </span>
                 <h4 className="text-base sm:text-lg font-black text-white">
-                  {currentTierObj.name} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? 'Year' : 'Years'}</span>
+                  {t(currentTierObj.nameKey, currentTierObj.name)} · <span className="text-amber-300">{durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}</span>
                 </h4>
                 <p className="text-xs text-white/80 font-mono">
-                  {formatMembershipCurrency(annualAmount)} × {durationYears} {durationYears === 1 ? 'Year' : 'Years'}
+                  <span dir="ltr">{formatMembershipCurrency(annualAmount)}</span> × {durationYears} {durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}
                 </p>
               </div>
 
-              <div className="text-center sm:text-right bg-white/10 px-6 py-3.5 rounded-xl border border-white/10">
-                <span className="text-[10px] text-amber-200 block uppercase font-bold tracking-wider">TOTAL CONTRIBUTION</span>
-                <span className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
+              <div className="text-center sm:text-end bg-white/10 px-6 py-3.5 rounded-xl border border-white/10">
+                <span className="text-[10px] text-amber-200 block uppercase font-bold tracking-wider">{t('membership.total_contribution', 'TOTAL CONTRIBUTION')}</span>
+                <span className="text-2xl sm:text-3xl font-black text-amber-300 font-mono" dir="ltr">
                   {formatMembershipCurrency(totalContribution)}
                 </span>
               </div>

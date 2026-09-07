@@ -444,4 +444,80 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
       expect(formatted).toMatch(/2026/);
     });
   });
+
+  describe('8. Multi-Language Translations Coverage for Membership Levels', () => {
+    it('has complete translation coverage for membership tier cards in all 8 supported languages', async () => {
+      const { TRANSLATIONS, SUPPORTED_LANGUAGES } = await import('../data/translations');
+      const requiredMembershipKeys = [
+        'membership.step1_title',
+        'membership.step1_subtitle',
+        'membership.popular',
+        'membership.selected_tier',
+        'membership.choose_level',
+        'membership.per_year',
+        'membership.tax_deductible',
+        'membership.tier_name_general',
+        'membership.tier_name_associate',
+        'membership.tier_name_supporting',
+        'membership.tier_name_patron',
+        'membership.tier_name_benefactor',
+        'membership.badge_general',
+        'membership.badge_associate',
+        'membership.badge_supporting',
+        'membership.badge_patron',
+        'membership.badge_benefactor',
+        'membership.desc_general',
+        'membership.desc_silver',
+        'membership.desc_gold',
+        'membership.desc_platinum',
+        'membership.desc_diamond',
+        'membership.ben_card',
+        'membership.ben_newsletter',
+        'membership.ben_tax',
+        'membership.ben_volunteer',
+        'membership.ben_inc_general',
+        'membership.ben_audit',
+        'membership.ben_voting',
+        'membership.ben_inc_associate',
+        'membership.ben_milestones',
+        'membership.ben_roll',
+        'membership.ben_webinars',
+        'membership.ben_gold_badge',
+        'membership.ben_inc_supporting',
+        'membership.ben_advisory',
+        'membership.ben_plaque',
+        'membership.ben_consultation',
+        'membership.ben_platinum_badge',
+        'membership.ben_inc_patron',
+        'membership.ben_briefings',
+        'membership.ben_sponsorship',
+        'membership.ben_vip',
+        'membership.ben_diamond_badge',
+      ];
+
+      expect(SUPPORTED_LANGUAGES.length).toBe(8);
+
+      SUPPORTED_LANGUAGES.forEach((lang) => {
+        const dict = TRANSLATIONS[lang.code];
+        expect(dict).toBeDefined();
+
+        requiredMembershipKeys.forEach((k) => {
+          expect(dict[k], `Missing translation key "${k}" for language "${lang.code}" (${lang.name})`).toBeDefined();
+          expect(dict[k].length).toBeGreaterThan(0);
+        });
+      });
+    });
+
+    it('translates Arabic membership tier cards and badge text correctly', async () => {
+      const { TRANSLATIONS } = await import('../data/translations');
+      const ar = TRANSLATIONS['ar'];
+      expect(ar['membership.step1_title']).toBe('1. اختر فئة العضوية');
+      expect(ar['membership.badge_supporting']).toBe('الأكثر طلباً');
+      expect(ar['membership.tier_name_general']).toBe('عضو عام');
+      expect(ar['membership.per_year']).toBe('/ سنوياً');
+      expect(ar['membership.tax_deductible']).toBe('معفى من الضرائب 100% (80G و 12A)');
+      expect(ar['membership.selected_tier']).toBe('الفئة المختارة');
+      expect(ar['membership.choose_level']).toBe('اختيار الفئة');
+    });
+  });
 });

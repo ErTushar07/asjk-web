@@ -3,7 +3,7 @@ import {
   Project, Campaign, Donation, Payment, RecurringDonation, Receipt, Refund,
   Story, NewsArticle, ImpactMetric, VolunteerApplication, PartnershipRequest,
   NgoMembership, SupportTicket, AuditLog, SystemSettings, DonationFrequency, PaymentMethod, PaymentStatus,
-  LeadershipMember
+  LeadershipMember, MandateDetails
 } from '../types';
 import {
   INITIAL_PROJECTS, INITIAL_CAMPAIGNS, INITIAL_DONATIONS, INITIAL_PAYMENTS,
@@ -13,6 +13,7 @@ import {
   INITIAL_LEADERSHIP_MEMBERS
 } from '../data/initialData';
 import { PaymentService } from '../services/paymentService';
+import { MandateService } from '../services/mandateService';
 import { ValidationService } from '../services/validationService';
 import { SecurityService } from '../services/securityService';
 import { useAuth } from './AuthContext';
@@ -34,6 +35,8 @@ interface ProcessDonationInput {
   anonymous?: boolean;
   paymentMethod: PaymentMethod;
   paymentReference?: string;
+  mandateNumber?: string;
+  mandate?: MandateDetails;
 }
 
 interface ProcessDonationResult {
@@ -422,6 +425,18 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const now = new Date().toISOString();
 
+    // Generate e-Mandate if switching or contributing with recurring monthly/yearly frequency
+    let activeMandate: MandateDetails | undefined;
+    if (input.frequency !== 'one_time') {
+      activeMandate = input.mandate || MandateService.generateMandate({
+        frequency: input.frequency,
+        amount: input.amount,
+        currency: input.currency,
+        donorName: input.donorName,
+        paymentMethod: input.paymentMethod,
+      });
+    }
+
     // 1. Create Donation Record
     const newDonation: Donation = {
       id: paymentResult.donationId,
@@ -445,6 +460,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       paymentMethod: input.paymentMethod,
       paymentId: paymentResult.paymentId,
       receiptNumber: paymentResult.receiptNumber || undefined,
+      mandateNumber: activeMandate?.mandateNumber,
+      mandate: activeMandate,
       notes: cleanInput.paymentReference ? `Payment Ref: ${cleanInput.paymentReference}` : undefined,
       createdAt: now,
       updatedAt: now,
@@ -476,6 +493,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         id: `rec_doc_${Date.now()}`,
         receiptNumber: paymentResult.receiptNumber,
         donationId: paymentResult.donationId,
+        recurringDonationId: activeMandate ? `rec_${Date.now()}` : undefined,
+        mandateNumber: activeMandate?.mandateNumber,
         transactionId: paymentResult.transactionId,
         donationDate: now,
         donorName: input.donorName,
@@ -506,6 +525,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       newRecurring = {
         id: `rec_${Date.now()}`,
         subscriptionNumber: `ASJ-SUB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        mandateNumber: activeMandate?.mandateNumber,
+        mandate: activeMandate,
         donorId: `usr_donor_${Date.now()}`,
         donorName: input.donorName,
         donorEmail: input.donorEmail,
@@ -517,9 +538,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         frequency: input.frequency,
         provider: paymentResult.provider === 'stripe' ? 'stripe' : paymentResult.provider === 'razorpay' ? 'razorpay' : 'sandbox',
         providerSubscriptionId: paymentResult.providerSubscriptionId || `sub_${Date.now()}`,
-        paymentMethodRef: `${input.paymentMethod} ending in 4242`,
+        paymentMethodRef: `${input.paymentMethod} (e-Mandate ${activeMandate?.mandateNumber || 'Active'})`,
         startDate: now,
-        nextPaymentDate: nextDate.toISOString(),
+        nextPaymentDate: activeMandate?.nextDebitDate || nextDate.toISOString(),
         lastSuccessfulPayment: now,
         totalCollectedUSD: paymentResult.amountUSD,
         successfulPaymentCount: 1,
@@ -529,6 +550,18 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       };
 
       setRecurringDonations((prev) => [newRecurring!, ...prev]);
+
+      if (activeMandate) {
+        recordAudit(
+          user?.id || 'usr_donor',
+          input.donorName,
+          'donor',
+          'MANDATE_REGISTERED',
+          'recurring',
+          newRecurring.id,
+          `Registered ${input.frequency} e-mandate ${activeMandate.mandateNumber} with URN ${activeMandate.urn} (Max debit: ${activeMandate.currency} ${activeMandate.maxDebitAmount})`
+        );
+      }
     }
 
     // 5. Update Project Funding Atomically

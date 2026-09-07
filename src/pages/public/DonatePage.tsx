@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { DonationFrequency, PaymentMethod } from '../../types';
+import { MandateService } from '../../services/mandateService';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
   CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
@@ -77,6 +78,18 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   // The effective donation amount directly in the selected currency
   const effectiveLocalAmount = customAmount ? parseFloat(customAmount) || 0 : selectedPreset;
 
+  // Dynamically generate e-Mandate specification when switching to monthly or yearly
+  const generatedMandate = useMemo(() => {
+    if (frequency === 'one_time') return null;
+    return MandateService.generateMandate({
+      frequency,
+      amount: effectiveLocalAmount,
+      currency: currentCurrency.code,
+      donorName: fullName.trim() || undefined,
+      paymentMethod,
+    });
+  }, [frequency, effectiveLocalAmount, currentCurrency.code, paymentMethod, fullName]);
+
   const handleDonateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -146,6 +159,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
         donorAddress: address.trim() || undefined,
         anonymous,
         paymentMethod,
+        paymentReference: paymentReference.trim() || undefined,
+        mandateNumber: generatedMandate?.mandateNumber,
+        mandate: generatedMandate || undefined,
       });
 
       setSuccessResult(result);
@@ -203,6 +219,8 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
         anonymous,
         paymentMethod: 'paypal',
         paymentReference: paypalOrderId,
+        mandateNumber: generatedMandate?.mandateNumber,
+        mandate: generatedMandate || undefined,
       });
 
       setSuccessResult(result);
@@ -259,6 +277,16 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 <span className="text-content-muted">Verification Status:</span>
                 <span className="font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px]">
                   Pending Account Reconciliation
+                </span>
+              </div>
+            )}
+            {successResult.donation.mandateNumber && (
+              <div className="flex justify-between items-center bg-brand-purple/10 p-2.5 rounded-xl border border-brand-purple/20">
+                <span className="font-bold text-brand-purple flex items-center gap-1 text-[11px]">
+                  ⚡ Active e-Mandate:
+                </span>
+                <span className="font-mono font-bold text-brand-purple text-[11px]">
+                  {successResult.donation.mandateNumber} ({successResult.donation.frequency})
                 </span>
               </div>
             )}
@@ -334,22 +362,78 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             <label className="block text-xs font-bold text-content-primary uppercase tracking-wider">
               Donation Frequency
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {(['one-time', 'monthly', 'quarterly', 'yearly'] as DonationFrequency[]).map((f) => (
+            <div className="grid grid-cols-3 gap-2.5">
+              {[
+                { id: 'one_time', label: 'One-Time Gift' },
+                { id: 'monthly', label: 'Monthly Mandate', badge: 'Popular' },
+                { id: 'yearly', label: 'Yearly Mandate', badge: 'High Impact' },
+              ].map((f) => (
                 <button
                   type="button"
-                  key={f}
-                  onClick={() => setFrequency(f)}
-                  className={`py-3 px-4 rounded-2xl text-xs font-extrabold capitalize transition-all ${
-                    frequency === f
+                  key={f.id}
+                  onClick={() => setFrequency(f.id as DonationFrequency)}
+                  className={`py-3 px-3 rounded-2xl text-xs font-extrabold capitalize transition-all relative ${
+                    frequency === f.id
                       ? 'bg-brand-purple text-white shadow-brand-sm'
                       : 'bg-surface-soft text-content-secondary hover:bg-surface-card border border-content-border'
                   }`}
                 >
-                  {f.replace('-', ' ')}
+                  {f.label}
+                  {f.badge && (
+                    <span className={`block text-[9px] font-semibold mt-0.5 ${frequency === f.id ? 'text-brand-pink' : 'text-content-muted'}`}>
+                      {f.badge}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
+
+            {/* Generated Mandate Notification Card */}
+            {generatedMandate && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-brand-purple/5 border border-brand-purple/20 space-y-3 animate-fadeIn">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wide bg-brand-purple text-white shadow-xs">
+                      ⚡ Recurring e-Mandate Generated
+                    </span>
+                    <span className="text-xs font-mono font-bold text-brand-purple">
+                      {generatedMandate.mandateNumber}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold text-content-muted">
+                    URN: <span className="font-mono text-content-primary">{generatedMandate.urn}</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-brand-purple/15 text-xs">
+                  <div className="bg-white/80 p-2.5 rounded-xl border border-brand-purple/10">
+                    <div className="text-[10px] uppercase font-bold text-content-muted">Billing Frequency</div>
+                    <div className="font-bold text-content-primary">
+                      {frequency === 'monthly' ? 'Monthly Auto-Debit' : 'Annual Auto-Debit'}
+                    </div>
+                  </div>
+                  <div className="bg-white/80 p-2.5 rounded-xl border border-brand-purple/10">
+                    <div className="text-[10px] uppercase font-bold text-content-muted">Debit Limit / Cap</div>
+                    <div className="font-bold text-brand-purple">
+                      {currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} / {frequency === 'monthly' ? 'month' : 'year'}
+                    </div>
+                  </div>
+                  <div className="bg-white/80 p-2.5 rounded-xl border border-brand-purple/10">
+                    <div className="text-[10px] uppercase font-bold text-content-muted">Next Scheduled Debit</div>
+                    <div className="font-bold text-content-primary">
+                      {MandateService.formatNextDebitDate(generatedMandate.nextDebitDate)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-content-muted leading-relaxed flex items-start gap-2 pt-1">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Statutory e-Mandate Notice:</strong> Authorizing this recurring mandate schedules automated debits for your Section 80G charitable contribution. You can modify, pause, or cancel this mandate anytime through your donor dashboard with zero cancellation charges.
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Target Designation Selector */}
@@ -782,13 +866,19 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 <>
                   <Smartphone className="w-5 h-5 text-brand-pink" />
                   <span>
-                    Proceed to Pay & Verify ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code})
+                    {frequency !== 'one_time'
+                      ? `Authorize ${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Mandate & Pay (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()})`
+                      : `Proceed to Pay & Verify (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()} ${currentCurrency.code})`}
                   </span>
                 </>
               ) : paymentMethod === 'bank_wire' ? (
                 <>
                   <ShieldCheck className="w-5 h-5 text-emerald-300" />
-                  <span>Submit Transfer for Accounting Reconciliation ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
+                  <span>
+                    {frequency !== 'one_time'
+                      ? `Submit ${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Wire Mandate for Reconciliation (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()})`
+                      : `Submit Transfer for Accounting Reconciliation (${currentCurrency.symbol}${effectiveLocalAmount.toLocaleString()})`}
+                  </span>
                 </>
               ) : (
                 <>

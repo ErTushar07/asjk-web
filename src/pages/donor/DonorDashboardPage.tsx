@@ -239,8 +239,15 @@ export const DonorDashboardPage: React.FC<DonorDashboardProps> = ({ onNavigate, 
                   </span>
                 </div>
 
-                <div className="text-xs font-bold text-brand-purple dark:text-purple-300">
-                  {sub.currency} {sub.amount.toLocaleString()} / {sub.frequency}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-brand-purple dark:text-purple-300">
+                    {sub.currency} {sub.amount.toLocaleString()} / {sub.frequency}
+                  </span>
+                  {sub.mandateNumber && (
+                    <span className="font-mono text-[10px] font-bold text-brand-purple bg-brand-purple/10 px-1.5 py-0.5 rounded">
+                      {sub.mandateNumber}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex justify-between text-[11px] text-content-muted pt-1">

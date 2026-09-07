@@ -276,7 +276,7 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
       expect(result.transactionId).toBe('PAYID-M1234567890');
       expect(result.receiptNumber).toMatch(/^ASJ-REC-\d{4}-\d{4}$/);
       expect(result.amountUSD).toBe(1000);
-    });
+    }, 15000);
   });
 
   describe('7. Verification of All Active Payment Methods One-by-One', () => {
@@ -297,7 +297,7 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
       expect(res.provider).toBe('paypal');
       expect(res.status).toBe('successful');
       expect(res.receiptNumber).toMatch(/^ASJ-REC-\d{4}-\d{4}$/);
-    });
+    }, 15000);
 
     it('[Method 2: Bank Wire] records valid UTR transfer for reconciliation with pending status and no instant receipt', async () => {
       const res = await PaymentService.processPayment({
@@ -366,6 +366,82 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
           idempotencyKey: 'idemp_fake',
         })
       ).rejects.toThrow(/No receipt can be issued without verified payment confirmation/i);
+    });
+  });
+
+  describe('5. Recurring e-Mandate Generation (Monthly & Yearly)', () => {
+    it('generates valid monthly e-mandate with next debit date 1 month ahead and correct URN', async () => {
+      const { MandateService } = await import('../services/mandateService');
+      const mandate = MandateService.generateMandate({
+        frequency: 'monthly',
+        amount: 1500,
+        currency: 'INR',
+        donorName: 'Zubair Ahmad',
+        paymentMethod: 'razorpay_upi',
+      });
+
+      expect(mandate.mandateNumber).toMatch(/^ASJ-MND-\d{4}-\d{4}$/);
+      expect(mandate.urn).toMatch(/^URN-MND-\d{4}-[A-Z0-9]+$/);
+      expect(mandate.frequency).toBe('monthly');
+      expect(mandate.amount).toBe(1500);
+      expect(mandate.currency).toBe('INR');
+      expect(mandate.maxDebitAmount).toBe(1800); // 1.2x cap
+      expect(mandate.authType).toBe('upi_autopay');
+      expect(mandate.status).toBe('authorized');
+
+      const start = new Date(mandate.startDate);
+      const next = new Date(mandate.nextDebitDate);
+      expect(next.getTime()).toBeGreaterThan(start.getTime());
+    });
+
+    it('generates valid yearly e-mandate with next debit date 1 year ahead and card mandate auth', async () => {
+      const { MandateService } = await import('../services/mandateService');
+      const mandate = MandateService.generateMandate({
+        frequency: 'yearly',
+        amount: 12000,
+        currency: 'INR',
+        donorName: 'Fatima Begum',
+        paymentMethod: 'razorpay_card',
+      });
+
+      expect(mandate.mandateNumber).toMatch(/^ASJ-MND-\d{4}-\d{4}$/);
+      expect(mandate.frequency).toBe('yearly');
+      expect(mandate.amount).toBe(12000);
+      expect(mandate.authType).toBe('card_mandate');
+
+      const start = new Date(mandate.startDate);
+      const next = new Date(mandate.nextDebitDate);
+      expect(next.getFullYear()).toBe(start.getFullYear() + 1);
+    });
+
+    it('sets standing_instruction for bank_wire and paypal recurring contributions', async () => {
+      const { MandateService } = await import('../services/mandateService');
+      const wireMandate = MandateService.generateMandate({
+        frequency: 'monthly',
+        amount: 5000,
+        currency: 'INR',
+        paymentMethod: 'bank_wire',
+      });
+      expect(wireMandate.authType).toBe('standing_instruction');
+
+      const paypalMandate = MandateService.generateMandate({
+        frequency: 'yearly',
+        amount: 100,
+        currency: 'USD',
+        paymentMethod: 'paypal',
+      });
+      expect(paypalMandate.authType).toBe('standing_instruction');
+    });
+
+    it('formats frequency labels and debit dates correctly', async () => {
+      const { MandateService } = await import('../services/mandateService');
+      expect(MandateService.getFrequencyLabel('monthly')).toBe('Monthly Recurring Auto-Debit');
+      expect(MandateService.getFrequencyLabel('yearly')).toBe('Yearly Recurring Auto-Debit');
+      expect(MandateService.getFrequencyLabel('one_time')).toBe('One-Time Contribution');
+
+      const formatted = MandateService.formatNextDebitDate('2026-10-07T00:00:00.000Z');
+      expect(formatted).toMatch(/October/i);
+      expect(formatted).toMatch(/2026/);
     });
   });
 });

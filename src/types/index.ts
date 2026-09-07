@@ -138,6 +138,20 @@ export type DonationFrequency = 'one_time' | 'monthly' | 'yearly';
 export type DonationType = 'project' | 'campaign' | 'general' | 'emergency' | 'program';
 export type DonationStatus = 'pending' | 'successful' | 'failed' | 'refunded' | 'partially_refunded' | 'cancelled';
 
+export interface MandateDetails {
+  mandateNumber: string; // e.g. ASJ-MND-2026-0842
+  frequency: 'monthly' | 'yearly';
+  amount: number;
+  currency: string;
+  maxDebitAmount: number;
+  startDate: string;
+  nextDebitDate: string;
+  status: 'authorized' | 'active' | 'pending';
+  authType: 'upi_autopay' | 'card_mandate' | 'standing_instruction';
+  urn: string;
+  cancellationNoticeDays: number;
+}
+
 export interface Donation {
   id: string;
   donationNumber: string; // e.g. ASJ-DON-2026-00123
@@ -162,6 +176,8 @@ export interface Donation {
   receiptNumber?: string;
   receiptUrl?: string;
   recurringDonationId?: string;
+  mandateNumber?: string;
+  mandate?: MandateDetails;
   createdAt: string;
   updatedAt: string;
   notes?: string;
@@ -195,6 +211,8 @@ export type RecurringStatus = 'active' | 'paused' | 'past_due' | 'payment_failed
 export interface RecurringDonation {
   id: string;
   subscriptionNumber: string; // e.g. ASJ-SUB-2026-0042
+  mandateNumber?: string;
+  mandate?: MandateDetails;
   donorId: string;
   donorName: string;
   donorEmail: string;
@@ -225,6 +243,7 @@ export interface Receipt {
   receiptNumber: string; // e.g. ASJ-REC-2026-00987
   donationId: string;
   recurringDonationId?: string;
+  mandateNumber?: string;
   transactionId: string;
   donationDate: string;
   donorName: string;

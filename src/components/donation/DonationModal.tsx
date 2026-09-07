@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { DonationFrequency, PaymentMethod, Project, Campaign, Receipt } from '../../types';
+import { MandateService } from '../../services/mandateService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
   CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
@@ -139,6 +140,18 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     ? parseFloat(customAmountInput) || 0
     : selectedLocalAmount;
 
+  // Dynamically generate e-Mandate specification when switching to monthly or yearly
+  const generatedMandate = useMemo(() => {
+    if (frequency === 'one_time') return null;
+    return MandateService.generateMandate({
+      frequency,
+      amount: currentConvertedAmount,
+      currency: currentCurrency.code,
+      donorName: donorName.trim() || undefined,
+      paymentMethod,
+    });
+  }, [frequency, currentConvertedAmount, currentCurrency.code, paymentMethod, donorName]);
+
   const handlePresetClick = (val: number) => {
     setIsCustomAmount(false);
     setSelectedLocalAmount(val);
@@ -212,6 +225,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({
         anonymous,
         paymentMethod,
         paymentReference: paymentReference.trim() || undefined,
+        mandateNumber: generatedMandate?.mandateNumber,
+        mandate: generatedMandate || undefined,
       });
 
       if (result.receipt) {
@@ -263,6 +278,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({
         anonymous,
         paymentMethod: 'paypal',
         paymentReference: paypalOrderId,
+        mandateNumber: generatedMandate?.mandateNumber,
+        mandate: generatedMandate || undefined,
       });
 
       if (result.receipt) {
@@ -368,6 +385,14 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     {frequency.replace('_', ' ')}
                   </span>
                 </div>
+                {successReceipt.mandateNumber && (
+                  <div className="flex justify-between items-center bg-brand-purple/10 p-2 rounded-lg border border-brand-purple/20">
+                    <span className="text-brand-purple font-bold text-[11px]">⚡ Active e-Mandate:</span>
+                    <span className="font-mono font-bold text-brand-purple text-[11px]">
+                      {successReceipt.mandateNumber}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-content-muted">{t('donate.allocated_to', 'Allocated to')}:</span>
                   <span className="font-medium text-content-primary truncate max-w-[200px]">{successReceipt.projectName}</span>
@@ -557,6 +582,47 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     </button>
                   ))}
                 </div>
+
+                {/* Generated e-Mandate Summary Card */}
+                {generatedMandate && (
+                  <div className="mt-3 p-3.5 rounded-xl bg-brand-purple/5 border border-brand-purple/20 space-y-2.5 text-xs animate-fadeIn">
+                    <div className="flex items-center justify-between flex-wrap gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wide bg-brand-purple text-white">
+                          ⚡ e-Mandate Generated
+                        </span>
+                        <span className="font-mono font-bold text-brand-purple text-[11px]">
+                          {generatedMandate.mandateNumber}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-content-muted font-mono">
+                        {generatedMandate.urn}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="bg-white/90 p-2 rounded-lg border border-brand-purple/10">
+                        <div className="text-[9px] uppercase font-bold text-content-muted">Frequency</div>
+                        <div className="font-bold text-content-primary">
+                          {frequency === 'monthly' ? 'Monthly Auto-Debit' : 'Annual Auto-Debit'}
+                        </div>
+                      </div>
+                      <div className="bg-white/90 p-2 rounded-lg border border-brand-purple/10">
+                        <div className="text-[9px] uppercase font-bold text-content-muted">Next Scheduled Debit</div>
+                        <div className="font-bold text-content-primary">
+                          {MandateService.formatNextDebitDate(generatedMandate.nextDebitDate)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] text-content-muted leading-tight flex items-start gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      <span>
+                        Authorizes an automated recurring debit of {currentCurrency.symbol}{currentConvertedAmount.toLocaleString()} per {frequency === 'monthly' ? 'month' : 'year'}. Modify or cancel anytime with zero penalty.
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 2. Amount Presets */}
@@ -1003,20 +1069,27 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                       <>
                         <Smartphone className="w-4 h-4 text-brand-pink" />
                         <span>
-                          Proceed to Pay & Verify : {currentCurrency.symbol}{currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
+                          {frequency !== 'one_time'
+                            ? `Authorize ${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Mandate : ${currentCurrency.symbol}${currentConvertedAmount.toLocaleString()}`
+                            : `Proceed to Pay & Verify : ${currentCurrency.symbol}${currentConvertedAmount.toLocaleString()}`}
                         </span>
                       </>
                     ) : paymentMethod === 'bank_wire' ? (
                       <>
                         <ShieldCheck className="w-4 h-4 text-emerald-300" />
-                        <span>Submit Transfer for Accounting Reconciliation</span>
+                        <span>
+                          {frequency !== 'one_time'
+                            ? `Submit ${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Wire Mandate for Reconciliation`
+                            : 'Submit Transfer for Accounting Reconciliation'}
+                        </span>
                       </>
                     ) : (
                       <>
                         <Heart className="w-5 h-5 fill-white" />
                         <span>
-                          {t('donate.submit', 'Complete Donation')} : {currentCurrency.symbol}
-                          {currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
+                          {frequency !== 'one_time'
+                            ? `Authorize ${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Mandate : ${currentCurrency.symbol}${currentConvertedAmount.toLocaleString()}`
+                            : `${t('donate.submit', 'Complete Donation')} : ${currentCurrency.symbol}${currentConvertedAmount.toLocaleString()}`}
                         </span>
                       </>
                     )}

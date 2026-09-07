@@ -110,6 +110,14 @@ export const MyRecurringPage: React.FC<{ onNavigate: (route: string) => void }> 
                         {new Date(sub.nextPaymentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </span>
                     </div>
+                    {sub.mandateNumber && (
+                      <div className="flex justify-between items-center pt-1 border-t border-content-border/40">
+                        <span className="text-content-muted">e-Mandate Reference:</span>
+                        <span className="font-mono font-bold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded text-[11px]">
+                          {sub.mandateNumber}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {isPastDue && (

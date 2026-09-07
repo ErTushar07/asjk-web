@@ -1005,7 +1005,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ initialTab = 'dashboar
                 <tbody className="divide-y divide-content-border">
                   {recurringDonations.map((r) => (
                     <tr key={r.id} className="hover:bg-surface-soft transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-brand-purple">{r.subscriptionNumber}</td>
+                      <td className="py-3 px-4 font-mono">
+                        <span className="font-bold text-brand-purple block">{r.subscriptionNumber}</span>
+                        {r.mandateNumber && (
+                          <span className="text-[10px] text-content-muted font-normal block">{r.mandateNumber}</span>
+                        )}
+                      </td>
                       <td className="py-3 px-4 font-semibold text-content-primary">{r.donorName}</td>
                       <td className="py-3 px-4 max-w-[160px] truncate">{r.projectName}</td>
                       <td className="py-3 px-4 font-bold">{r.currency} {r.amount.toLocaleString()}</td>

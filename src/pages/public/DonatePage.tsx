@@ -8,8 +8,9 @@ import { DonationFrequency, PaymentMethod } from '../../types';
 import { 
   Heart, ShieldCheck, FileText, CheckCircle2, Lock, 
   CreditCard, Smartphone, Building, Sparkles, Download, ArrowRight,
-  Copy, Check, AlertCircle, ExternalLink, RefreshCw, UserPlus
+  Copy, Check, AlertCircle, ExternalLink, RefreshCw, UserPlus, Globe
 } from 'lucide-react';
+import { PayPalButton } from '../../components/payment/PayPalButton';
 
 export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ onNavigate }) => {
   usePageMeta('Donate Securely', 'Donate to clean water, education, and humanitarian relief projects across Jammu & Kashmir with 100% financial transparency.');
@@ -151,6 +152,63 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
     } catch (err: any) {
       console.error(err);
       setErrorMessage(err.message || 'Payment authorization failed. Please try another payment option or bank wire.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePayPalSuccess = async (paypalOrderId: string) => {
+    if (!fullName.trim()) {
+      setErrorMessage('Please enter your Full Legal Name.');
+      return;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMessage('Please enter a valid Email Address for your official tax receipt.');
+      return;
+    }
+    if (!phone.trim()) {
+      setErrorMessage('Please enter your Phone Number.');
+      return;
+    }
+    if (!country.trim()) {
+      setErrorMessage('Please enter your Country of Residence.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+    try {
+      let targetName = 'General Humanitarian Relief Fund';
+      if (selectedTargetType === 'project') {
+        const p = projects.find((x) => x.id === targetId);
+        if (p) targetName = p.name;
+      } else if (selectedTargetType === 'campaign') {
+        const c = campaigns.find((x) => x.id === targetId);
+        if (c) targetName = c.name;
+      }
+
+      const result = await processDonation({
+        amount: effectiveLocalAmount,
+        currency: currentCurrency.code,
+        frequency,
+        donationType: selectedTargetType,
+        targetId: targetId || undefined,
+        targetName,
+        donorName: fullName.trim(),
+        donorEmail: email.trim(),
+        donorPhone: phone.trim(),
+        donorCountry: country.trim(),
+        donorTaxId: taxId.trim() || undefined,
+        donorAddress: address.trim() || undefined,
+        anonymous,
+        paymentMethod: 'paypal',
+        paymentReference: paypalOrderId,
+      });
+
+      setSuccessResult(result);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage(err.message || 'PayPal payment processing failed.');
     } finally {
       setIsProcessing(false);
     }
@@ -505,6 +563,33 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                 </div>
               </label>
 
+              {/* PayPal (Active Gateway) */}
+              <label className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'paypal' ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20' : 'border-content-border'}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'paypal'}
+                  onChange={() => setPaymentMethod('paypal')}
+                  className="text-brand-purple focus:ring-brand-purple"
+                />
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-content-primary">
+                      {t('donate.paypal_global', 'PayPal & International Cards')}
+                    </span>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      Active & Instant
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-content-secondary mt-0.5">
+                    Worldwide contributions via PayPal account, International Debit & Credit Cards (Visa, Mastercard, Amex).
+                  </p>
+                </div>
+              </label>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
                 {/* Stripe International Card (In Development) */}
                 <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none">
@@ -660,39 +745,61 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isProcessing}
-            className="btn-secondary w-full !py-4 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? (
-              <span className="flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 animate-spin" />
-                {paymentMethod === 'razorpay_upi'
-                  ? 'Opening Razorpay & Verifying Signature...'
-                  : 'Verifying and Authorizing Transaction...'}
-              </span>
-            ) : paymentMethod === 'razorpay_upi' ? (
-              <>
-                <Smartphone className="w-5 h-5 text-brand-pink" />
-                <span>
-                  Proceed to Pay & Verify ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code})
+          {paymentMethod === 'paypal' ? (
+            <div className="space-y-3 pt-2">
+              {(!fullName.trim() || !email.trim() || !phone.trim() || !country.trim()) && (
+                <p className="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200 font-medium">
+                  ⚠️ Please ensure your Full Name, Email, Phone, and Country are filled above to activate PayPal checkout.
+                </p>
+              )}
+              <PayPalButton
+                amount={effectiveLocalAmount}
+                currency={currentCurrency.code}
+                description={`Donation to ${selectedTargetType === 'project' ? 'Project Fund' : 'General Humanitarian Relief'}`}
+                donorName={fullName.trim()}
+                donorEmail={email.trim()}
+                disabled={isProcessing || !fullName.trim() || !email.trim() || !phone.trim() || !country.trim()}
+                onSuccess={async ({ orderId }) => {
+                  await handlePayPalSuccess(orderId);
+                }}
+                onError={(err) => setErrorMessage(err)}
+              />
+            </div>
+          ) : (
+            <button
+              type="submit"
+              disabled={isProcessing}
+              className="btn-secondary w-full !py-4 text-sm font-bold flex items-center justify-center gap-2 shadow-pink-glow disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? (
+                <span className="flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  {paymentMethod === 'razorpay_upi'
+                    ? 'Opening Razorpay & Verifying Signature...'
+                    : 'Verifying and Authorizing Transaction...'}
                 </span>
-              </>
-            ) : paymentMethod === 'bank_wire' ? (
-              <>
-                <ShieldCheck className="w-5 h-5 text-emerald-300" />
-                <span>Confirm Transfer & Issue Official 80G Receipt ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
-              </>
-            ) : (
-              <>
-                <Heart className="w-5 h-5 fill-white" />
-                <span>
-                  Complete Donation of {currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code}
-                </span>
-              </>
-            )}
-          </button>
+              ) : paymentMethod === 'razorpay_upi' ? (
+                <>
+                  <Smartphone className="w-5 h-5 text-brand-pink" />
+                  <span>
+                    Proceed to Pay & Verify ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code})
+                  </span>
+                </>
+              ) : paymentMethod === 'bank_wire' ? (
+                <>
+                  <ShieldCheck className="w-5 h-5 text-emerald-300" />
+                  <span>Confirm Transfer & Issue Official 80G Receipt ({currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()})</span>
+                </>
+              ) : (
+                <>
+                  <Heart className="w-5 h-5 fill-white" />
+                  <span>
+                    Complete Donation of {currentCurrency.symbol}{effectiveLocalAmount.toLocaleString()} {currentCurrency.code}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
         </form>
       )}
     </div>

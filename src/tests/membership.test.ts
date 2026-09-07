@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ValidationService } from '../services/validationService';
 import { ReceiptService } from '../services/receiptService';
+import { PaymentService } from '../services/paymentService';
 import { INITIAL_SYSTEM_SETTINGS } from '../data/initialData';
 import { NgoMembership } from '../types';
 
@@ -243,6 +244,38 @@ describe('NGO Membership System - Levels, Pricing, Durations & Currencies', () =
       const doc = ReceiptService.generateMembershipReceiptPDF(sampleMember, INITIAL_SYSTEM_SETTINGS);
       expect(doc).toBeDefined();
       expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('6. PayPal Payment Processing & Currency Normalization', () => {
+    it('normalizes various currencies to USD correctly for PayPal', () => {
+      expect(PaymentService.calculateUSD(100, 'USD')).toBe(100);
+      expect(PaymentService.calculateUSD(100, 'EUR')).toBe(109);
+      expect(PaymentService.calculateUSD(100, 'GBP')).toBe(128);
+      expect(PaymentService.calculateUSD(1000, 'INR')).toBe(12);
+      expect(PaymentService.calculateUSD(100, 'AED')).toBe(27.2);
+    });
+
+    it('processes PayPal contribution successfully and issues verified receipt number', async () => {
+      const result = await PaymentService.processPayment({
+        amount: 1000,
+        currency: 'USD',
+        frequency: 'one_time',
+        method: 'paypal',
+        donorName: 'International Supporter',
+        donorEmail: 'supporter@world.org',
+        targetName: 'Al Shujaiat General Fund',
+        idempotencyKey: 'idemp_paypal_test_123',
+        paymentReference: 'PAYID-M1234567890',
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.provider).toBe('paypal');
+      expect(result.status).toBe('successful');
+      expect(result.paymentId).toBe('PAYID-M1234567890');
+      expect(result.transactionId).toBe('PAYID-M1234567890');
+      expect(result.receiptNumber).toMatch(/^ASJ-REC-\d{4}-\d{4}$/);
+      expect(result.amountUSD).toBe(1000);
     });
   });
 });

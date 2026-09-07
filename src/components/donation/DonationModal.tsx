@@ -8,8 +8,9 @@ import { ReceiptService } from '../../services/receiptService';
 import { 
   X, Heart, Check, ShieldCheck, Download, ArrowRight, 
   CreditCard, Smartphone, Building, RefreshCw, FileText, CheckCircle2, Lock,
-  Copy, AlertCircle, ExternalLink, UserPlus
+  Copy, AlertCircle, ExternalLink, UserPlus, Globe
 } from 'lucide-react';
+import { PayPalButton } from '../payment/PayPalButton';
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -204,6 +205,57 @@ export const DonationModal: React.FC<DonationModalProps> = ({
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Payment processing failed. Please try another method.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePayPalSuccess = async (paypalOrderId: string) => {
+    if (!donorName.trim()) {
+      setErrorMsg('Please enter your Full Legal Name.');
+      return;
+    }
+    if (!donorEmail.trim() || !donorEmail.includes('@')) {
+      setErrorMsg('Please enter a valid Email Address for your official tax receipt.');
+      return;
+    }
+    if (!donorPhone.trim()) {
+      setErrorMsg('Please enter your Phone Number.');
+      return;
+    }
+    if (!donorCountry.trim()) {
+      setErrorMsg('Please enter your Country of Residence.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMsg(null);
+    try {
+      const result = await processDonation({
+        amount: currentConvertedAmount,
+        currency: currentCurrency.code,
+        frequency,
+        donationType: targetType,
+        targetId,
+        targetName,
+        donorName: donorName.trim(),
+        donorEmail: donorEmail.trim().toLowerCase(),
+        donorPhone: donorPhone.trim(),
+        donorCountry: donorCountry.trim(),
+        donorTaxId: donorTaxId.trim() || undefined,
+        donorAddress: donorAddress.trim() || undefined,
+        anonymous,
+        paymentMethod: 'paypal',
+        paymentReference: paypalOrderId,
+      });
+
+      if (result.receipt) {
+        setSuccessReceipt(result.receipt);
+      } else {
+        setPendingTransferResult(result);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'PayPal transaction recording failed.');
     } finally {
       setIsProcessing(false);
     }
@@ -712,6 +764,40 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     </div>
                   </label>
 
+                  {/* PayPal (Active Gateway) */}
+                  <label
+                    className={`flex items-center gap-3.5 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                      paymentMethod === 'paypal'
+                        ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
+                        : 'border-content-border hover:bg-surface-soft'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="paypal"
+                      checked={paymentMethod === 'paypal'}
+                      onChange={() => setPaymentMethod('paypal')}
+                      className="hidden"
+                    />
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center flex-shrink-0">
+                      <Globe className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <p className="font-extrabold text-content-primary">
+                          {t('donate.paypal_global', 'PayPal & International Cards')}
+                        </p>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Active & Instant
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-content-secondary mt-0.5">
+                        Global contribution via PayPal balance, International Debit & Credit Cards (Visa, Mastercard, Amex).
+                      </p>
+                    </div>
+                  </label>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
                     {/* Stripe Card (In Development) */}
                     <div
@@ -839,7 +925,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                 )}
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Button or PayPal Engine */}
               <div className="pt-4">
                 {errorMsg && (
                   <div className="mb-3 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2 animate-fadeIn">
@@ -848,42 +934,64 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="btn-secondary w-full !py-3.5 text-sm sm:text-base flex items-center justify-center gap-2 shadow-pink-glow disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isProcessing ? (
-                    <>
-                      <RefreshCw className="w-5 h-5 animate-spin" />
-                      <span>
-                        {paymentMethod === 'razorpay_upi'
-                          ? 'Opening Razorpay & Verifying...'
-                          : t('donate.processing', 'Processing Secure Transaction...')}
-                      </span>
-                    </>
-                  ) : paymentMethod === 'razorpay_upi' ? (
-                    <>
-                      <Smartphone className="w-4 h-4 text-brand-pink" />
-                      <span>
-                        Proceed to Pay & Verify : {currentCurrency.symbol}{currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
-                      </span>
-                    </>
-                  ) : paymentMethod === 'bank_wire' ? (
-                    <>
-                      <ShieldCheck className="w-4 h-4 text-emerald-300" />
-                      <span>Confirm Transfer & Issue 80G Receipt</span>
-                    </>
-                  ) : (
-                    <>
-                      <Heart className="w-5 h-5 fill-white" />
-                      <span>
-                        {t('donate.submit', 'Complete Donation')} : {currentCurrency.symbol}
-                        {currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
-                      </span>
-                    </>
-                  )}
-                </button>
+                {paymentMethod === 'paypal' ? (
+                  <div className="space-y-3">
+                    {(!donorName.trim() || !donorEmail.trim() || !donorPhone.trim() || !donorCountry.trim()) && (
+                      <p className="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200 font-medium">
+                        ⚠️ Please ensure your Full Name, Email, Phone, and Country are filled above to activate PayPal checkout.
+                      </p>
+                    )}
+                    <PayPalButton
+                      amount={currentConvertedAmount}
+                      currency={currentCurrency.code}
+                      description={`Donation to ${targetName}`}
+                      donorName={donorName.trim()}
+                      donorEmail={donorEmail.trim()}
+                      disabled={isProcessing || !donorName.trim() || !donorEmail.trim() || !donorPhone.trim() || !donorCountry.trim()}
+                      onSuccess={async ({ orderId }) => {
+                        await handlePayPalSuccess(orderId);
+                      }}
+                      onError={(err) => setErrorMsg(err)}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="btn-secondary w-full !py-3.5 text-sm sm:text-base flex items-center justify-center gap-2 shadow-pink-glow disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                        <span>
+                          {paymentMethod === 'razorpay_upi'
+                            ? 'Opening Razorpay & Verifying...'
+                            : t('donate.processing', 'Processing Secure Transaction...')}
+                        </span>
+                      </>
+                    ) : paymentMethod === 'razorpay_upi' ? (
+                      <>
+                        <Smartphone className="w-4 h-4 text-brand-pink" />
+                        <span>
+                          Proceed to Pay & Verify : {currentCurrency.symbol}{currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
+                        </span>
+                      </>
+                    ) : paymentMethod === 'bank_wire' ? (
+                      <>
+                        <ShieldCheck className="w-4 h-4 text-emerald-300" />
+                        <span>Confirm Transfer & Issue 80G Receipt</span>
+                      </>
+                    ) : (
+                      <>
+                        <Heart className="w-5 h-5 fill-white" />
+                        <span>
+                          {t('donate.submit', 'Complete Donation')} : {currentCurrency.symbol}
+                          {currentConvertedAmount.toLocaleString()} {frequency !== 'one_time' ? `/${frequency}` : ''}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                )}
 
                 <p className="text-center text-[11px] text-content-muted mt-3 flex items-center justify-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-brand-purple" /> 256-bit SSL Encrypted & PCI-DSS Compliant. No raw card numbers stored.

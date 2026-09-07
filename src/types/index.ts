@@ -167,14 +167,14 @@ export interface Donation {
   notes?: string;
 }
 
-export type PaymentMethod = 'stripe_card' | 'razorpay_upi' | 'razorpay_card' | 'razorpay_netbanking' | 'bank_wire' | 'sandbox_card';
+export type PaymentMethod = 'stripe_card' | 'razorpay_upi' | 'razorpay_card' | 'razorpay_netbanking' | 'paypal' | 'bank_wire' | 'sandbox_card';
 export type PaymentStatus = 'initiated' | 'pending' | 'successful' | 'failed' | 'cancelled' | 'refunded' | 'partially_refunded';
 
 export interface Payment {
   id: string;
   transactionId: string;
   donationId: string;
-  provider: 'stripe' | 'razorpay' | 'bank' | 'sandbox';
+  provider: 'stripe' | 'razorpay' | 'paypal' | 'bank' | 'sandbox';
   providerPaymentId: string;
   amount: number;
   currency: string;

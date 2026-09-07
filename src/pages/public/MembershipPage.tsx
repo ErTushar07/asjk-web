@@ -7,6 +7,7 @@ import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
 import { PaymentService } from '../../services/paymentService';
 import { ReceiptService } from '../../services/receiptService';
+import { PayPalButton } from '../../components/payment/PayPalButton';
 import { 
   Crown, CheckCircle2, ShieldCheck, Download, Award, 
   Sparkles, Heart, CreditCard, ArrowRight, Check, Search, 
@@ -324,6 +325,64 @@ export const MembershipPage: React.FC = () => {
       const msg = err.message || 'Payment could not be completed. Please try again or select another payment option.';
       setErrorMsg(msg);
       toast.error(msg, 'Payment Incomplete');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePayPalMembershipSuccess = async (paypalOrderId: string) => {
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim() || !bloodGroup.trim()) {
+      setErrorMsg('Please provide all mandatory details: Full Name, Email, Phone Number, City, Country, and Blood Group.');
+      return;
+    }
+
+    if (!photoUrl) {
+      setErrorMsg('Passport size photograph is mandatory. Please upload your photo for the ID credential badge.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMsg(null);
+
+    try {
+      const now = new Date();
+      const validThru = new Date();
+      validThru.setFullYear(now.getFullYear() + durationYears);
+
+      const timestamp = Date.now();
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const receiptNumber = `ASJ-REC-${now.getFullYear()}-${randomSuffix}`;
+
+      const newMbr = addMembership({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        city: city.trim(),
+        country: country.trim(),
+        photoUrl: photoUrl || undefined,
+        bloodGroup,
+        tier: selectedTier,
+        tierName: currentTierObj.name,
+        durationYears,
+        annualAmount,
+        totalContribution,
+        paidAmount: totalContribution,
+        currency: currentCurrency.code,
+        validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        paymentMethod: 'PayPal International',
+        transactionId: paypalOrderId,
+        orderId: paypalOrderId,
+        paymentId: paypalOrderId,
+        receiptNumber,
+        status: 'active',
+      });
+
+      setConfirmedMember(newMbr);
+      toast.success(`Welcome, ${fullName}! Your ${currentTierObj.name} NGO Membership credential is ready.`, 'Membership Enrolled');
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    } catch (err: any) {
+      setErrorMsg(err.message || 'PayPal membership recording failed.');
     } finally {
       setIsProcessing(false);
     }
@@ -923,7 +982,7 @@ export const MembershipPage: React.FC = () => {
                     gateway: 'PayPal Global',
                     icon: Globe, 
                     hint: 'Global USD / Cards',
-                    active: false 
+                    active: true 
                   },
                   { 
                     id: 'bank_wire', 
@@ -1082,25 +1141,55 @@ export const MembershipPage: React.FC = () => {
                 )}
               </div>
 
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full sm:w-auto btn-primary !py-3.5 !px-8 text-sm font-black shadow-pink-glow flex items-center justify-center gap-2"
-              >
-                {isProcessing ? (
-                  <span>{paymentMethod === 'bank_wire' ? 'Submitting Transfer Details...' : 'Launching Razorpay Gateway...'}</span>
-                ) : paymentMethod === 'bank_wire' ? (
-                  <>
-                    <Building className="w-4 h-4" />
-                    <span>Submit Bank Wire & Register: {formatMembershipCurrency(totalContribution)}</span>
-                  </>
-                ) : (
-                  <>
-                    <Crown className="w-4 h-4" />
-                    <span>{t('membership.pay_btn', 'Pay & Activate Membership')}: {formatMembershipCurrency(totalContribution)}</span>
-                  </>
-                )}
-              </button>
+              {paymentMethod === 'paypal' ? (
+                <div className="w-full sm:w-80">
+                  <PayPalButton
+                    amount={totalContribution}
+                    currency={currentCurrency.code}
+                    description={`Al Shujaiat Foundation Membership - ${currentTierObj.name} (${durationYears} Yr)`}
+                    donorName={fullName.trim()}
+                    donorEmail={email.trim()}
+                    disabled={
+                      isProcessing ||
+                      !fullName.trim() ||
+                      !email.trim() ||
+                      !phone.trim() ||
+                      !city.trim() ||
+                      !country.trim() ||
+                      !photoUrl
+                    }
+                    onSuccess={async ({ orderId }) => {
+                      await handlePayPalMembershipSuccess(orderId);
+                    }}
+                    onError={(err) => setErrorMsg(err)}
+                  />
+                  {(!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim() || !photoUrl) && (
+                    <p className="text-[11px] text-amber-600 mt-1.5 text-center font-medium">
+                      Fill all mandatory personal details & photo to activate PayPal checkout.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full sm:w-auto btn-primary !py-3.5 !px-8 text-sm font-black shadow-pink-glow flex items-center justify-center gap-2"
+                >
+                  {isProcessing ? (
+                    <span>{paymentMethod === 'bank_wire' ? 'Submitting Transfer Details...' : 'Launching Razorpay Gateway...'}</span>
+                  ) : paymentMethod === 'bank_wire' ? (
+                    <>
+                      <Building className="w-4 h-4" />
+                      <span>Submit Bank Wire & Register: {formatMembershipCurrency(totalContribution)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4" />
+                      <span>{t('membership.pay_btn', 'Pay & Activate Membership')}: {formatMembershipCurrency(totalContribution)}</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </form>
         </div>

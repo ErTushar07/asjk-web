@@ -169,6 +169,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
       return;
     }
 
+    if (!donorPhone.trim()) {
+      setErrorMsg('Please enter your Phone Number.');
+      return;
+    }
+
     const effectiveDonorName = donorName.trim();
     const effectiveDonorEmail = donorEmail.trim().toLowerCase();
 
@@ -613,6 +618,19 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-content-secondary mb-1">
+                      {t('donate.phone', 'Phone Number')} <span className="text-brand-purple font-bold">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +91 94190 12345"
+                      value={donorPhone}
+                      onChange={(e) => setDonorPhone(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-content-secondary mb-1">
                       {t('donate.country', 'Country of Residence')} <span className="text-brand-purple font-bold">*</span>
                     </label>
                     <input
@@ -624,18 +642,19 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                       className="w-full px-3 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-content-secondary mb-1">
-                      {t('donate.tax_id_label', 'PAN / Tax ID (Optional for 80G tax benefit)')}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. ABCDE1234F"
-                      value={donorTaxId}
-                      onChange={(e) => setDonorTaxId(e.target.value.toUpperCase())}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none uppercase font-mono"
-                    />
-                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-content-secondary mb-1">
+                    {t('donate.tax_id_label', 'PAN / Tax ID (Optional for 80G tax benefit)')}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ABCDE1234F"
+                    value={donorTaxId}
+                    onChange={(e) => setDonorTaxId(e.target.value.toUpperCase())}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none uppercase font-mono"
+                  />
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">

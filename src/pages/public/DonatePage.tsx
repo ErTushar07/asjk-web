@@ -111,6 +111,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
       return;
     }
 
+    if (!phone.trim()) {
+      setErrorMessage('Please enter your Phone Number.');
+      return;
+    }
+
     const effectiveDonorEmail = email.trim();
     const effectiveDonorName = fullName.trim();
 
@@ -429,10 +434,11 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('donate.phone_number', 'Phone Number')}
+                  {t('donate.phone_number', 'Phone Number')} <span className="text-brand-purple font-bold">*</span>
                 </label>
                 <input
                   type="tel"
+                  required
                   placeholder="+1 415 555 0192"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}

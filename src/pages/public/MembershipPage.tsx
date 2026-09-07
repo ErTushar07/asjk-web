@@ -190,8 +190,13 @@ export const MembershipPage: React.FC = () => {
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim()) {
-      setErrorMsg('Please provide all mandatory details: Full Name, Email, Phone Number, City, and Country.');
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim() || !bloodGroup.trim()) {
+      setErrorMsg('Please provide all mandatory details: Full Name, Email, Phone Number, City, Country, and Blood Group.');
+      return;
+    }
+
+    if (!photoUrl) {
+      setErrorMsg('Please upload your passport-size photograph for the official membership ID badge.');
       return;
     }
 
@@ -806,10 +811,11 @@ export const MembershipPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-content-primary mb-1">
-                  {t('membership.blood_group', 'Blood Group (ID Badge)')}
+                  {t('membership.blood_group', 'Blood Group (ID Badge) *')}
                 </label>
                 <select
                   value={bloodGroup}
+                  required
                   onChange={(e) => setBloodGroup(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
                 >
@@ -829,7 +835,7 @@ export const MembershipPage: React.FC = () => {
             <div className="bg-surface-soft p-4 sm:p-5 rounded-2xl border border-content-border space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-brand-purple uppercase tracking-wider flex items-center gap-1.5">
-                  <IdCard className="w-4 h-4 text-brand-pink" /> {t('membership.photo_title', 'Passport Size Photograph (for Official Membership Card Badge)')}
+                  <IdCard className="w-4 h-4 text-brand-pink" /> {t('membership.photo_title', 'Passport Size Photograph (for Official Membership Card Badge) *')}
                 </h4>
                 <span className="text-[10px] text-content-muted">JPG, PNG up to 5MB</span>
               </div>

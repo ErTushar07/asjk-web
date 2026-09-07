@@ -113,7 +113,10 @@ export const VolunteerPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim()) return;
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim()) {
+      toast.error('Please fill in all mandatory fields: Full Name, Email, Phone, City, and Country.');
+      return;
+    }
 
     const fullQualification = qualification
       ? `${qualification} (${degreeLevel})`
@@ -445,10 +448,11 @@ export const VolunteerPage: React.FC = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-content-secondary uppercase">
-                {t('volunteer.blood_group', 'Blood Group (For Emergency First-Responders)')}
+                {t('volunteer.blood_group', 'Blood Group (For Emergency First-Responders)')} <span className="text-rose-500">*</span>
               </label>
               <select
                 value={bloodGroup}
+                required
                 onChange={(e) => setBloodGroup(e.target.value)}
                 className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white font-mono"
               >
@@ -479,10 +483,11 @@ export const VolunteerPage: React.FC = () => {
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-content-secondary uppercase">
-                {t('volunteer.country', 'Country of Residence')}
+                {t('volunteer.country', 'Country of Residence')} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
+                required
                 placeholder="India"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}

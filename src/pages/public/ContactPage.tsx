@@ -27,6 +27,7 @@ export const ContactPage: React.FC = () => {
   const [touched, setTouched] = useState({
     name: false,
     email: false,
+    phone: false,
     message: false,
   });
 
@@ -35,10 +36,11 @@ export const ContactPage: React.FC = () => {
   const errors = {
     name: touched.name && name.trim().length < 2 ? 'Please enter your full name (at least 2 characters).' : '',
     email: touched.email && (!email.trim() || !emailRegex.test(email.trim())) ? 'Please provide a valid email address for our reply.' : '',
+    phone: touched.phone && phone.trim().length < 6 ? 'Please provide a valid phone or WhatsApp number.' : '',
     message: touched.message && message.trim().length < 10 ? 'Message must be at least 10 characters long.' : '',
   };
 
-  const isFormValid = name.trim().length >= 2 && emailRegex.test(email.trim()) && message.trim().length >= 10 && message.trim().length <= 1000;
+  const isFormValid = name.trim().length >= 2 && emailRegex.test(email.trim()) && phone.trim().length >= 6 && message.trim().length >= 10 && message.trim().length <= 1000;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export const ContactPage: React.FC = () => {
     }
 
     if (!isFormValid) {
-      setTouched({ name: true, email: true, message: true });
+      setTouched({ name: true, email: true, phone: true, message: true });
       return;
     }
 
@@ -181,7 +183,7 @@ export const ContactPage: React.FC = () => {
                   setSubject('');
                   setMessage('');
                   setHoneypot('');
-                  setTouched({ name: false, email: false, message: false });
+                  setTouched({ name: false, email: false, phone: false, message: false });
                 }}
                 className="btn-outline !py-2.5 !px-6 text-xs font-bold"
               >
@@ -258,15 +260,24 @@ export const ContactPage: React.FC = () => {
                 {/* Phone */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-content-secondary uppercase">
-                    {t('contact.phone_desk', 'Phone / WhatsApp')}
+                    {t('contact.phone_desk', 'Phone / WhatsApp')} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="tel"
+                    required
                     placeholder="+91 94193 01319"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 text-xs rounded-xl border border-content-border dark:border-slate-700 bg-white dark:bg-slate-800 text-content-primary focus:border-brand-purple outline-none"
+                    onBlur={() => setTouched((p) => ({ ...p, phone: true }))}
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none transition-colors bg-white dark:bg-slate-800 text-content-primary ${
+                      errors.phone ? 'border-rose-400 bg-rose-50/30 dark:bg-rose-950/20' : 'border-content-border dark:border-slate-700 focus:border-brand-purple'
+                    }`}
                   />
+                  {errors.phone && (
+                    <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> {errors.phone}
+                    </p>
+                  )}
                 </div>
 
                 {/* Category */}

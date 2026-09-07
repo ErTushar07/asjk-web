@@ -112,7 +112,7 @@ export const ContactPage: React.FC = () => {
                   <span className="font-bold text-white block mb-0.5">
                     {t('contact.registered_office', 'Registered Office:')}
                   </span>
-                  <p>{settings.registeredAddress || 'Main Town, Baramulla, Jammu & Kashmir 193101, India'}</p>
+                  <p>{settings.registeredAddress || 'D-45, 1st FLOOR ZAKIR NAGAR WEST DELHI NEW DELHI 110025'}</p>
                 </div>
               </div>
 
@@ -120,9 +120,9 @@ export const ContactPage: React.FC = () => {
                 <MapPin className="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-white block mb-0.5">
-                    {t('contact.liaison_office', 'Regional Liaison Office:')}
+                    {t('contact.operating_office', 'Operating / Field Office:')}
                   </span>
-                  <p>Al Shujaiat Foundation, Rajbagh / Boulevard Road, Srinagar, J&K 190008, India</p>
+                  <p>{settings.operatingAddress || 'Luragam Tral Pulwama Jammu and Kashmir 192123'}</p>
                 </div>
               </div>
 

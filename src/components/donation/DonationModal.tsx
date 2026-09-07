@@ -117,6 +117,23 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     }
   }, [initialProjectId, initialCampaignId, projects, campaigns]);
 
+  const handleClose = () => {
+    setErrorMsg(null);
+    onClose();
+  };
+
+  // Keyboard accessibility: Close modal when pressing Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const currentConvertedAmount = isCustomAmount
@@ -268,37 +285,52 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div 
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="donation-modal-title"
-        className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-content-border relative animate-fadeIn"
-      >
-        {/* Close Button */}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
+      {/* Outer Modal Container: Keeps close button pinned at top-right even when scrolling modal content */}
+      <div className="relative max-w-2xl w-full">
+        {/* Pinned Close Button */}
         <button
-          onClick={onClose}
+          type="button"
+          id="btn-close-donation-modal"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleClose();
+          }}
           aria-label="Close donation modal"
-          className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full bg-surface-soft hover:bg-surface-card flex items-center justify-center text-content-secondary hover:text-content-primary transition-colors"
+          className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white text-gray-800 hover:text-black hover:bg-gray-100 shadow-2xl border border-white/60 flex items-center justify-center transition-all duration-150 transform hover:scale-110 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-pink"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 stroke-[2.5]" />
         </button>
 
-        {/* Modal Header */}
-        <div className="bg-brand-purple text-white p-6 sm:p-8 rounded-t-3xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-brand-pink/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-blue border border-white/15 mb-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-pink" /> {t('donate.tax_deductible', '100% Tax Deductible (80G / 501c3)')}
-            </span>
-            <h3 id="donation-modal-title" className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              {t('donate.title', 'Make a Life-Changing Contribution')}
-            </h3>
-            <p className="text-white/80 text-xs sm:text-sm mt-1">
-              {t('donate.allocated_to', 'Allocated to')}: <span className="font-semibold text-brand-pink">{targetName}</span>
-            </p>
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="donation-modal-title"
+          className="bg-white rounded-3xl shadow-2xl w-full max-h-[90vh] overflow-y-auto border border-content-border relative animate-fadeIn"
+        >
+          {/* Modal Header */}
+          <div className="bg-brand-purple text-white p-6 sm:p-8 pr-16 rounded-t-3xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-brand-pink/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+            <div className="relative z-10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-brand-blue border border-white/15 mb-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-pink" /> {t('donate.tax_deductible', '100% Tax Deductible (80G / 501c3)')}
+              </span>
+              <h3 id="donation-modal-title" className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {t('donate.title', 'Make a Life-Changing Contribution')}
+              </h3>
+              <p className="text-white/80 text-xs sm:text-sm mt-1">
+                {t('donate.allocated_to', 'Allocated to')}: <span className="font-semibold text-brand-pink">{targetName}</span>
+              </p>
+            </div>
           </div>
-        </div>
 
         {/* Modal Content */}
         <div className="p-6 sm:p-8">
@@ -1002,5 +1034,6 @@ export const DonationModal: React.FC<DonationModalProps> = ({
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };

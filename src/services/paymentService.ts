@@ -252,27 +252,51 @@ export class PaymentService {
       const txnId = params.paymentReference?.trim() || `PAYPAL_${Date.now()}`;
       const timestamp = Date.now();
       const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-      const receiptNumber = `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`;
-      const donationId = `don_${timestamp}_${randomSuffix}`;
+      let receiptNumber = `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`;
+      let donationId = `don_${timestamp}_${randomSuffix}`;
 
-      if (isSupabaseConfigured) {
+      // Server-side verification via Supabase Edge Function (utilizing PAYPAL_CLIENT_ID & PAYPAL_CLIENT_SECRET)
+      if (isSupabaseConfigured && typeof (supabase as any)?.functions?.invoke === 'function') {
         try {
-          await supabase.from('donations').insert({
-            donation_number: donationId,
-            donor_name: params.donorName,
-            donor_email: params.donorEmail,
-            donor_phone: params.donorPhone,
-            amount: params.amount,
-            currency: params.currency,
-            amount_usd: amountUSD,
-            status: 'successful',
-            payment_method: 'paypal',
-            payment_id: txnId,
-            receipt_number: receiptNumber,
-            target_name: params.targetName,
+          const { data: verifyData } = await supabase.functions.invoke('verify-paypal-payment', {
+            body: {
+              orderId: txnId,
+              donationNumber: donationId,
+              donorName: params.donorName,
+              donorEmail: params.donorEmail,
+              donorPhone: params.donorPhone,
+              donorTaxId: params.donorTaxId,
+              targetName: params.targetName,
+              amount: params.amount,
+              currency: params.currency,
+            },
           });
-        } catch (dbErr) {
-          console.warn('Supabase paypal donation insert fallback:', dbErr);
+          if (verifyData?.receiptNumber) {
+            receiptNumber = verifyData.receiptNumber;
+          }
+          if (verifyData?.donationId) {
+            donationId = verifyData.donationId;
+          }
+        } catch (edgeErr) {
+          console.warn('Supabase verify-paypal-payment notice (using client recording fallback):', edgeErr);
+          try {
+            await supabase.from('donations').insert({
+              donation_number: donationId,
+              donor_name: params.donorName,
+              donor_email: params.donorEmail,
+              donor_phone: params.donorPhone,
+              amount: params.amount,
+              currency: params.currency,
+              amount_usd: amountUSD,
+              status: 'successful',
+              payment_method: 'paypal',
+              payment_id: txnId,
+              receipt_number: receiptNumber,
+              target_name: params.targetName,
+            });
+          } catch (dbErr) {
+            console.warn('Supabase paypal donation insert fallback:', dbErr);
+          }
         }
       }
 

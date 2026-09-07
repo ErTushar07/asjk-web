@@ -852,16 +852,27 @@ export const MembershipPage: React.FC = () => {
                 </div>
 
                 <div className="flex-1 w-full text-center sm:text-left space-y-1">
-                  <p className="text-xs font-bold text-content-primary">
-                    {photoUrl ? 'Photograph Uploaded' : 'Upload your formal portrait photo'}
-                  </p>
+                  <div className="flex items-center gap-2 justify-center sm:justify-start">
+                    <p className={`text-xs font-bold ${!photoUrl ? 'text-rose-600' : 'text-content-primary'}`}>
+                      {photoUrl ? 'Photograph Uploaded ✓' : 'Upload your formal portrait photo'}
+                    </p>
+                    {!photoUrl && (
+                      <span className="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200">
+                        * Mandatory
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-content-secondary">
                     This photo will be framed on your high-resolution Al Shujaiat Foundation Membership ID Card.
                   </p>
                   <div className="pt-1 flex items-center gap-2 justify-center sm:justify-start">
-                    <label className="btn-outline !py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5">
+                    <label className={`!py-1.5 !px-3 text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 rounded-xl border transition-colors ${
+                      !photoUrl
+                        ? 'border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                        : 'btn-outline text-brand-purple'
+                    }`}>
                       <UploadCloud className="w-3.5 h-3.5 text-brand-purple" />
-                      <span>{photoUrl ? t('membership.change_photo', 'Change Photo') : t('membership.upload_btn', 'Upload Picture')}</span>
+                      <span>{photoUrl ? t('membership.change_photo', 'Change Photo') : t('membership.upload_btn', 'Upload Picture *')}</span>
                       <input
                         type="file"
                         accept="image/*"

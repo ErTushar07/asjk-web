@@ -113,8 +113,18 @@ export const VolunteerPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim()) {
-      toast.error('Please fill in all mandatory fields: Full Name, Email, Phone, City, and Country.');
+    if (!fullName.trim() || !email.trim() || !phone.trim() || !city.trim() || !country.trim() || !bloodGroup.trim()) {
+      toast.error('Please fill in all mandatory personal details: Full Name, Email, Phone, City, Country, and Blood Group.');
+      return;
+    }
+
+    if (!photoUrl) {
+      toast.error('Passport ID photograph is strictly mandatory. Please upload your photo.');
+      return;
+    }
+
+    if (!resumeFile || !resumeFile.dataUrl) {
+      toast.error('Curriculum Vitae / Resume (PDF) is strictly mandatory. Please attach your CV.');
       return;
     }
 
@@ -541,40 +551,52 @@ export const VolunteerPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-content-secondary uppercase">
-                  {t('volunteer.passport_photo', 'Passport ID Photograph (Face Clear)')}
+                  {t('volunteer.passport_photo', 'Passport ID Photograph (Face Clear)')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="flex items-center gap-3">
-                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-purple/30 bg-surface-soft hover:bg-brand-purple/10 text-brand-purple text-xs font-bold transition-colors">
+                  <label className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    !photoUrl 
+                      ? 'border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100' 
+                      : 'border-brand-purple/30 bg-surface-soft hover:bg-brand-purple/10 text-brand-purple'
+                  }`}>
                     <Camera className="w-4 h-4 text-brand-pink" />
-                    <span>{t('volunteer.upload_photo', 'Upload Photo')}</span>
+                    <span>{photoUrl ? t('volunteer.change_photo', 'Change Photo') : t('volunteer.upload_photo', 'Upload Photo *')}</span>
                     <input type="file" accept="image/*" aria-label="Upload Passport ID Photo" onChange={handlePhotoUpload} className="hidden" />
                   </label>
-                  {photoUrl && (
+                  {photoUrl ? (
                     <div className="flex items-center gap-2">
                       <img src={photoUrl} alt="Preview" className="w-9 h-9 rounded-xl object-cover border border-brand-purple" />
                       <span className="text-[11px] text-emerald-600 font-bold">
-                        {t('volunteer.photo_attached', 'Photo Attached')}
+                        {t('volunteer.photo_attached', 'Photo Attached ✓')}
                       </span>
                     </div>
+                  ) : (
+                    <span className="text-[11px] text-rose-600 font-semibold">* Photo Required</span>
                   )}
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-content-secondary uppercase">
-                  {t('volunteer.resume_pdf', 'Curriculum Vitae / Resume (PDF)')}
+                  {t('volunteer.resume_pdf', 'Curriculum Vitae / Resume (PDF)')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="flex items-center gap-3">
-                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-blue/30 bg-surface-soft hover:bg-brand-blue/10 text-brand-blue text-xs font-bold transition-colors">
+                  <label className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-colors ${
+                    !resumeFile 
+                      ? 'border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100' 
+                      : 'border-brand-blue/30 bg-surface-soft hover:bg-brand-blue/10 text-brand-blue'
+                  }`}>
                     <Upload className="w-4 h-4 text-brand-blue" />
-                    <span>{t('volunteer.attach_cv', 'Attach CV')}</span>
+                    <span>{resumeFile ? t('volunteer.change_cv', 'Change CV') : t('volunteer.attach_cv', 'Attach CV *')}</span>
                     <input type="file" accept=".pdf,.doc,.docx" aria-label="Attach CV or Resume Document" onChange={handleResumeUpload} className="hidden" />
                   </label>
-                  {resumeFile && (
+                  {resumeFile ? (
                     <div className="flex items-center gap-1.5 text-[11px] text-content-primary truncate font-mono">
                       <FileText className="w-3.5 h-3.5 text-brand-blue flex-shrink-0" />
-                      <span className="truncate">{resumeFile.name}</span>
+                      <span className="truncate">{resumeFile.name} ✓</span>
                     </div>
+                  ) : (
+                    <span className="text-[11px] text-rose-600 font-semibold">* CV Required</span>
                   )}
                 </div>
               </div>

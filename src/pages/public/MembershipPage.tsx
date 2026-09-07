@@ -35,7 +35,7 @@ export const MembershipPage: React.FC = () => {
     'Become an official member or patron of Al Shujaiat Foundation Jammu & Kashmir. Receive official membership credential and attend annual meetings.'
   );
   const { addMembership, lookupMembership, settings } = useDatabase();
-  const { currentCurrency, setCurrency } = useCurrency();
+  const { currentCurrency } = useCurrency();
   const { t } = useLanguage();
   const toast = useToast();
 
@@ -587,30 +587,6 @@ export const MembershipPage: React.FC = () => {
               <p className="text-xs text-content-secondary max-w-xl mx-auto">
                 {t('membership.step1_subtitle', 'All memberships directly sustain on-ground healthcare, emergency relief, and community welfare in Jammu & Kashmir.')}
               </p>
-            </div>
-
-            {/* Currency Selector Bar (Requirement 10) */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-soft p-3 sm:px-5 rounded-2xl border border-content-border max-w-4xl mx-auto">
-              <div className="flex items-center gap-2 text-xs font-bold text-content-primary">
-                <Globe className="w-4 h-4 text-brand-purple flex-shrink-0" />
-                <span>Select Currency (Numeric value is identical in all currencies):</span>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
-                {['INR', 'USD', 'EUR', 'GBP', 'AED'].map((cur) => (
-                  <button
-                    key={cur}
-                    type="button"
-                    onClick={() => setCurrency(cur)}
-                    className={`px-3 py-1 rounded-xl text-xs font-black transition-all ${
-                      currentCurrency.code === cur
-                        ? 'bg-brand-purple text-white shadow-sm ring-2 ring-brand-purple/30 scale-105'
-                        : 'bg-white text-content-secondary hover:text-content-primary border border-content-border hover:border-brand-purple/40'
-                    }`}
-                  >
-                    {cur}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* 5 Membership Levels Grid */}

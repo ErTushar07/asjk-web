@@ -134,15 +134,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const currentConvertedAmount = isCustomAmount
     ? parseFloat(customAmountInput) || 0
     : selectedLocalAmount;
 
   // Dynamically generate e-Mandate specification when switching to monthly or yearly
   const generatedMandate = useMemo(() => {
-    if (frequency === 'one_time') return null;
+    if (!isOpen || frequency === 'one_time') return null;
     return MandateService.generateMandate({
       frequency,
       amount: currentConvertedAmount,
@@ -150,7 +148,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
       donorName: donorName.trim() || undefined,
       paymentMethod,
     });
-  }, [frequency, currentConvertedAmount, currentCurrency.code, paymentMethod, donorName]);
+  }, [isOpen, frequency, currentConvertedAmount, currentCurrency.code, paymentMethod, donorName]);
 
   const handlePresetClick = (val: number) => {
     setIsCustomAmount(false);
@@ -162,6 +160,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({
     setIsCustomAmount(true);
     setCustomAmountInput(val);
   };
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

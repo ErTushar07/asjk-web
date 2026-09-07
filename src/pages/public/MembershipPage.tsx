@@ -50,7 +50,7 @@ export const MembershipPage: React.FC = () => {
   const [country, setCountry] = useState('India');
   const [bloodGroup, setBloodGroup] = useState('O+');
   const [photoUrl, setPhotoUrl] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal' | 'bank_wire'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal' | 'bank_wire'>('upi');
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -846,29 +846,73 @@ export const MembershipPage: React.FC = () => {
               <label className="block text-xs font-semibold text-content-primary">
                 {t('membership.payment_method', 'Select Payment Method')}
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { id: 'card', label: t('membership.card', 'Credit / Debit Card'), icon: CreditCard, hint: 'Visa, MC, RuPay' },
-                  { id: 'upi', label: t('membership.upi', 'UPI / NetBanking'), icon: Sparkles, hint: 'GPay, PhonePe, Paytm' },
-                  { id: 'paypal', label: t('membership.paypal', 'International Card'), icon: Globe, hint: 'Global USD / Cards' },
-                  { id: 'bank_wire', label: t('membership.bank_wire', 'Direct Bank Wire'), icon: Building, hint: 'NEFT / RTGS / IMPS' },
+                  { 
+                    id: 'upi', 
+                    label: t('membership.upi', 'UPI / NetBanking / Cards'), 
+                    gateway: 'Razorpay Gateway',
+                    icon: Sparkles, 
+                    hint: 'GPay, PhonePe, Paytm, RuPay, Cards',
+                    active: true 
+                  },
+                  { 
+                    id: 'card', 
+                    label: t('membership.card', 'Direct Stripe Card'), 
+                    gateway: 'Stripe International',
+                    icon: CreditCard, 
+                    hint: 'Visa, Mastercard, Amex',
+                    active: false 
+                  },
+                  { 
+                    id: 'paypal', 
+                    label: t('membership.paypal', 'PayPal / International'), 
+                    gateway: 'PayPal Global',
+                    icon: Globe, 
+                    hint: 'Global USD / Cards',
+                    active: false 
+                  },
+                  { 
+                    id: 'bank_wire', 
+                    label: t('membership.bank_wire', 'Direct Bank Wire'), 
+                    gateway: 'NEFT / RTGS / IMPS',
+                    icon: Building, 
+                    hint: 'Direct Account Transfer',
+                    active: false 
+                  },
                 ].map((m) => (
                   <button
                     key={m.id}
                     type="button"
+                    disabled={!m.active}
                     onClick={() => {
-                      setPaymentMethod(m.id as any);
-                      if (errorMsg) setErrorMsg(null);
+                      if (m.active) {
+                        setPaymentMethod(m.id as any);
+                        if (errorMsg) setErrorMsg(null);
+                      }
                     }}
-                    className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
-                      paymentMethod === m.id
-                        ? 'border-brand-pink bg-pink-50/50 text-brand-purple shadow-sm'
+                    className={`p-3.5 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all text-center relative ${
+                      !m.active
+                        ? 'border-content-border/60 bg-surface-soft/60 text-content-secondary/75 opacity-80 cursor-not-allowed'
+                        : paymentMethod === m.id
+                        ? 'border-brand-pink bg-pink-50/50 text-brand-purple shadow-sm ring-2 ring-brand-pink/20'
                         : 'border-content-border text-content-secondary hover:border-brand-purple/40'
                     }`}
                   >
-                    <m.icon className="w-5 h-5 text-brand-pink" />
-                    <span>{m.label}</span>
-                    <span className="text-[9.5px] font-normal text-content-muted">{m.hint}</span>
+                    <m.icon className={`w-5 h-5 ${m.active ? 'text-brand-pink' : 'text-slate-400'}`} />
+                    <span className="font-extrabold">{m.label}</span>
+                    {m.active ? (
+                      <>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Active & Instant
+                        </span>
+                        <span className="text-[10px] font-normal text-content-muted">{m.hint}</span>
+                      </>
+                    ) : (
+                      <span className="text-[9.5px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md leading-tight mt-0.5">
+                        In development phase · Will be back soon
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

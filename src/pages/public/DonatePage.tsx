@@ -50,10 +50,8 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
   const [address, setAddress] = useState('');
   const [anonymous, setAnonymous] = useState(false);
 
-  // Default payment method: Razorpay UPI for INR, Card for international
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(() =>
-    currentCurrency.code === 'INR' ? 'razorpay_upi' : 'stripe_card'
-  );
+  // Default payment method: Razorpay is the active payment gateway
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('razorpay_upi');
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [hasOpenedRazorpay, setHasOpenedRazorpay] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -455,22 +453,9 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
             <label className="block text-xs font-bold text-content-secondary uppercase tracking-wider">
               {t('donate.payment_method_title', '5. Payment Method')}
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'stripe_card' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'stripe_card'}
-                  onChange={() => setPaymentMethod('stripe_card')}
-                  className="text-brand-purple focus:ring-brand-purple"
-                />
-                <CreditCard className="w-4 h-4 text-brand-purple" />
-                <span className="text-xs font-semibold text-content-primary">
-                  {t('donate.card_stripe', 'Credit / Debit Card (Stripe International)')}
-                </span>
-              </label>
-
-              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'razorpay_upi' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
+            <div className="space-y-3">
+              {/* Razorpay Active Gateway */}
+              <label className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'razorpay_upi' ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20' : 'border-content-border'}`}>
                 <input
                   type="radio"
                   name="payment"
@@ -478,25 +463,55 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
                   onChange={() => setPaymentMethod('razorpay_upi')}
                   className="text-brand-purple focus:ring-brand-purple"
                 />
-                <Smartphone className="w-4 h-4 text-brand-pink" />
-                <span className="text-xs font-semibold text-content-primary">
-                  {t('donate.upi_razorpay', 'UPI & Netbanking (Razorpay India)')}
-                </span>
+                <div className="w-10 h-10 rounded-2xl bg-brand-pink/10 text-brand-pink flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-content-primary">
+                      {t('donate.upi_razorpay', 'UPI, Cards & Netbanking (Razorpay Gateway)')}
+                    </span>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      Active & Instant
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-content-secondary mt-0.5">
+                    GPay, PhonePe, Paytm, Debit/Credit Cards (Visa, Mastercard, RuPay), and all Netbanking
+                  </p>
+                </div>
               </label>
 
-              <label className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${paymentMethod === 'bank_wire' ? 'border-brand-purple bg-surface-highlight' : 'border-content-border'}`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'bank_wire'}
-                  onChange={() => setPaymentMethod('bank_wire')}
-                  className="text-brand-purple focus:ring-brand-purple"
-                />
-                <Building className="w-4 h-4 text-brand-blue" />
-                <span className="text-xs font-semibold text-content-primary">
-                  {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
-                </span>
-              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
+                {/* Stripe International Card (In Development) */}
+                <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <div className="text-xs flex-1">
+                    <p className="font-semibold text-content-secondary">
+                      {t('donate.card_stripe', 'Credit / Debit Card (Stripe International)')}
+                    </p>
+                    <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                      In development phase · Will be back soon
+                    </span>
+                  </div>
+                </div>
+
+                {/* Direct Bank Wire (In Development) */}
+                <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Building className="w-4 h-4" />
+                  </div>
+                  <div className="text-xs flex-1">
+                    <p className="font-semibold text-content-secondary">
+                      {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
+                    </p>
+                    <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                      In development phase · Will be back soon
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Official Bank Account Details Box when Bank Wire is selected */}

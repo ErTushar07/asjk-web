@@ -69,10 +69,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const [donorAddress, setDonorAddress] = useState<string>('');
   const [anonymous, setAnonymous] = useState<boolean>(false);
 
-  // Payment Method: Default to Razorpay for INR, Card for international
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(() =>
-    currentCurrency.code === 'INR' ? 'razorpay_upi' : 'stripe_card'
-  );
+  // Payment Method: Razorpay is the active gateway
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('razorpay_upi');
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [hasOpenedRazorpay, setHasOpenedRazorpay] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -642,37 +640,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   {t('donate.payment_method', 'Select Payment Method')}
                 </span>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-2.5">
+                  {/* Razorpay (Active Gateway) */}
                   <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                      paymentMethod === 'stripe_card'
-                        ? 'border-brand-purple bg-surface-highlight ring-1 ring-brand-purple'
-                        : 'border-content-border hover:bg-surface-soft'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      value="stripe_card"
-                      checked={paymentMethod === 'stripe_card'}
-                      onChange={() => setPaymentMethod('stripe_card')}
-                      className="hidden"
-                    />
-                    <CreditCard className="w-5 h-5 text-brand-purple flex-shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-bold text-content-primary">
-                        {t('donate.card_stripe', 'International Card (Stripe)')}
-                      </p>
-                      <p className="text-[10px] text-content-muted">
-                        {t('donate.card_stripe_sub', 'Visa, Mastercard, Amex, Apple Pay')}
-                      </p>
-                    </div>
-                  </label>
-
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-3.5 p-3.5 rounded-2xl border cursor-pointer transition-all ${
                       paymentMethod === 'razorpay_upi'
-                        ? 'border-brand-purple bg-surface-highlight ring-1 ring-brand-purple'
+                        ? 'border-brand-purple bg-surface-highlight ring-2 ring-brand-purple/20'
                         : 'border-content-border hover:bg-surface-soft'
                     }`}
                   >
@@ -684,42 +657,59 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                       onChange={() => setPaymentMethod('razorpay_upi')}
                       className="hidden"
                     />
-                    <Smartphone className="w-5 h-5 text-brand-pink flex-shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-bold text-content-primary">
-                        {t('donate.upi_razorpay', 'UPI & Netbanking (Razorpay)')}
-                      </p>
-                      <p className="text-[10px] text-content-muted">
-                        {t('donate.upi_sub', 'GPay, PhonePe, Paytm, Indian Banks')}
+                    <div className="w-9 h-9 rounded-xl bg-brand-pink/10 text-brand-pink flex items-center justify-center flex-shrink-0">
+                      <Smartphone className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <p className="font-extrabold text-content-primary">
+                          {t('donate.upi_razorpay', 'UPI, Cards & Netbanking (Razorpay Gateway)')}
+                        </p>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Active & Instant
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-content-secondary mt-0.5">
+                        Instant contribution via GPay, PhonePe, Paytm, Visa, Mastercard, RuPay & all Indian banks.
                       </p>
                     </div>
                   </label>
 
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                      paymentMethod === 'bank_wire'
-                        ? 'border-brand-purple bg-surface-highlight ring-1 ring-brand-purple'
-                        : 'border-content-border hover:bg-surface-soft'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      value="bank_wire"
-                      checked={paymentMethod === 'bank_wire'}
-                      onChange={() => setPaymentMethod('bank_wire')}
-                      className="hidden"
-                    />
-                    <Building className="w-5 h-5 text-brand-blue flex-shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-bold text-content-primary">
-                        {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
-                      </p>
-                      <p className="text-[10px] text-content-muted">
-                        {t('donate.bank_wire_sub', 'J&K Bank / HDFC Official Accounts')}
-                      </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                    {/* Stripe Card (In Development) */}
+                    <div
+                      className="flex items-start gap-3 p-3 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CreditCard className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs flex-1">
+                        <p className="font-semibold text-content-secondary">
+                          {t('donate.card_stripe', 'International Card (Stripe)')}
+                        </p>
+                        <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                          In development phase · Will be back soon
+                        </span>
+                      </div>
                     </div>
-                  </label>
+
+                    {/* Bank Wire (In Development) */}
+                    <div
+                      className="flex items-start gap-3 p-3 rounded-2xl border border-content-border/60 bg-surface-soft/60 opacity-75 cursor-not-allowed select-none"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Building className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs flex-1">
+                        <p className="font-semibold text-content-secondary">
+                          {t('donate.bank_wire', 'Direct Bank Wire / NEFT')}
+                        </p>
+                        <span className="inline-block mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                          In development phase · Will be back soon
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bank Account Details Box when Bank Wire selected in Modal */}

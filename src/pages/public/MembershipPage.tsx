@@ -5,10 +5,12 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
 import { MembershipTier, NgoMembership } from '../../types';
 import { MembershipCardPreview } from '../../components/membership/MembershipCardPreview';
+import { PaymentService } from '../../services/paymentService';
 import { 
   Crown, CheckCircle2, ShieldCheck, Download, Award, 
   Sparkles, Heart, CreditCard, ArrowRight, Check, Search, 
-  Globe, Clock, Users, Building, Shield, IdCard, UploadCloud
+  Globe, Clock, Users, Building, Shield, IdCard, UploadCloud,
+  AlertCircle, Copy
 } from 'lucide-react';
 
 interface TierOption {
@@ -49,8 +51,18 @@ export const MembershipPage: React.FC = () => {
   const [bloodGroup, setBloodGroup] = useState('O+');
   const [photoUrl, setPhotoUrl] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'paypal' | 'bank_wire'>('card');
+  const [paymentReference, setPaymentReference] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmedMember, setConfirmedMember] = useState<NgoMembership | null>(null);
+  const [pendingMember, setPendingMember] = useState<NgoMembership | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
 
   // Status & Membership Card Retrieval
   const [activeTab, setActiveTab] = useState<'join' | 'lookup'>('join');
@@ -161,24 +173,59 @@ export const MembershipPage: React.FC = () => {
   const totalAmountUSD = currentTierObj.baseAnnualUSD * durationYears;
   const totalAmountLocal = annualAmountLocal * durationYears;
 
-  const handleEnrollMembership = (e: React.FormEvent) => {
+  const handleEnrollMembership = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email) return;
+    setErrorMsg(null);
+
+    if (!fullName.trim() || !email.trim()) {
+      setErrorMsg('Please provide your Full Name and Email address.');
+      return;
+    }
+
+    if (totalAmountLocal <= 0) {
+      setErrorMsg('Invalid contribution amount.');
+      return;
+    }
+
+    // Direct bank wire requires a valid reference/UTR
+    if (paymentMethod === 'bank_wire') {
+      const cleanRef = paymentReference.trim();
+      if (!cleanRef || cleanRef.length < 4) {
+        setErrorMsg('Please enter a valid bank transfer reference / UTR number.');
+        return;
+      }
+    }
 
     setIsProcessing(true);
 
-    setTimeout(() => {
-      try {
-        const now = new Date();
-        const validThru = new Date();
-        validThru.setFullYear(now.getFullYear() + durationYears);
+    try {
+      const now = new Date();
+      const validThru = new Date();
+      validThru.setFullYear(now.getFullYear() + durationYears);
+
+      // 1. Direct Bank Wire Transfer (Requires manual UTR - sets pending verification, NO instant card or receipt)
+      if (paymentMethod === 'bank_wire') {
+        const cleanRef = paymentReference.trim();
+        await PaymentService.processPayment({
+          amount: totalAmountLocal,
+          currency: currentCurrency.code,
+          frequency: 'one_time',
+          method: 'bank_wire',
+          paymentReference: cleanRef,
+          donorName: fullName.trim(),
+          donorEmail: email.trim(),
+          donorPhone: phone.trim() || undefined,
+          targetId: `mbr_${selectedTier}`,
+          targetName: `NGO Membership - ${currentTierObj.name} (${durationYears} ${durationYears === 1 ? 'Year' : 'Years'})`,
+          idempotencyKey: `mbr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        });
 
         const newMbr = addMembership({
-          fullName,
-          email,
-          phone,
-          city,
-          country,
+          fullName: fullName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          city: city.trim(),
+          country: country.trim(),
           photoUrl: photoUrl || undefined,
           bloodGroup,
           tier: selectedTier,
@@ -190,22 +237,76 @@ export const MembershipPage: React.FC = () => {
           paidAmount: totalAmountLocal,
           validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          paymentMethod: paymentMethod === 'card' ? 'Credit/Debit Card (Stripe)' : paymentMethod === 'upi' ? 'UPI / NetBanking' : paymentMethod === 'paypal' ? 'PayPal' : 'Bank Wire Transfer',
-          transactionId: `TXN-MBR-${now.getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
-          receiptNumber: `ASJ-REC-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-          status: 'active',
+          paymentMethod: 'Direct Bank Wire / NEFT (Manual Verification)',
+          transactionId: cleanRef,
+          status: 'pending_payment',
         });
 
-        setConfirmedMember(newMbr);
-        toast.success(`Welcome, ${fullName}! Your ${currentTierObj.name} NGO Membership card is ready.`, 'Membership Enrolled');
+        setPendingMember(newMbr);
+        toast.info(`Membership transfer submitted with UTR ${cleanRef}. Awaiting bank verification.`, 'Pending Reconciliation');
         window.scrollTo({ top: 120, behavior: 'smooth' });
-      } catch (err) {
-        console.error('Membership activation error:', err);
-        toast.error('Could not complete membership enrollment. Please try again.', 'Enrollment Error');
-      } finally {
-        setIsProcessing(false);
+        return;
       }
-    }, 400);
+
+      // 2. Online Razorpay Checkout (Cards, UPI, NetBanking, International)
+      const mappedMethod = (paymentMethod === 'card' || paymentMethod === 'paypal') ? 'stripe_card' : 'razorpay_upi';
+      const paymentResult = await PaymentService.processPayment({
+        amount: totalAmountLocal,
+        currency: currentCurrency.code,
+        frequency: 'one_time',
+        method: mappedMethod,
+        donorName: fullName.trim(),
+        donorEmail: email.trim(),
+        donorPhone: phone.trim() || undefined,
+        targetId: `mbr_${selectedTier}`,
+        targetName: `NGO Membership - ${currentTierObj.name} (${durationYears} ${durationYears === 1 ? 'Year' : 'Years'})`,
+        idempotencyKey: `mbr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      });
+
+      if (!paymentResult || !paymentResult.success) {
+        throw new Error('Payment was not completed.');
+      }
+
+      const methodLabel = paymentMethod === 'card'
+        ? 'Credit/Debit Card (Razorpay)'
+        : paymentMethod === 'paypal'
+        ? 'International Card (Razorpay)'
+        : 'UPI / NetBanking (Razorpay)';
+
+      const newMbr = addMembership({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        city: city.trim(),
+        country: country.trim(),
+        photoUrl: photoUrl || undefined,
+        bloodGroup,
+        tier: selectedTier,
+        tierName: currentTierObj.name,
+        durationYears,
+        annualAmountUSD: currentTierObj.baseAnnualUSD,
+        totalAmountUSD,
+        currency: currentCurrency.code,
+        paidAmount: totalAmountLocal,
+        validFrom: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        validThru: validThru.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        paymentMethod: methodLabel,
+        transactionId: paymentResult.transactionId,
+        receiptNumber: paymentResult.receiptNumber,
+        status: 'active',
+      });
+
+      setConfirmedMember(newMbr);
+      toast.success(`Welcome, ${fullName}! Your ${currentTierObj.name} NGO Membership card is ready.`, 'Membership Enrolled');
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    } catch (err: any) {
+      console.error('Membership payment error:', err);
+      const msg = err.message || 'Payment could not be completed. Please try again or select another payment option.';
+      setErrorMsg(msg);
+      toast.error(msg, 'Payment Incomplete');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleLookupMember = (e: React.FormEvent) => {
@@ -287,24 +388,48 @@ export const MembershipPage: React.FC = () => {
 
           {lookupResult && lookupResult !== 'not_found' && (
             <div className="space-y-6 pt-4 border-t border-content-border">
-              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between">
+              <div className={`p-4 rounded-2xl flex items-center justify-between ${
+                lookupResult.status === 'active'
+                  ? 'bg-emerald-50 border border-emerald-200'
+                  : 'bg-amber-50 border border-amber-200'
+              }`}>
                 <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  {lookupResult.status === 'active' ? (
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                  ) : (
+                    <Clock className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                  )}
                   <div>
-                    <h4 className="text-xs font-bold text-emerald-900 uppercase">
-                      {t('membership.active_confirmed', 'ACTIVE NGO MEMBERSHIP CONFIRMED')}
+                    <h4 className={`text-xs font-bold uppercase ${
+                      lookupResult.status === 'active' ? 'text-emerald-900' : 'text-amber-900'
+                    }`}>
+                      {lookupResult.status === 'active'
+                        ? t('membership.active_confirmed', 'ACTIVE NGO MEMBERSHIP CONFIRMED')
+                        : 'MEMBERSHIP PENDING BANK RECONCILIATION'}
                     </h4>
-                    <p className="text-[11px] text-emerald-700">
+                    <p className={`text-[11px] ${lookupResult.status === 'active' ? 'text-emerald-700' : 'text-amber-700'}`}>
                       ID: <span className="font-mono font-bold">{lookupResult.membershipNumber}</span> · Tier: {lookupResult.tierName} · Valid Thru: {lookupResult.validThru}
                     </p>
                   </div>
                 </div>
-                <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-full uppercase">
-                  ACTIVE
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${
+                  lookupResult.status === 'active' ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-200 text-amber-900'
+                }`}>
+                  {lookupResult.status.replace('_', ' ').toUpperCase()}
                 </span>
               </div>
 
-              <MembershipCardPreview member={lookupResult} settings={settings} />
+              {lookupResult.status === 'active' ? (
+                <MembershipCardPreview member={lookupResult} settings={settings} />
+              ) : (
+                <div className="p-6 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-center space-y-2">
+                  <Clock className="w-8 h-8 text-amber-600 mx-auto" />
+                  <h4 className="text-sm font-bold text-amber-900">Membership Pending Verification</h4>
+                  <p className="text-xs text-amber-800 max-w-md mx-auto">
+                    Your enrollment request and bank wire transfer reference ({lookupResult.transactionId}) are currently under review by our accounts team. Once reconciled, your printable digital membership card and Section 80G tax receipt will be activated here.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -347,8 +472,71 @@ export const MembershipPage: React.FC = () => {
                 setConfirmedMember(null);
                 setFullName('');
                 setEmail('');
+                setPhone('');
+                setCity('');
               }}
               className="btn-outline !py-2.5 !px-6 text-xs font-bold"
+            >
+              Enroll Another Member
+            </button>
+          </div>
+        </div>
+      ) : pendingMember ? (
+        /* MEMBERSHIP RECORDED · PENDING BANK RECONCILIATION */
+        <div className="bg-white p-6 sm:p-10 rounded-3xl border border-amber-200 shadow-brand-lg space-y-6 animate-fadeIn max-w-2xl mx-auto text-center">
+          <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+            <Clock className="w-8 h-8" />
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+            BANK WIRE SUBMITTED · PENDING RECONCILIATION
+          </span>
+          <h3 className="text-2xl font-black text-content-primary">
+            Membership Application Registered
+          </h3>
+          <p className="text-xs sm:text-sm text-content-secondary max-w-lg mx-auto leading-relaxed">
+            Thank you <span className="font-bold text-brand-purple">{pendingMember.fullName}</span>! Your enrollment request for <span className="font-bold text-brand-pink">{pendingMember.tierName}</span> ({pendingMember.durationYears} {pendingMember.durationYears === 1 ? t('membership.year', 'Year') : t('membership.years', 'Years')}) has been recorded under UTR/Reference <span className="font-mono font-bold text-brand-purple">{pendingMember.transactionId}</span>.
+          </p>
+
+          <div className="p-4 rounded-2xl bg-surface-soft border border-content-border text-left space-y-2.5 text-xs">
+            <div className="flex justify-between border-b border-content-border pb-2">
+              <span className="text-content-muted">Membership Reference ID:</span>
+              <span className="font-mono font-bold text-brand-purple">{pendingMember.membershipNumber}</span>
+            </div>
+            <div className="flex justify-between border-b border-content-border pb-2">
+              <span className="text-content-muted">Registered Email:</span>
+              <span className="font-mono font-bold">{pendingMember.email}</span>
+            </div>
+            <div className="flex justify-between border-b border-content-border pb-2">
+              <span className="text-content-muted">Selected Tier & Duration:</span>
+              <span className="font-bold">{pendingMember.tierName} ({pendingMember.durationYears} Yr)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-content-muted">Bank Transfer Reference (UTR):</span>
+              <span className="font-mono font-bold text-amber-700">{pendingMember.transactionId}</span>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 text-left space-y-1">
+            <p className="font-bold flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-amber-700" />
+              Accounting Verification in Progress
+            </p>
+            <p className="text-[11px] text-amber-800 leading-relaxed">
+              Our accounts team reconciles incoming bank transfers daily. Once reconciled, your official digital membership card and Section 80G tax receipt will be activated and emailed to {pendingMember.email}. You can also check status anytime using your email in the "Access Existing Membership Card" tab.
+            </p>
+          </div>
+
+          <div className="pt-2 flex justify-center gap-3">
+            <button
+              onClick={() => {
+                setPendingMember(null);
+                setFullName('');
+                setEmail('');
+                setPhone('');
+                setCity('');
+                setPaymentReference('');
+              }}
+              className="btn-primary !py-2.5 !px-6 text-xs font-bold"
             >
               Enroll Another Member
             </button>
@@ -660,15 +848,18 @@ export const MembershipPage: React.FC = () => {
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { id: 'card', label: t('membership.card', 'Credit / Debit Card'), icon: CreditCard },
-                  { id: 'upi', label: t('membership.upi', 'UPI / NetBanking'), icon: Sparkles },
-                  { id: 'paypal', label: t('membership.paypal', 'PayPal Global'), icon: Globe },
-                  { id: 'bank_wire', label: t('membership.bank_wire', 'Direct Bank Wire'), icon: Building },
+                  { id: 'card', label: t('membership.card', 'Credit / Debit Card'), icon: CreditCard, hint: 'Visa, MC, RuPay' },
+                  { id: 'upi', label: t('membership.upi', 'UPI / NetBanking'), icon: Sparkles, hint: 'GPay, PhonePe, Paytm' },
+                  { id: 'paypal', label: t('membership.paypal', 'International Card'), icon: Globe, hint: 'Global USD / Cards' },
+                  { id: 'bank_wire', label: t('membership.bank_wire', 'Direct Bank Wire'), icon: Building, hint: 'NEFT / RTGS / IMPS' },
                 ].map((m) => (
                   <button
                     key={m.id}
                     type="button"
-                    onClick={() => setPaymentMethod(m.id as any)}
+                    onClick={() => {
+                      setPaymentMethod(m.id as any);
+                      if (errorMsg) setErrorMsg(null);
+                    }}
                     className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                       paymentMethod === m.id
                         ? 'border-brand-pink bg-pink-50/50 text-brand-purple shadow-sm'
@@ -677,15 +868,121 @@ export const MembershipPage: React.FC = () => {
                   >
                     <m.icon className="w-5 h-5 text-brand-pink" />
                     <span>{m.label}</span>
+                    <span className="text-[9.5px] font-normal text-content-muted">{m.hint}</span>
                   </button>
                 ))}
               </div>
+
+              {/* Direct Bank Wire Details & UTR Input */}
+              {paymentMethod === 'bank_wire' && (
+                <div className="mt-3 p-4 sm:p-5 rounded-2xl bg-surface-soft border border-brand-purple/20 space-y-3 animate-fadeIn">
+                  <div className="flex items-center justify-between border-b border-content-border pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Building className="w-4 h-4 text-brand-purple" />
+                      <span className="text-xs font-bold text-content-primary">
+                        {t('donate.bank_account_title', 'Official Statutory Bank Account')}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      80G Tax Exempt
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                    <div>
+                      <span className="text-[10px] text-content-muted block">
+                        Beneficiary Name
+                      </span>
+                      <span className="font-bold text-content-primary">{settings.bankDetails?.accountName || settings.foundationLegalName}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-content-muted block">
+                        Bank & Branch
+                      </span>
+                      <span className="font-bold text-content-primary">{settings.bankDetails?.bankName || 'The Jammu & Kashmir Bank Ltd, Tral'}</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-content-muted">
+                          Account Number
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(settings.bankDetails?.accountNumber || '0134010100008892', 'mbr_acc')}
+                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                        >
+                          {copiedKey === 'mbr_acc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === 'mbr_acc' ? 'Copied' : 'Copy'}
+                        </button>
+                      </div>
+                      <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.accountNumber || '0134010100008892'}</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-content-muted">
+                          IFSC Code
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(settings.bankDetails?.ifscCode || 'JAKA0LURGAM', 'mbr_ifsc')}
+                          className="text-[10px] text-brand-purple hover:underline flex items-center gap-1 font-bold"
+                        >
+                          {copiedKey === 'mbr_ifsc' ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedKey === 'mbr_ifsc' ? 'Copied' : 'Copy'}
+                        </button>
+                      </div>
+                      <span className="font-mono font-bold text-xs text-brand-purple" dir="ltr">{settings.bankDetails?.ifscCode || 'JAKA0LURGAM'}</span>
+                    </div>
+
+                    <div className="sm:col-span-2 pt-2 border-t border-content-border space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[11px] font-bold text-content-primary">
+                          Bank Transfer Reference / UTR Number *
+                        </label>
+                        <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+                          Manual Reconciliation
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 12-digit UTR from your NEFT, RTGS or IMPS bank transfer"
+                        value={paymentReference}
+                        onChange={(e) => {
+                          setPaymentReference(e.target.value);
+                          if (errorMsg) setErrorMsg(null);
+                        }}
+                        className="w-full px-3 py-2 text-xs font-mono font-bold text-brand-purple rounded-xl border border-content-border focus:border-brand-purple outline-none bg-white"
+                      />
+                      <p className="text-[9.5px] text-content-muted">
+                        💡 Enter the 12-digit reference/UTR number from your bank transfer. Our finance desk verifies bank deposits daily and will activate your membership credential.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Error Message Alert */}
+            {errorMsg && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 animate-fadeIn">
+                <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
             {/* Submit & Generate Membership ID Card */}
             <div className="pt-4 border-t border-content-border flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs text-content-secondary">
-                {t('membership.security_note', 'Security Note: Encrypted 256-bit payment gateway. Instant 80G tax receipt generated.')}
+                {paymentMethod === 'bank_wire' ? (
+                  <span className="text-amber-800 font-semibold flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" /> Direct bank wires require verification by our accounts desk before credential activation.
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> {t('membership.security_note', 'Security Note: Official 256-bit encrypted Razorpay gateway. Verified 80G tax receipt generated.')}
+                  </span>
+                )}
               </div>
 
               <button
@@ -694,7 +991,12 @@ export const MembershipPage: React.FC = () => {
                 className="w-full sm:w-auto btn-primary !py-3.5 !px-8 text-sm font-black shadow-pink-glow flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
-                  <span>{t('membership.processing', 'Activating Membership & Generating Card...')}</span>
+                  <span>{paymentMethod === 'bank_wire' ? 'Submitting Transfer Details...' : 'Launching Razorpay Gateway...'}</span>
+                ) : paymentMethod === 'bank_wire' ? (
+                  <>
+                    <Building className="w-4 h-4" />
+                    <span>Submit Bank Wire & Register: {formatAmount(totalAmountLocal)}</span>
+                  </>
                 ) : (
                   <>
                     <Crown className="w-4 h-4" />

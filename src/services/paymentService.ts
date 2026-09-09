@@ -101,7 +101,7 @@ export class PaymentService {
    */
   public static async loadPayPalScript(clientId?: string, currency: string = 'USD'): Promise<boolean> {
     if (typeof window === 'undefined') return false;
-    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb';
+    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID || 'ASuft7ZX2wF0SANJ2f7VClXUMg49Mt96ZHvaC_RjM81u30Pa4-lYzn8lclX9B7C7gFkm4daKade2DMv1';
     const safeCurrency = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'].includes(currency.toUpperCase())
       ? currency.toUpperCase()
       : 'USD';

@@ -11,9 +11,16 @@ export class TurnstileService {
   public static async verifyTokenOnServer(token: string): Promise<boolean> {
     if (!token) return false;
 
-    if (!isSupabaseConfigured) {
-      // In development or demo mode, consider presence of token valid
-      return true;
+    const siteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+    const isPlaceholder = !siteKey || siteKey.includes('placeholder');
+
+    if (!isSupabaseConfigured || isPlaceholder) {
+      if (import.meta.env.DEV) {
+        console.warn('[TurnstileService] Turnstile site key is placeholder or Supabase unconfigured in development. Allowing submission.');
+        return true;
+      }
+      console.error('[TurnstileService] Turnstile site key is missing or unconfigured in production.');
+      return false;
     }
 
     try {
@@ -22,13 +29,14 @@ export class TurnstileService {
       });
 
       if (error) {
-        console.warn('Turnstile edge verification fallback:', error);
-        return true;
+        console.warn('[TurnstileService] Turnstile edge verification failed:', error);
+        return import.meta.env.DEV ? true : false;
       }
 
-      return data?.success !== false;
+      return data?.success === true;
     } catch (e) {
-      return true;
+      console.warn('[TurnstileService] Turnstile verification exception:', e);
+      return import.meta.env.DEV ? true : false;
     }
   }
 }

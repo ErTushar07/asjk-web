@@ -16,9 +16,11 @@ export class EmailService {
     const name = params.data?.name || 'Valued Supporter';
     const isPasswordReset = params.template === 'password_reset';
 
+    let delivered = false;
+
     // 1. Direct FormSubmit Mail Delivery (Reliable & Instant)
     try {
-      await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(params.to)}`, {
+      const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(params.to)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,28 +41,59 @@ export class EmailService {
             : `Your single-use 6-digit verification code is ${otpCode}. Please enter this code on asfjk.org/register to activate your donor account. Valid for 15 minutes.`,
         }),
       });
-    } catch (e) {
-      console.warn('Direct FormSubmit dispatch notice:', e);
+
+      if (formSubmitRes.ok) {
+        const json = await formSubmitRes.json();
+        if (json && (json.success === true || json.success === 'true' || json.message)) {
+          delivered = true;
+        }
+      } else {
+        console.warn(`[EmailService] FormSubmit returned HTTP status ${formSubmitRes.status}`);
+      }
+    } catch (e: any) {
+      console.warn('[EmailService] Direct FormSubmit dispatch error:', e?.message || e);
     }
 
     // 2. Vercel Serverless Function (/api/send-email)
     try {
-      await fetch('/api/send-email', {
+      const vercelRes = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(params),
       });
-    } catch (e) {}
+
+      if (vercelRes.ok) {
+        delivered = true;
+      } else {
+        console.warn(`[EmailService] /api/send-email returned HTTP status ${vercelRes.status}`);
+      }
+    } catch (e: any) {
+      console.warn('[EmailService] /api/send-email dispatch error:', e?.message || e);
+    }
 
     // 3. Supabase Edge Function (send-email)
     if (isSupabaseConfigured) {
       try {
-        await supabase.functions.invoke('send-email', { body: params });
-      } catch (e) {}
+        const { data, error } = await supabase.functions.invoke('send-email', { body: params });
+        if (!error && data?.success !== false) {
+          delivered = true;
+        } else if (error) {
+          console.warn('[EmailService] Supabase send-email edge function error:', error.message);
+        }
+      } catch (e: any) {
+        console.warn('[EmailService] Supabase send-email exception:', e?.message || e);
+      }
     }
 
-    return { success: true };
+    if (delivered) {
+      return { success: true };
+    }
+
+    return {
+      success: false,
+      error: 'Email delivery failed across all channels. Please check your inbox or contact support.',
+    };
   }
 }

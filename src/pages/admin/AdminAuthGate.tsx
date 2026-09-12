@@ -151,13 +151,6 @@ export const AdminAuthGate: React.FC<AdminAuthGateProps> = ({ onSuccess, onNavig
                 />
                 <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
                   <span>Google / Microsoft Authenticator</span>
-                  <button
-                    type="button"
-                    onClick={() => setTwoFactorCode(TOTPService.generateCurrentToken('JBSWY3DPEHPK3PXP'))}
-                    className="text-brand-pink font-bold hover:underline"
-                  >
-                    Auto-Fill Current TOTP
-                  </button>
                 </div>
               </div>
 

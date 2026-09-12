@@ -49,7 +49,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       const nextTheme = prev === 'light' ? 'dark' : 'light';
       toast.info(
         nextTheme === 'dark' ? 'Switched to Dark Mode 🌙' : 'Switched to Light Mode ☀️',
-        'Theme Changed [Ctrl+Shift+D]'
+        'Theme Changed'
       );
       return nextTheme;
     });

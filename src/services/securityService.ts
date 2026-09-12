@@ -262,8 +262,8 @@ export class SecurityService {
   /**
    * Verify 2FA / MFA Code using RFC 6238 TOTP with clock drift support
    */
-  public static verify2FACode(code: string, secret = 'JBSWY3DPEHPK3PXP'): boolean {
-    if (!code) return false;
+  public static verify2FACode(code: string, secret = ''): boolean {
+    if (!code || !secret) return false;
     const sanitized = code.trim().replace(/\s|-/g, '');
 
     // 1. Genuine RFC 6238 TOTP validation (Google Authenticator / Authy standard)

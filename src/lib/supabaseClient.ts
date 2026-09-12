@@ -1,9 +1,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://mcmdgdopjrkbczlhjmty.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jbWRnZG9wanJrYmN6bGhqbXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MTM1NDUsImV4cCI6MjEwNDI4OTU0NX0.0M6c0imjlAlhNYYb6oYzC-OKmD7KyYEdR1EBWQJVcpI';
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim();
 
-export const isSupabaseConfigured = Boolean(supabaseUrl.trim() && supabaseAnonKey.trim());
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
+  console.warn('[ASFJK] Supabase env vars not configured. Running in offline/demo mode.');
+}
 
 /**
  * Standard Supabase Client for Client-Side Operations with RLS

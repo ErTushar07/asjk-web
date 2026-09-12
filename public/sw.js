@@ -1,5 +1,5 @@
-// Increment this version string on every production deployment to bust stale caches
-const CACHE_NAME = 'asfjk-v2';
+// IMPORTANT: Increment this version string on every deployment to bust stale caches.
+const CACHE_NAME = 'asfjk-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

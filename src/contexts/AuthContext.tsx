@@ -69,31 +69,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Initialized salted PBKDF2 credential repository for verified administrative staff
-const SEED_CREDENTIALS: Record<string, { hash: string; salt: string; role: UserRole; name: string; totpSecret: string }> = {
-  'amin.ganai@asfjk.org': {
-    salt: '7a91f3c8e42b1096d5a23f1e8c9b4a70',
-    hash: 'b09c39a8804e58e2892f52430d135fad6882fb530c149a6fa0ff84577eb63194',
-    role: 'super_admin',
-    name: 'Mohd Amin Ganai',
-    totpSecret: 'JBSWY3DPEHPK3PXP',
-  },
-  'michael.carter@asfjk.org': {
-    salt: '8b92f4d9e53c2197e6b34f2f9d0c5b81',
-    hash: '10bbbefa3eb332fc5483cb0631be578ddb3a8346844baef78f4d126f7b183808',
-    role: 'finance_admin',
-    name: 'Michael Carter',
-    totpSecret: 'KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD',
-  },
-  'daniel.wilson@asfjk.org': {
-    salt: '9c03f5eaf64d3208f7c45f30ae1d6c92',
-    hash: 'b7518d77537910e5c6a98216319078bd3c92387eab763c602b5eecad1ef85cbe',
-    role: 'project_manager',
-    name: 'Daniel Wilson',
-    totpSecret: 'NATGP3ZQFJSSCMRWHUYQMFZWKY3DKRQQ',
-  },
-};
-
 // Seed verified demo donor (David Thompson)
 const DEFAULT_VERIFIED_DONORS: Record<string, VerifiedDonorRecord> = {
   'david.thompson@example.com': {
@@ -131,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [pending2FAUser, setPending2FAUser] = useState<User | null>(null);
-  const [activeTOTPSecret, setActiveTOTPSecret] = useState<string>('JBSWY3DPEHPK3PXP');
+  const [activeTOTPSecret, setActiveTOTPSecret] = useState<string>('');
 
   // Ephemeral in-memory store for pending registrations awaiting email OTP verification
   const [pendingRegistrations, setPendingRegistrations] = useState<Map<string, PendingRegistration>>(new Map());
@@ -289,8 +264,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const isAdminAccount = authenticatedUser.role !== 'donor';
 
           if (isAdminAccount) {
-            const totpSecret = profile?.totp_secret_encrypted || 'JBSWY3DPEHPK3PXP';
-            setActiveTOTPSecret(totpSecret);
+            const totpSecret = profile?.totp_secret_encrypted || '';
+            if (totpSecret) {
+              setActiveTOTPSecret(totpSecret);
+            }
 
             if (!twoFactorCode) {
               setPending2FAUser(authenticatedUser);
@@ -301,14 +278,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               };
             }
 
-            const is2FAValid = SecurityService.verify2FACode(twoFactorCode, totpSecret);
-            if (!is2FAValid) {
-              SecurityService.recordFailedAttempt(rateLimitKey);
-              return {
-                success: false,
-                requires2FA: true,
-                error: 'Invalid 6-digit Two-Factor Authentication code. Please verify your authenticator app.',
-              };
+            if (totpSecret) {
+              const is2FAValid = SecurityService.verify2FACode(twoFactorCode, totpSecret);
+              if (!is2FAValid) {
+                SecurityService.recordFailedAttempt(rateLimitKey);
+                return {
+                  success: false,
+                  requires2FA: true,
+                  error: 'Invalid 6-digit Two-Factor Authentication code. Please verify your authenticator app.',
+                };
+              }
             }
           }
 
@@ -326,35 +305,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 3. Fallback / Seed Administrative Credentials
-    const staffCreds = SEED_CREDENTIALS[cleanEmail];
-    const verifiedDonor = verifiedDonors[cleanEmail];
-
-    let matchedUser: User | undefined = undefined;
-
-    if (staffCreds) {
-      const isPasswordValid = await SecurityService.verifyPassword(password, staffCreds.hash, staffCreds.salt);
-      if (!isPasswordValid) {
+    // 3. Administrative Staff Authentication via Server-Side Edge Function
+    if (cleanEmail.endsWith('@asfjk.org')) {
+      if (!isSupabaseConfigured) {
         SecurityService.recordFailedAttempt(rateLimitKey);
         return {
           success: false,
-          error: 'Invalid email or password credentials.',
-          remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
+          error: 'Admin login requires server configuration. Please contact your system administrator.',
         };
       }
 
-      matchedUser = {
-        id: `usr_${cleanEmail.split('@')[0]}`,
-        name: staffCreds.name,
-        email: cleanEmail,
-        role: staffCreds.role,
-        preferredLanguage: 'en',
-        preferredCurrency: 'USD',
-        twoFactorEnabled: true,
-        createdAt: '2024-01-01T00:00:00Z',
-      };
-    } else if (verifiedDonor) {
-      // Verified donor logging in
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-admin-login', {
+          body: {
+            email: cleanEmail,
+            password,
+            twoFactorCode,
+          },
+        });
+
+        if (error || !data?.success) {
+          SecurityService.recordFailedAttempt(rateLimitKey);
+          if (data?.requires2FA) {
+            if (data.user) {
+              setPending2FAUser(data.user);
+            }
+            if (data.totpSecret) {
+              setActiveTOTPSecret(data.totpSecret);
+            }
+            return {
+              success: false,
+              requires2FA: true,
+              error: data.error || 'Please enter your 6-digit Authenticator TOTP code.',
+            };
+          }
+          return {
+            success: false,
+            error: data?.error || error?.message || 'Invalid administrative credentials.',
+            remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
+          };
+        }
+
+        const authenticatedUser: User = data.user;
+        SecurityService.resetRateLimit(rateLimitKey);
+        SecurityService.createSession(authenticatedUser.id, authenticatedUser.role, true);
+        setUser(authenticatedUser);
+        setTwoFactorVerified(true);
+        setPending2FAUser(null);
+        sessionStorage.setItem('asfjk_auth_user', JSON.stringify(authenticatedUser));
+
+        return { success: true, user: authenticatedUser };
+      } catch (err: any) {
+        SecurityService.recordFailedAttempt(rateLimitKey);
+        return {
+          success: false,
+          error: err.message || 'Admin authentication failed. Please try again.',
+          remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
+        };
+      }
+    }
+
+    // 4. Verified Donor Authentication (Local PBKDF2)
+    const verifiedDonor = verifiedDonors[cleanEmail];
+    if (verifiedDonor) {
       const isPasswordValid = await SecurityService.verifyPassword(password, verifiedDonor.passwordHash, verifiedDonor.salt);
       if (!isPasswordValid) {
         SecurityService.recordFailedAttempt(rateLimitKey);
@@ -365,7 +378,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
 
-      matchedUser = {
+      const authenticatedUser: User = {
         id: verifiedDonor.id,
         name: verifiedDonor.name,
         email: verifiedDonor.email,
@@ -375,51 +388,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         preferredCurrency: 'USD',
         createdAt: verifiedDonor.createdAt,
       };
-    } else {
-      // User is neither staff nor verified donor! STRICT REJECTION (NO UNVERIFIED ACCOUNTS)
-      SecurityService.recordFailedAttempt(rateLimitKey);
-      return {
-        success: false,
-        error: 'No verified donor account exists for this email address. Please register and complete email verification first.',
-        remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
-      };
+
+      SecurityService.resetRateLimit(rateLimitKey);
+      SecurityService.createSession(authenticatedUser.id, authenticatedUser.role, false);
+      setUser(authenticatedUser);
+      setTwoFactorVerified(false);
+      setPending2FAUser(null);
+      sessionStorage.setItem('asfjk_auth_user', JSON.stringify(authenticatedUser));
+
+      return { success: true, user: authenticatedUser };
     }
 
-    const authenticatedUser: User = matchedUser;
-    const isAdminAccount = authenticatedUser.role !== 'donor';
-
-    if (isAdminAccount) {
-      const totpSecret = staffCreds?.totpSecret || 'JBSWY3DPEHPK3PXP';
-      setActiveTOTPSecret(totpSecret);
-
-      if (!twoFactorCode) {
-        setPending2FAUser(authenticatedUser);
-        return {
-          success: false,
-          requires2FA: true,
-          error: 'Please enter your 6-digit Authenticator TOTP code.',
-        };
-      }
-
-      const is2FAValid = SecurityService.verify2FACode(twoFactorCode, totpSecret);
-      if (!is2FAValid) {
-        SecurityService.recordFailedAttempt(rateLimitKey);
-        return {
-          success: false,
-          requires2FA: true,
-          error: 'Invalid 6-digit Two-Factor Authentication code.',
-        };
-      }
-    }
-
-    SecurityService.resetRateLimit(rateLimitKey);
-    SecurityService.createSession(authenticatedUser.id, authenticatedUser.role, isAdminAccount);
-    setUser(authenticatedUser);
-    setTwoFactorVerified(isAdminAccount);
-    setPending2FAUser(null);
-    sessionStorage.setItem('asfjk_auth_user', JSON.stringify(authenticatedUser));
-
-    return { success: true, user: authenticatedUser };
+    // User is neither staff nor verified donor! STRICT REJECTION (NO UNVERIFIED ACCOUNTS)
+    SecurityService.recordFailedAttempt(rateLimitKey);
+    return {
+      success: false,
+      error: 'No verified donor account exists for this email address. Please register and complete email verification first.',
+      remainingAttempts: Math.max(0, rateCheck.remainingAttempts - 1),
+    };
   };
 
   /**
@@ -437,7 +423,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Check if account already registered and verified
-    if (verifiedDonors[cleanEmail] || SEED_CREDENTIALS[cleanEmail]) {
+    if (verifiedDonors[cleanEmail] || cleanEmail.endsWith('@asfjk.org')) {
       return {
         success: false,
         error: 'An account with this email address already exists. Please log in directly.',

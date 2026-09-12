@@ -19,6 +19,38 @@ import { SecurityService } from '../services/securityService';
 import { useAuth } from './AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
+const DB_SCHEMA_VERSION = '2026-09-12-v1';
+
+// IP address helper to read from window, meta tag, session, or fallback
+const getClientIp = (): string => {
+  if (typeof window === 'undefined') return 'server';
+  if ((window as any).__clientIp) return (window as any).__clientIp;
+  try {
+    const metaIp = document.querySelector('meta[name="client-ip"]')?.getAttribute('content');
+    if (metaIp) return metaIp;
+    const sessionIp = sessionStorage.getItem('asfjk_client_ip');
+    if (sessionIp) return sessionIp;
+  } catch (e) {}
+  return 'unknown';
+};
+
+// Check schema version immediately on load before state initialization
+if (typeof window !== 'undefined') {
+  try {
+    const storedVersion = localStorage.getItem('asfjk_schema_version');
+    if (storedVersion !== DB_SCHEMA_VERSION) {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('asfjk_db_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      localStorage.setItem('asfjk_schema_version', DB_SCHEMA_VERSION);
+    }
+  } catch (e) {
+    console.warn('LocalStorage schema version guard check notice:', e);
+  }
+}
+
 interface ProcessDonationInput {
   amount: number;
   currency: string;
@@ -392,7 +424,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       entityId,
       description,
       timestamp: new Date().toISOString(),
-      ipAddress: '103.24.112.5',
+      ipAddress: typeof window !== 'undefined' ? (window as any).__clientIp || (getClientIp() !== 'unknown' ? getClientIp() : 'client') : 'server',
       metadata,
     };
     setAuditLogs((prev) => [newLog, ...prev]);

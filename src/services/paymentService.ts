@@ -34,6 +34,17 @@ export interface PaymentProcessResult {
 }
 
 export class PaymentService {
+  private static FALLBACK_EXCHANGE_RATES: Record<string, number> = {
+    USD: 1.0,
+    EUR: 1.09,
+    GBP: 1.28,
+    INR: 0.012,
+    AED: 0.272,
+    SAR: 0.267,
+    CAD: 0.74,
+    AUD: 0.66,
+  };
+
   private static EXCHANGE_RATES: Record<string, number> = {
     USD: 1.0,
     EUR: 1.09,
@@ -44,6 +55,57 @@ export class PaymentService {
     CAD: 0.74,
     AUD: 0.66,
   };
+
+  public static lastRateFetchAt: number | null = null;
+  private static rateCacheExpiry: number = 0;
+  private static fetchPromise: Promise<Record<string, number>> | null = null;
+
+  /**
+   * Attempts to fetch live exchange rates with 6-hour in-memory TTL caching
+   */
+  public static async fetchLiveRates(): Promise<Record<string, number>> {
+    const now = Date.now();
+    if (this.lastRateFetchAt && now < this.rateCacheExpiry && Object.keys(this.EXCHANGE_RATES).length > 0) {
+      return this.EXCHANGE_RATES;
+    }
+    if (this.fetchPromise) {
+      return this.fetchPromise;
+    }
+
+    this.fetchPromise = (async () => {
+      try {
+        const response = await fetch('https://open.er-api.com/v6/latest/USD');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (data && data.rates && typeof data.rates === 'object') {
+          const newRates: Record<string, number> = { USD: 1.0 };
+          for (const [curr, perUSD] of Object.entries(data.rates)) {
+            const num = Number(perUSD);
+            if (num > 0) {
+              newRates[curr.toUpperCase()] = parseFloat((1 / num).toFixed(6));
+            }
+          }
+          this.EXCHANGE_RATES = { ...this.FALLBACK_EXCHANGE_RATES, ...newRates };
+          this.lastRateFetchAt = Date.now();
+          this.rateCacheExpiry = Date.now() + 6 * 60 * 60 * 1000;
+        }
+      } catch (err) {
+        console.warn('[PaymentService] Failed to fetch live exchange rates, using emergency fallback:', err);
+      } finally {
+        this.fetchPromise = null;
+      }
+      return this.EXCHANGE_RATES;
+    })();
+
+    return this.fetchPromise;
+  }
+
+  /**
+   * Public static method to return current (live or fallback) rates
+   */
+  public static async getRates(): Promise<Record<string, number>> {
+    return this.fetchLiveRates();
+  }
 
   /**
    * Normalize any incoming currency amount to USD source of truth
@@ -101,7 +163,11 @@ export class PaymentService {
    */
   public static async loadPayPalScript(clientId?: string, currency: string = 'USD'): Promise<boolean> {
     if (typeof window === 'undefined') return false;
-    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID || 'ASuft7ZX2wF0SANJ2f7VClXUMg49Mt96ZHvaC_RjM81u30Pa4-lYzn8lclX9B7C7gFkm4daKade2DMv1';
+    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID;
+    if (!effectiveClientId) {
+      console.warn('[PaymentService] PayPal Client ID is missing. PayPal SDK cannot be loaded.');
+      return false;
+    }
     const safeCurrency = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'].includes(currency.toUpperCase())
       ? currency.toUpperCase()
       : 'USD';
@@ -153,10 +219,13 @@ export class PaymentService {
    */
   public static async processPayment(params: CreatePaymentParams): Promise<PaymentProcessResult> {
     const amountUSD = this.calculateUSD(params.amount, params.currency);
-    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TYpzYNn5HlrzCF';
+    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID;
 
     // 1. All Online Payments (UPI, Cards, Netbanking) must go through Razorpay Checkout & Edge Function Verification
     if (params.method.startsWith('razorpay') || params.method === 'stripe_card') {
+      if (!razorpayKeyId && !params.razorpayKeyId) {
+        throw new Error('Payment gateway is not configured. Please contact support.');
+      }
       // A. Create Order on Server via Supabase Edge Function
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
@@ -185,7 +254,7 @@ export class PaymentService {
 
       const effectiveKeyId = orderData.keyId || razorpayKeyId;
       if (!effectiveKeyId || effectiveKeyId.includes('placeholder')) {
-        throw new Error('Razorpay Key ID is not configured. Please set RAZORPAY_KEY_ID in Supabase Secrets or VITE_RAZORPAY_KEY_ID in .env.');
+        throw new Error('Payment gateway is not configured. Please contact support.');
       }
 
       // C. Open Official Razorpay Checkout Popup
@@ -377,3 +446,9 @@ export class PaymentService {
     throw new Error('Payment was not completed. No receipt can be issued without verified payment confirmation.');
   }
 }
+
+// Pre-fetch live exchange rates on startup if running in browser
+if (typeof window !== 'undefined') {
+  PaymentService.fetchLiveRates().catch(() => {});
+}
+

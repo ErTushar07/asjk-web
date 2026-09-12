@@ -9,7 +9,6 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { CookieConsent } from './components/common/CookieConsent';
 import { WhatsAppButton } from './components/common/WhatsAppButton';
-import { ThemeShortcutIndicator } from './components/common/ThemeShortcutIndicator';
 import { DemoControlBar } from './components/common/DemoControlBar';
 
 // 1. Code Splitting: Lazy-load all public pages
@@ -221,9 +220,6 @@ export const App: React.FC = () => {
 
       {/* WhatsApp Floating Contact Button */}
       {!isAdminRoute && <WhatsAppButton />}
-
-      {/* Theme Keyboard Shortcut Indicator */}
-      {!isAdminRoute && <ThemeShortcutIndicator />}
 
       {/* Cookie Consent Banner */}
       {!isAdminRoute && <CookieConsent onNavigate={navigate} />}

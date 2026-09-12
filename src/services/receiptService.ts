@@ -203,11 +203,15 @@ export class ReceiptService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 20, stampY - 14, 26, 13);
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
 
       try {
         doc.addImage(STAMP_ASSET_URL, 'PNG', 142, stampY - 18, 22, 22);
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
 
     doc.setDrawColor(200, 200, 210);
@@ -272,7 +276,9 @@ export class ReceiptService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(LOGO_ASSET_URL, 'PNG', 18, 13, 20, 20);
-      } catch {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
 
     // Foundation Header
@@ -460,10 +466,14 @@ export class ReceiptService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 20, stampY - 14, 26, 13);
-      } catch {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
       try {
         doc.addImage(STAMP_ASSET_URL, 'PNG', 142, stampY - 18, 22, 22);
-      } catch {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
 
     doc.setDrawColor(200, 200, 210);

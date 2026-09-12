@@ -218,7 +218,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               if (input && input.value) {
                 try {
                   localStorage.setItem('asfjk_newsletter_subscribed', input.value);
-                } catch (err) {}
+                } catch (err) {
+                  console.debug('[ASFJK] Suppressed non-critical error:', err);
+                }
                 toast.success(
                   t('footer.newsletter_success', "Thank you! You will receive our next field report."),
                   'Subscribed'

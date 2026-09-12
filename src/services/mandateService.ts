@@ -12,9 +12,11 @@ export class MandateService {
     paymentMethod?: string;
   }): MandateDetails {
     const year = new Date().getFullYear();
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    const randomSuffix = 1000 + (arr[0] % 9000);
     const mandateNumber = `ASJ-MND-${year}-${randomSuffix}`;
-    const urn = `URN-MND-${year}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+    const urn = `URN-MND-${year}-${Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
 
     const startDate = new Date();
     const nextDebitDate = new Date();
@@ -73,7 +75,8 @@ export class MandateService {
         month: 'long',
         day: 'numeric',
       });
-    } catch {
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
       return dateStr;
     }
   }

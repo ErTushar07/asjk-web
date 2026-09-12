@@ -45,8 +45,8 @@ export class VolunteerIdCardService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(LOGO_ASSET_URL, 'PNG', 20.5, 5, 13, 13);
-      } catch {
-        // Fallback
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
       }
     }
 
@@ -160,8 +160,8 @@ export class VolunteerIdCardService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(LOGO_ASSET_URL, 'PNG', 23, 6, 8, 8);
-      } catch {
-        // Fallback
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
       }
     }
 
@@ -225,11 +225,15 @@ export class VolunteerIdCardService {
     if (typeof window !== 'undefined') {
       try {
         doc.addImage(SIGNATURE_ASSET_URL, 'PNG', 7, 65, 12, 6);
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
 
       try {
         doc.addImage(STAMP_ASSET_URL, 'PNG', 37, 64.8, 9.5, 9.5);
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
 
     doc.setFont('helvetica', 'bold');

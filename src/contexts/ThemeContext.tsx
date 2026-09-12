@@ -17,7 +17,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [theme, setThemeState] = useState<Theme>(() => {
     // 1. Check local storage
-    const saved = localStorage.getItem('asfjk-theme') || localStorage.getItem('asfjk_theme');
+    const saved = localStorage.getItem('asfjk_theme');
     if (saved === 'dark' || saved === 'light') return saved;
     // 2. Check system preference
     if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -36,7 +36,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('asfjk-theme', theme);
     localStorage.setItem('asfjk_theme', theme);
   }, [theme, isDark]);
 

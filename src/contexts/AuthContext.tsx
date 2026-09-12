@@ -54,12 +54,11 @@ interface AuthContextType {
   isDonor: boolean;
   role: UserRole | 'guest';
   twoFactorVerified: boolean;
-  pendingOTPCode?: string; // For demonstration alert
   login: (email: string, password?: string, twoFactorCode?: string) => Promise<LoginResult>;
   register: (params: RegisterParams) => Promise<LoginResult>;
   verifyRegistrationOTP: (email: string, token: string) => Promise<LoginResult>;
   resendRegistrationOTP: (email: string) => Promise<LoginResult>;
-  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string; message?: string; resetCode?: string }>;
+  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   verify2FA: (code: string) => boolean;
   logout: () => void;
@@ -69,20 +68,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Seed verified demo donor (David Thompson)
-const DEFAULT_VERIFIED_DONORS: Record<string, VerifiedDonorRecord> = {
-  'david.thompson@example.com': {
-    id: 'usr_david_thompson',
-    name: 'David Thompson',
-    email: 'david.thompson@example.com',
-    salt: '6f80e2b7d31a0985c4912e0d7b8a396f',
-    passwordHash: '81a9310893458344556c029ef626c2c58571afa95fd9a5f096223cf46afd1051',
-    phone: '+1 415 555 0192',
-    country: 'United States',
-    panTaxId: 'US-TAX-88901',
-    createdAt: '2025-01-15T10:00:00Z',
-  },
-};
+function generateSecureOTP(): string {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return (100000 + (arr[0] % 900000)).toString();
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -92,7 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedUser) {
         try {
           return JSON.parse(savedUser);
-        } catch (e) {}
+        } catch (e) {
+          console.debug('[ASFJK] Suppressed non-critical error:', e);
+        }
       }
     }
     return null;
@@ -110,38 +102,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Ephemeral in-memory store for pending registrations awaiting email OTP verification
   const [pendingRegistrations, setPendingRegistrations] = useState<Map<string, PendingRegistration>>(new Map());
-  const [lastGeneratedOTP, setLastGeneratedOTP] = useState<string | undefined>(undefined);
 
-  // Persistent Verified Donors registry in localStorage/session
+  // Session-scoped Verified Donors registry (only for offline/demo mode)
   const [verifiedDonors, setVerifiedDonors] = useState<Record<string, VerifiedDonorRecord>>(() => {
     try {
-      const saved = localStorage.getItem('asfjk_verified_donors');
-      if (saved) {
-        return { ...DEFAULT_VERIFIED_DONORS, ...JSON.parse(saved) };
-      }
-    } catch (e) {}
-    return DEFAULT_VERIFIED_DONORS;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('asfjk_verified_donors', JSON.stringify(verifiedDonors));
-    } catch (e) {}
-  }, [verifiedDonors]);
-
-  // Ephemeral/persistent store for pending password resets
-  const [pendingPasswordResets, setPendingPasswordResets] = useState<Record<string, { email: string; resetCode: string; expiresAt: number }>>(() => {
-    try {
-      const saved = localStorage.getItem('asfjk_pending_pwd_resets');
+      const saved = sessionStorage.getItem('asfjk_verified_donors');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
     return {};
   });
 
   useEffect(() => {
     try {
-      localStorage.setItem('asfjk_pending_pwd_resets', JSON.stringify(pendingPasswordResets));
-    } catch (e) {}
+      sessionStorage.setItem('asfjk_verified_donors', JSON.stringify(verifiedDonors));
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
+  }, [verifiedDonors]);
+
+  // Ephemeral/session-scoped store for pending password resets
+  const [pendingPasswordResets, setPendingPasswordResets] = useState<Record<string, { email: string; resetCode: string; expiresAt: number }>>(() => {
+    try {
+      const saved = sessionStorage.getItem('asfjk_pending_pwd_resets');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('asfjk_pending_pwd_resets', JSON.stringify(pendingPasswordResets));
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
   }, [pendingPasswordResets]);
 
   // Supabase Auth State Listener
@@ -431,7 +428,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Generate single-use 6-digit OTP code (e.g. 849201)
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpCode = generateSecureOTP();
     const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes expiration
 
     // Store in pending registration map
@@ -451,8 +448,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       next.set(cleanEmail, pendingData);
       return next;
     });
-
-    setLastGeneratedOTP(otpCode);
 
     // If Supabase is connected, call Supabase signUp to send real email confirmation
     if (isSupabaseConfigured) {
@@ -487,7 +482,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         template: 'otp_verification',
         data: { name: params.name, otpCode },
       });
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
 
     // NOTICE: We DO NOT set user session here! Account is NOT generated until verification succeeds.
     return {
@@ -508,7 +505,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: 'No pending registration found for this email. Please sign up again.' };
     }
 
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtp = generateSecureOTP();
     pending.otpCode = newOtp;
     pending.expiresAt = Date.now() + 15 * 60 * 1000;
 
@@ -517,8 +514,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       next.set(cleanEmail, pending);
       return next;
     });
-
-    setLastGeneratedOTP(newOtp);
 
     // Dispatch fresh email
     try {
@@ -529,7 +524,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         template: 'otp_verification',
         data: { name: pending.name, otpCode: newOtp },
       });
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
 
     return {
       success: true,
@@ -692,7 +689,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             updated_at: new Date().toISOString(),
           })
           .eq('id', user.id);
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
 
     return true;
@@ -705,7 +704,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured) {
       try {
         await supabase.auth.signOut();
-      } catch (e) {}
+      } catch (e) {
+        console.debug('[ASFJK] Suppressed non-critical error:', e);
+      }
     }
     SecurityService.clearSession();
     setUser(null);
@@ -744,14 +745,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   /**
    * Request password reset code via Supabase Auth and transactional email
    */
-  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string; message?: string; resetCode?: string }> => {
+  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string; message?: string }> => {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
       return { success: false, error: 'Please enter a valid email address.' };
     }
 
     // Generate single-use 6-digit recovery code
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCode = generateSecureOTP();
     const expiresAt = Date.now() + 15 * 60 * 1000;
 
     setPendingPasswordResets((prev) => ({
@@ -790,7 +791,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       success: true,
       message: `A secure 6-digit recovery code has been dispatched to ${cleanEmail}. Please check your inbox (and spam folder) to reset your password.`,
-      resetCode,
     };
   };
 
@@ -907,7 +907,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isDonor,
         role,
         twoFactorVerified,
-        pendingOTPCode: lastGeneratedOTP,
         login,
         register,
         verifyRegistrationOTP,

@@ -282,6 +282,15 @@ function buildEmailHtml(template: string, data: EmailPayloadData): { html: strin
 }
 
 export default async function handler(req: any, res: any) {
+  // Internal secret authentication
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (internalSecret) {
+    const provided = req.headers['x-internal-secret'];
+    if (provided !== internalSecret) {
+      return res.status(401).json({ error: 'Unauthorized.' });
+    }
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -293,11 +302,31 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Missing required parameter: to' });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      return res.status(400).json({ error: 'Invalid email address format.' });
+    }
+
+    // Basic in-memory rate limiting (max 5 requests per IP per 10 min)
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    const now = Date.now();
+    const RATE_WINDOW_MS = 10 * 60 * 1000;
+    const RATE_LIMIT = 5;
+    if (!(global as any).__emailRateLimit) (global as any).__emailRateLimit = new Map();
+    const rateMap: Map<string, number[]> = (global as any).__emailRateLimit;
+    const timestamps = (rateMap.get(clientIp) || []).filter((t: number) => now - t < RATE_WINDOW_MS);
+    if (timestamps.length >= RATE_LIMIT) {
+      return res.status(429).json({ error: 'Too many email requests. Please wait before trying again.' });
+    }
+    timestamps.push(now);
+    rateMap.set(clientIp, timestamps);
+
     const { html: htmlContent, defaultSubject } = buildEmailHtml(template, data);
     const finalSubject = customSubject || defaultSubject;
 
     // 1. Primary Outbound Provider: Resend REST API (Direct to ANY Email Address)
-    const resendApiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY;
+    const resendApiKey = process.env.RESEND_API_KEY;
     if (resendApiKey) {
       try {
         const fromAddress = process.env.RESEND_FROM_EMAIL || 'Al Shujaiat Foundation <onboarding@resend.dev>';
@@ -376,7 +405,9 @@ export default async function handler(req: any, res: any) {
           Message_Preview: `Notification regarding: ${finalSubject}. Please visit asfjk.org for full account details.`,
         }),
       });
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
 
     return res.status(200).json({
       success: true,

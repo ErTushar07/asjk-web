@@ -42,14 +42,12 @@ export class SecurityService {
    */
   public static generateSalt(length = 16): string {
     const bytes = new Uint8Array(length);
-    if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
-      window.crypto.getRandomValues(bytes);
-    } else if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
-      globalThis.crypto.getRandomValues(bytes);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(bytes);
     } else {
-      return Array.from({ length }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
+      throw new Error('[SecurityService] crypto.getRandomValues is unavailable in this environment.');
     }
-    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -256,7 +254,9 @@ export class SecurityService {
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('asfjk_auth_user');
       }
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
   }
 
   /**

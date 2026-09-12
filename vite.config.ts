@@ -9,7 +9,7 @@ const buildMetaPlugin = (): Plugin => ({
     const buildTimestamp = new Date().toISOString();
     return html.replace(
       '</head>',
-      `  <meta name="build-timestamp" content="${buildTimestamp}" />\n    <meta name="sw-version" content="asfjk-v3" />\n  </head>`
+      `  <meta name="build-timestamp" content="${buildTimestamp}" />\n    <meta name="sw-version" content="asfjk-v4" />\n  </head>`
     );
   },
 });

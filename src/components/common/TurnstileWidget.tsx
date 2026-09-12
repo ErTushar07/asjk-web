@@ -57,7 +57,9 @@ export const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onVerify, onEr
       if (widgetId && typeof window !== 'undefined' && (window as any).turnstile) {
         try {
           (window as any).turnstile.remove(widgetId);
-        } catch (e) {}
+        } catch (e) {
+          console.debug('[ASFJK] Suppressed non-critical error:', e);
+        }
       }
     };
   }, [siteKey, onVerify, onError]);

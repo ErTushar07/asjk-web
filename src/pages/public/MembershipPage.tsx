@@ -258,7 +258,7 @@ export const MembershipPage: React.FC = () => {
           donorPhone: phone.trim() || undefined,
           targetId: `mbr_${selectedTier}`,
           targetName: `NGO Membership - ${currentTierObj.name} (${durationYears} ${durationYears === 1 ? 'Year' : 'Years'})`,
-          idempotencyKey: `mbr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          idempotencyKey: `mbr_${Date.now()}_${Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(16).padStart(2,'0')).join('')}`,
         });
 
         const newMbr = addMembership({
@@ -301,7 +301,7 @@ export const MembershipPage: React.FC = () => {
         donorPhone: phone.trim() || undefined,
         targetId: `mbr_${selectedTier}`,
         targetName: `NGO Membership - ${currentTierObj.name} (${durationYears} ${durationYears === 1 ? 'Year' : 'Years'})`,
-        idempotencyKey: `mbr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        idempotencyKey: `mbr_${Date.now()}_${Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(16).padStart(2,'0')).join('')}`,
       });
 
       if (!paymentResult || !paymentResult.success) {

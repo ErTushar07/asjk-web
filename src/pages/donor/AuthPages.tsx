@@ -16,7 +16,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode, onNavigate }) => {
     register, 
     verifyRegistrationOTP, 
     resendRegistrationOTP, 
-    pendingOTPCode,
     forgotPassword,
     resetPassword
   } = useAuth();

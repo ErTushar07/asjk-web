@@ -13,20 +13,20 @@ export const CookieConsent: React.FC<{ onNavigate: (route: string) => void }> = 
         const timer = setTimeout(() => setIsVisible(true), 1500);
         return () => clearTimeout(timer);
       }
-    } catch (e) {}
+    } catch (e) { /* localStorage may be blocked in private/incognito mode */ }
   }, []);
 
   const handleAccept = () => {
     try {
       localStorage.setItem('asfjk_cookie_consent', 'accepted');
-    } catch (e) {}
+    } catch (e) { /* localStorage may be blocked in private/incognito mode */ }
     setIsVisible(false);
   };
 
   const handleReject = () => {
     try {
       localStorage.setItem('asfjk_cookie_consent', 'rejected');
-    } catch (e) {}
+    } catch (e) { /* localStorage may be blocked in private/incognito mode */ }
     setIsVisible(false);
   };
 

@@ -21,6 +21,14 @@ import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 const DB_SCHEMA_VERSION = '2026-09-12-v1';
 
+function secureRandomDigits(digits: number): number {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  const min = Math.pow(10, digits - 1);
+  const range = Math.pow(10, digits) - min;
+  return min + (arr[0] % range);
+}
+
 // IP address helper to read from window, meta tag, session, or fallback
 const getClientIp = (): string => {
   if (typeof window === 'undefined') return 'server';
@@ -30,7 +38,9 @@ const getClientIp = (): string => {
     if (metaIp) return metaIp;
     const sessionIp = sessionStorage.getItem('asfjk_client_ip');
     if (sessionIp) return sessionIp;
-  } catch (e) {}
+  } catch (e) {
+    console.debug('[ASFJK] Suppressed non-critical error:', e);
+  }
   return 'unknown';
 };
 
@@ -415,7 +425,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     metadata?: Record<string, any>
   ) => {
     const newLog: AuditLog = {
-      id: `log_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      id: `log_${Date.now()}_${secureRandomDigits(3)}`,
       userId,
       userName,
       userRole,
@@ -472,7 +482,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // 1. Create Donation Record
     const newDonation: Donation = {
       id: paymentResult.donationId,
-      donationNumber: `ASJ-DON-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+      donationNumber: `ASJ-DON-${new Date().getFullYear()}-${secureRandomDigits(5)}`,
       donorId: user?.id,
       donorName: input.anonymous ? 'Anonymous Donor' : input.donorName,
       donorEmail: input.donorEmail,
@@ -556,7 +566,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       newRecurring = {
         id: `rec_${Date.now()}`,
-        subscriptionNumber: `ASJ-SUB-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        subscriptionNumber: `ASJ-SUB-${new Date().getFullYear()}-${secureRandomDigits(4)}`,
         mandateNumber: activeMandate?.mandateNumber,
         mandate: activeMandate,
         donorId: `usr_donor_${Date.now()}`,
@@ -646,7 +656,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         receiptNumber: paymentResult.receiptNumber,
         timestamp: Date.now(),
       }));
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
 
     // 7. Audit Log
     recordAudit(
@@ -744,7 +756,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const newPaymentResult = {
       paymentId: `pay_retry_${Date.now()}`,
       transactionId: `txn_retry_${Date.now()}`,
-      receiptNumber: `ASJ-REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      receiptNumber: `ASJ-REC-${new Date().getFullYear()}-${secureRandomDigits(4)}`,
     };
 
     // 1. Update recurring plan
@@ -870,7 +882,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // 3. Create Refund record
     const newRefund: Refund = {
       id: `ref_${Date.now()}`,
-      refundNumber: `ASJ-REF-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      refundNumber: `ASJ-REF-${new Date().getFullYear()}-${secureRandomDigits(4)}`,
       donationId,
       donationNumber: donation.donationNumber,
       paymentId: donation.paymentId,
@@ -980,7 +992,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     validThru.setFullYear(now.getFullYear() + 1);
 
     const yearSuffix = now.getFullYear().toString().slice(-2);
-    const randDigits = Math.floor(100 + Math.random() * 900);
+    const randDigits = secureRandomDigits(3);
     const membershipNumber = app.membershipNumber || `ASFJK${yearSuffix}V${randDigits}`;
 
     const newApp: VolunteerApplication = {
@@ -1014,7 +1026,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           return {
             ...v,
             status,
-            membershipNumber: v.membershipNumber || (isApproving ? `ASFJK26V${Math.floor(100 + Math.random() * 900)}` : undefined),
+            membershipNumber: v.membershipNumber || (isApproving ? `ASFJK26V${secureRandomDigits(3)}` : undefined),
             roleDesignation: v.roleDesignation || 'Humanitarian Field Specialist',
             bloodGroup: v.bloodGroup || 'O+',
             validFrom: v.validFrom || (isApproving ? now.toISOString().split('T')[0] : undefined),
@@ -1060,7 +1072,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     validThru.setFullYear(now.getFullYear() + (cleanData.durationYears || 1));
 
     const yearSuffix = now.getFullYear().toString().slice(-2);
-    const randDigits = Math.floor(100 + Math.random() * 900);
+    const randDigits = secureRandomDigits(3);
     const membershipNumber = `ASFJK${yearSuffix}M${randDigits}`;
     const receiptNumber = cleanData.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${randDigits}`;
 
@@ -1171,7 +1183,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const d = donations.find((x) => x.id === donationId);
     if (!d) return;
 
-    const receiptNumber = d.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const receiptNumber = d.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${secureRandomDigits(4)}`;
     const now = new Date().toISOString();
 
     setDonations((prev) =>
@@ -1218,7 +1230,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setMemberships((prev) =>
       prev.map((m) => {
         if (m.id !== id) return m;
-        const receiptNumber = m.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        const receiptNumber = m.receiptNumber || `ASJ-REC-${new Date().getFullYear()}-${secureRandomDigits(4)}`;
         if (status === 'active' && m.status !== 'active') {
           const now = new Date().toISOString();
           const receiptObj: Receipt = {
@@ -1261,7 +1273,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       subject: cleanSubject,
       message: cleanMessage,
       id: `tkt_${Date.now()}`,
-      ticketNumber: `TKT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      ticketNumber: `TKT-${new Date().getFullYear()}-${secureRandomDigits(4)}`,
       status: 'open',
       createdAt: new Date().toISOString(),
     };
@@ -1369,7 +1381,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSettings(INITIAL_SYSTEM_SETTINGS);
     try {
       localStorage.clear();
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
   };
 
   /**
@@ -1425,7 +1439,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           guestDonationId = parsed.donationId;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.debug('[ASFJK] Suppressed non-critical error:', e);
+    }
 
     // 1. Update local donations in state
     setDonations((prev) =>
@@ -1545,7 +1561,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             for (const rr of remoteReceipts) {
               if (!existingRecNums.has(rr.receipt_number)) {
                 newRecs.push({
-                  id: rr.id || `rec_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+                  id: rr.id || `rec_${Date.now()}_${secureRandomDigits(4)}`,
                   receiptNumber: rr.receipt_number,
                   donationId: rr.donation_id,
                   transactionId: rr.transaction_id,

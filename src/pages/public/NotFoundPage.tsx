@@ -11,22 +11,22 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-16">
       <div className="max-w-2xl w-full text-center space-y-8 animate-fadeIn">
-        {/* Foundation Branding Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-soft border border-content-border text-brand-purple text-xs font-bold shadow-sm mx-auto">
-          <Compass className="w-4 h-4 text-brand-pink" />
-          <span>Al Shujaiat Foundation · Jammu & Kashmir</span>
+        {/* Development Phase Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider mx-auto">
+          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          <span>Active Development Phase</span>
         </div>
 
         {/* 404 Large Display */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h1 className="text-7xl sm:text-9xl font-black text-gradient-purple-pink tracking-tight select-none">
             404
           </h1>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-content-primary">
-            Page Not Found
+            In Development Phase · Will Be Back Soon
           </h2>
-          <p className="text-content-secondary text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-            The humanitarian resource, project dossier, or portal route you requested could not be located or may have moved.
+          <p className="text-content-secondary text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
+            The page or feature you requested is currently in active development or undergoing enhancements. If something is not working while you are surfing the site, our technical team is actively rolling out updates and will be back soon!
           </p>
         </div>
 

@@ -27,6 +27,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
+// Auto-reload on chunk load failure (stale cache after new deployment)
+window.addEventListener('vite:preloadError', () => {
+  window.location.reload();
+});
+
 // Register service worker for offline support & PWA caching
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { RefreshCw, Home, Sparkles, MessageCircle, ShieldCheck, Wrench, ChevronDown } from 'lucide-react';
+import { RefreshCw, Home, Sparkles, MessageCircle, ShieldCheck, Wrench } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -8,22 +8,34 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
-  showDetails: boolean;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
-    showDetails: false,
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, showDetails: false };
+    return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Al Shujaiat Foundation - Runtime error caught by ErrorBoundary:', error, errorInfo);
+
+    // If chunk fetching failed due to a new deployment, auto-reload once to fetch fresh assets
+    if (
+      typeof window !== 'undefined' &&
+      error?.message &&
+      (error.message.includes('dynamically imported module') ||
+        error.message.includes('error loading dynamically imported module'))
+    ) {
+      const alreadyReloaded = sessionStorage.getItem('asfjk_chunk_reload');
+      if (!alreadyReloaded) {
+        sessionStorage.setItem('asfjk_chunk_reload', 'true');
+        window.location.reload();
+      }
+    }
   }
 
   private handleReload = () => {
@@ -120,26 +132,6 @@ export class ErrorBoundary extends Component<Props, State> {
                 <span>Need immediate assistance? Contact our team on WhatsApp</span>
               </button>
             </div>
-
-            {/* Collapsible Diagnostic info for technical inspection */}
-            {this.state.error && (
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
-                  className="text-[11px] text-content-muted hover:text-content-secondary flex items-center gap-1 mx-auto"
-                >
-                  <span>{this.state.showDetails ? 'Hide' : 'View'} technical details</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${this.state.showDetails ? 'rotate-180' : ''}`} />
-                </button>
-
-                {this.state.showDetails && (
-                  <div className="mt-2 bg-slate-900 text-slate-200 p-3 rounded-xl text-[11px] font-mono text-left overflow-x-auto border border-slate-700 max-h-36">
-                    {this.state.error.message || String(this.state.error)}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       );

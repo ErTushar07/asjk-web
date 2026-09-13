@@ -166,7 +166,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
       setSuccessResult(result);
     } catch (err: any) {
-      console.error(err);
+      console.warn('[DonatePage] Payment processing error:', err);
       setErrorMessage(err.message || 'Payment authorization failed. Please try another payment option or bank wire.');
     } finally {
       setIsProcessing(false);
@@ -225,7 +225,7 @@ export const DonatePage: React.FC<{ onNavigate: (route: string) => void }> = ({ 
 
       setSuccessResult(result);
     } catch (err: any) {
-      console.error(err);
+      console.warn('[DonatePage] PayPal processing error:', err);
       setErrorMessage(err.message || 'PayPal payment processing failed.');
     } finally {
       setIsProcessing(false);

@@ -3,6 +3,19 @@ import nodemailer from 'nodemailer';
 // Vercel Serverless Function: /api/send-email
 // Universal transactional email dispatch engine for all public recipients
 
+interface ServerlessRequest {
+  method?: string;
+  headers: Record<string, string | string[] | undefined>;
+  body?: Record<string, unknown>;
+  socket?: { remoteAddress?: string };
+}
+
+interface ServerlessResponse {
+  status(code: number): ServerlessResponse;
+  json(data: unknown): void;
+  setHeader(name: string, value: string): void;
+}
+
 interface EmailPayloadData {
   name?: string;
   donorName?: string;
@@ -281,7 +294,7 @@ function buildEmailHtml(template: string, data: EmailPayloadData): { html: strin
   }
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ServerlessRequest, res: ServerlessResponse) {
   // Internal secret authentication
   const internalSecret = process.env.INTERNAL_API_SECRET;
   if (internalSecret) {

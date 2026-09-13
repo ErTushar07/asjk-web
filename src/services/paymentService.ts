@@ -1,6 +1,13 @@
 import { DonationFrequency, PaymentMethod, PaymentStatus, Donation } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
+/** Cryptographically safe 4-digit numeric suffix (1000–9999) */
+function secureRandomSuffix(): number {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return 1000 + (arr[0] % 9000);
+}
+
 export interface CreatePaymentParams {
   amount: number;
   currency: string;
@@ -339,7 +346,7 @@ export class PaymentService {
     if (params.method === 'paypal') {
       const txnId = params.paymentReference?.trim() || `PAYPAL_${Date.now()}`;
       const timestamp = Date.now();
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const randomSuffix = secureRandomSuffix();
       let receiptNumber = `ASJ-REC-${new Date().getFullYear()}-${randomSuffix}`;
       let donationId = `don_${timestamp}_${randomSuffix}`;
 
@@ -409,7 +416,7 @@ export class PaymentService {
         throw new Error('Please enter a valid bank transfer UTR or transaction reference number.');
       }
       const timestamp = Date.now();
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const randomSuffix = secureRandomSuffix();
       return {
         success: true,
         paymentId: cleanRef,
@@ -427,7 +434,7 @@ export class PaymentService {
     // 3. Fallback sandbox simulation ONLY for explicit sandbox testing
     if (params.method === 'sandbox_card') {
       const timestamp = Date.now();
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const randomSuffix = secureRandomSuffix();
       return {
         success: true,
         paymentId: `pay_sandbox_${timestamp}`,

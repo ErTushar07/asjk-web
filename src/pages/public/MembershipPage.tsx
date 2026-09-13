@@ -369,8 +369,9 @@ export const MembershipPage: React.FC = () => {
       const validThru = new Date();
       validThru.setFullYear(now.getFullYear() + durationYears);
 
-      const timestamp = Date.now();
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const randomArr = new Uint32Array(1);
+      crypto.getRandomValues(randomArr);
+      const randomSuffix = 1000 + (randomArr[0] % 9000);
       const receiptNumber = `ASJ-REC-${now.getFullYear()}-${randomSuffix}`;
 
       const newMbr = addMembership({

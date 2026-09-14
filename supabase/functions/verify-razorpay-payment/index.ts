@@ -79,7 +79,9 @@ Deno.serve(async (req: Request) => {
 
     // 2. Generate Receipt Number
     const year = new Date().getFullYear();
-    const randomReceiptSuffix = Math.floor(10000 + Math.random() * 90000);
+    const cryptoArray = new Uint32Array(1);
+    crypto.getRandomValues(cryptoArray);
+    const randomReceiptSuffix = (cryptoArray[0] % 90000) + 10000;
     const receiptNumber = `ASJ-REC-${year}-${randomReceiptSuffix}`;
     let donationId = donationNumber || `don_${Date.now()}`;
 

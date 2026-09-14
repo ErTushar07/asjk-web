@@ -1177,8 +1177,9 @@ export const INITIAL_SYSTEM_SETTINGS: SystemSettings = {
   donationGoalExceededPolicy: 'continue_support',
   paymentGateways: {
     paypalEnabled: true,
-    paypalClientId: '',
+    paypalClientId: 'ASuft7ZX2wF0SANJ2f7VClXUMg49Mt96ZHvaC_RjM81u30Pa4-lYzn8lclX9B7C7gFkm4daKade2DMv1',
     razorpayEnabled: true,
+    razorpayKeyId: 'rzp_live_Tbww3Iq7Tt5z45',
     razorpayPaymentUrl: 'https://razorpay.me/@asfjk',
     sandboxEnabled: false,
     bankTransferEnabled: true,

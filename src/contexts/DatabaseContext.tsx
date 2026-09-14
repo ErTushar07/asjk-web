@@ -265,6 +265,8 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         paymentGateways: {
           ...INITIAL_SYSTEM_SETTINGS.paymentGateways,
           ...parsed.paymentGateways,
+          razorpayKeyId: (!parsed.paymentGateways?.razorpayKeyId || parsed.paymentGateways.razorpayKeyId.includes('TYpzYNn5HlrzCF')) ? INITIAL_SYSTEM_SETTINGS.paymentGateways.razorpayKeyId : parsed.paymentGateways.razorpayKeyId,
+          paypalClientId: (!parsed.paymentGateways?.paypalClientId || parsed.paymentGateways.paypalClientId === '') ? INITIAL_SYSTEM_SETTINGS.paymentGateways.paypalClientId : parsed.paymentGateways.paypalClientId,
           razorpayPaymentUrl: parsed.paymentGateways?.razorpayPaymentUrl || 'https://razorpay.me/@asfjk',
         },
         bankDetails: {

@@ -83,7 +83,9 @@ Deno.serve(async (req: Request) => {
 
     // 4. Generate Donation Serial Number
     const timestamp = Date.now();
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const cryptoArray = new Uint32Array(1);
+    crypto.getRandomValues(cryptoArray);
+    const randomSuffix = (cryptoArray[0] % 9000) + 1000;
     const donationNumber = `ASJ-DON-${new Date().getFullYear()}-${randomSuffix}`;
     const idempotencyKey = `idemp_${timestamp}_${randomSuffix}`;
 
@@ -170,7 +172,7 @@ Deno.serve(async (req: Request) => {
             target_name: body.targetName,
             amount: body.amount,
             currency,
-            amount_usd: currency === 'USD' ? body.amount : body.amount * 0.012,
+            amount_usd: currency === 'USD' ? body.amount : Number((body.amount * 0.012).toFixed(2)),
             status: 'pending',
             payment_method: 'razorpay',
             gateway: 'razorpay',

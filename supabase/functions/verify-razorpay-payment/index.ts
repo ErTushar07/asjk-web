@@ -162,6 +162,32 @@ Deno.serve(async (req: Request) => {
               },
             },
           ]);
+
+          // Automatically dispatch official tax donation receipt email to donor
+          if (donation.donor_email && donation.donor_email.includes('@')) {
+            try {
+              fetch('https://asfjk.org/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  to: donation.donor_email.trim(),
+                  subject: `[ASFJK] Tax Donation Receipt - ${receiptNumber}`,
+                  template: 'donation_receipt',
+                  data: {
+                    donorName: donation.donor_name || 'Valued Supporter',
+                    amount: donation.amount,
+                    currency: donation.currency || 'INR',
+                    projectName: donation.target_name || 'General Humanitarian Relief',
+                    receiptNumber,
+                    transactionId: razorpayPaymentId,
+                    donationDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  },
+                }),
+              }).catch((e) => console.warn('Email receipt dispatch background notice:', e));
+            } catch (mailErr) {
+              console.warn('Email trigger notice:', mailErr);
+            }
+          }
         }
       } catch (dbErr) {
         console.warn('Database post-verification notice (non-fatal):', dbErr);

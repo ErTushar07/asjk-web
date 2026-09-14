@@ -197,6 +197,32 @@ Deno.serve(async (req: Request) => {
             },
           },
         ]);
+
+        // Automatically dispatch official tax donation receipt email to international PayPal donor
+        if (payerEmail && payerEmail.includes('@')) {
+          try {
+            fetch('https://asfjk.org/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                to: payerEmail.trim(),
+                subject: `[ASFJK] Tax Donation Receipt - ${receiptNumber}`,
+                template: 'donation_receipt',
+                data: {
+                  donorName: payerName || 'Valued Supporter',
+                  amount: verifiedAmount,
+                  currency: verifiedCurrency || 'USD',
+                  projectName: targetName || 'General Humanitarian Relief',
+                  receiptNumber,
+                  transactionId: orderId,
+                  donationDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                },
+              }),
+            }).catch((e) => console.warn('PayPal email dispatch non-fatal notice:', e));
+          } catch (mailErr) {
+            console.warn('PayPal email trigger notice:', mailErr);
+          }
+        }
       } catch (dbErr) {
         console.warn('Database insert notice (non-fatal):', dbErr);
       }

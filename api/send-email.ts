@@ -321,11 +321,12 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       return res.status(400).json({ error: 'Invalid email address format.' });
     }
 
-    // Basic in-memory rate limiting (max 5 requests per IP per 10 min)
+    // Basic in-memory rate limiting (max 50 for financial receipts, 10 for public OTPs per 10 min)
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
     const now = Date.now();
     const RATE_WINDOW_MS = 10 * 60 * 1000;
-    const RATE_LIMIT = 5;
+    const isReceipt = template === 'donation_receipt' || template === 'membership_confirmed';
+    const RATE_LIMIT = isReceipt ? 50 : 10;
     if (!(global as any).__emailRateLimit) (global as any).__emailRateLimit = new Map();
     const rateMap: Map<string, number[]> = (global as any).__emailRateLimit;
     const timestamps = (rateMap.get(clientIp) || []).filter((t: number) => now - t < RATE_WINDOW_MS);

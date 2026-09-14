@@ -646,6 +646,33 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setPayments((prev) => [newPayment, ...prev]);
     if (newReceipt) {
       setReceipts((prev) => [newReceipt, ...prev]);
+
+      // Automatically dispatch official legal tax donation receipt to donor's email
+      if (input.donorEmail && input.donorEmail.includes('@')) {
+        const donorEmailTarget = input.donorEmail.trim();
+        const receiptSnapshot = newReceipt;
+        (async () => {
+          try {
+            const { EmailService } = await import('../services/emailService');
+            await EmailService.sendEmail({
+              to: donorEmailTarget,
+              subject: `[ASFJK] Tax Donation Receipt - ${receiptSnapshot.receiptNumber}`,
+              template: 'donation_receipt',
+              data: {
+                donorName: input.donorName,
+                amount: input.amount,
+                currency: input.currency,
+                projectName: input.targetName,
+                receiptNumber: receiptSnapshot.receiptNumber,
+                transactionId: receiptSnapshot.transactionId,
+                donationDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+              },
+            });
+          } catch (mailErr) {
+            console.warn('[DatabaseContext] Automatic donation receipt email dispatch error:', mailErr);
+          }
+        })();
+      }
     }
 
     // Cache last donation details for seamless account linking after checkout
@@ -1177,6 +1204,33 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     recordAudit('sys_public', cleanData.fullName, 'public', 'MEMBERSHIP_ENROLLED', 'user', newMbr.id, `Enrolled in NGO Membership (${newMbr.tierName}, ${newMbr.durationYears} Years, ${newMbr.currency} ${newMbr.totalContribution})`);
+
+    if (newMbr.status === 'active' && newMbr.email && newMbr.email.includes('@')) {
+      const targetEmail = newMbr.email.trim();
+      const mbrSnapshot = newMbr;
+      (async () => {
+        try {
+          const { EmailService } = await import('../services/emailService');
+          await EmailService.sendEmail({
+            to: targetEmail,
+            subject: `[ASFJK] Membership Confirmed - ${mbrSnapshot.membershipNumber}`,
+            template: 'membership_confirmed',
+            data: {
+              name: mbrSnapshot.fullName,
+              tierName: mbrSnapshot.tierName,
+              membershipNumber: mbrSnapshot.membershipNumber,
+              validThru: mbrSnapshot.validThru,
+              totalContribution: mbrSnapshot.totalContribution,
+              currency: mbrSnapshot.currency,
+              receiptNumber: mbrSnapshot.receiptNumber,
+            },
+          });
+        } catch (e) {
+          console.warn('[DatabaseContext] Membership confirmation email notice:', e);
+        }
+      })();
+    }
+
     return newMbr;
   };
 

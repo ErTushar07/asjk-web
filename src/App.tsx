@@ -9,7 +9,8 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { CookieConsent } from './components/common/CookieConsent';
 import { WhatsAppButton } from './components/common/WhatsAppButton';
-import { DemoControlBar } from './components/common/DemoControlBar';
+
+const DemoControlBar = lazy(() => import('./components/common/DemoControlBar').then(m => ({ default: m.DemoControlBar })));
 
 // 1. Code Splitting: Lazy-load all public pages
 const HomePage = lazy(() => import('./pages/public/HomePage').then((m) => ({ default: m.HomePage })));
@@ -181,7 +182,11 @@ export const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen flex flex-col w-full max-w-full overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
-      {import.meta.env.DEV && <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />}
+      {import.meta.env.DEV && (
+        <Suspense fallback={null}>
+          <DemoControlBar onOpenDonateModal={() => handleOpenDonateModal()} />
+        </Suspense>
+      )}
       {!isAdminRoute && (
         <Navbar
           onNavigate={navigate}

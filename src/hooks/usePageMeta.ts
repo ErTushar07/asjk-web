@@ -23,7 +23,30 @@ export function usePageMeta(title: string, description?: string, options?: PageM
       metaDesc.setAttribute('content', description);
     }
 
-    // 3. Set Robots tag (noindex for private/donor/auth routes)
+    // 3. Sync Open Graph and Twitter tags if they exist in the DOM
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', fullTitle);
+    }
+
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', fullTitle);
+    }
+
+    if (description) {
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) {
+        ogDesc.setAttribute('content', description);
+      }
+
+      const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+      if (twitterDesc) {
+        twitterDesc.setAttribute('content', description);
+      }
+    }
+
+    // 4. Set Robots tag (noindex for private/donor/auth routes)
     let metaRobots = document.querySelector('meta[name="robots"]');
     if (options?.noindex) {
       if (!metaRobots) {

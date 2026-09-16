@@ -1,8 +1,6 @@
 import { DonationFrequency, PaymentMethod, PaymentStatus, Donation } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
-export const DEFAULT_RAZORPAY_KEY_ID = 'rzp_live_Tbww3Iq7Tt5z45';
-export const DEFAULT_PAYPAL_CLIENT_ID = 'ASuft7ZX2wF0SANJ2f7VClXUMg49Mt96ZHvaC_RjM81u30Pa4-lYzn8lclX9B7C7gFkm4daKade2DMv1';
 
 /** Cryptographically safe 4-digit numeric suffix (1000–9999) */
 function secureRandomSuffix(): number {
@@ -173,9 +171,9 @@ export class PaymentService {
    */
   public static async loadPayPalScript(clientId?: string, currency: string = 'USD'): Promise<boolean> {
     if (typeof window === 'undefined') return false;
-    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID || DEFAULT_PAYPAL_CLIENT_ID;
+    const effectiveClientId = clientId || import.meta.env.VITE_PAYPAL_CLIENT_ID;
     if (!effectiveClientId) {
-      console.warn('[PaymentService] PayPal Client ID is missing. PayPal SDK cannot be loaded.');
+      console.warn('[PaymentService] PayPal Client ID is missing. Please set VITE_PAYPAL_CLIENT_ID in your environment variables.');
       return false;
     }
     const safeCurrency = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'].includes(currency.toUpperCase())
@@ -229,7 +227,7 @@ export class PaymentService {
    */
   public static async processPayment(params: CreatePaymentParams): Promise<PaymentProcessResult> {
     const amountUSD = this.calculateUSD(params.amount, params.currency);
-    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || DEFAULT_RAZORPAY_KEY_ID;
+    const razorpayKeyId = params.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID;
 
     // 1. All Online Payments (UPI, Cards, Netbanking) must go through Razorpay Checkout & Edge Function Verification
     if (params.method.startsWith('razorpay') || params.method === 'stripe_card') {
@@ -259,9 +257,9 @@ export class PaymentService {
         throw new Error('Failed to load Razorpay payment gateway. Please check your internet connection and try again.');
       }
 
-      const effectiveKeyId = orderData.keyId || razorpayKeyId || DEFAULT_RAZORPAY_KEY_ID;
+      const effectiveKeyId = orderData.keyId || razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!effectiveKeyId || effectiveKeyId.includes('placeholder')) {
-        throw new Error('Payment gateway is not configured. Please contact support.');
+        throw new Error('Payment gateway is not configured. Please set VITE_RAZORPAY_KEY_ID in your environment variables.');
       }
 
       // C. Open Official Razorpay Checkout Popup

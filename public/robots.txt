@@ -13,3 +13,4 @@ Disallow: /register
 Disallow: /forgot-password
 
 Sitemap: https://www.asfjk.org/sitemap.xml
+Sitemap: https://asfjk.org/sitemap.xml

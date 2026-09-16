@@ -1,5 +1,4 @@
 import React from 'react';
 
-export const ThemeShortcutIndicator: React.FC = () => {
-  return null;
-};
+// ThemeShortcutIndicator — reserved for future keyboard shortcut indicator UI
+export const ThemeShortcutIndicator: React.FC = () => null;
